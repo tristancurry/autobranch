@@ -65,14 +65,89 @@ h2
 //OBJECTS NEEDED
 //Pipe element
 /* 	fluid velocity
-	fluid resistance (function of fluid velocity) - usually
+	fluid pressure
+	fluid density
+	mass of fluid in that section
+	fluid resistance (function of fluid velocity)
 	pressure drop across element (function of fluid velocity and fluid resistance)
 	connections to other elements
 	flow in
 	flow out
 */
 
+//Pipe 'network'
+/*	Ordered list of pipe elements to imply connections betweeen elements
+	This connectivity will hopefully end up being embedded in the pipe elements themselves -
+	leaving this as a means of grouping elements that are in important sub-sections of the pipe network
 
+*/
+
+var rho = 1.0 // density of fluid, g/mm^3
+var K = 2e9; //  bulk modulus of fluid, Pa
+
+var PipeElement = function(diam) {
+    this.diam = diam;
+	this.mass = (Math.PI*diam*diam*0.25)*length*rho/1000; //cross-sectional area * length * density in g/mm^3 
+	//if(Math.random() > 0.8){this.square = true;}
+	
+    return this;
+};
+ 
+
+PipeElement.prototype = {
+    diam: 64, //mm
+	length: 1, //mm
+	mass: 1, //kg
+	pressure: 0, //gauge pressure, Pa
+	label: "",
+    //square: false,
+	colour: "rgba(255, 200, 50, 1)";
+	size: 20;  //size for rendering will depend on how many elements there are, and aesthetic considerations!
+	
+	
+	//the following is dross from another program!
+	/*render: function(ctx) {
+        ctx.fillStyle= this.colour;
+		ctx.strokeStyle = "rgba(255,255,255,0.4)";
+		ctx.lineWidth = 1;
+		ctx.fillStyle= this.colour;
+		ctx.beginPath();
+		if(this.square){
+			ctx.save();
+			ctx.translate(this.posX - 0.5*this.size, this.posY - 0.5*this.size);
+			ctx.rotate(2*Math.PI*this.ang/360);
+			ctx.rect(0,0, this.size, this.size);
+
+			ctx.fill();
+			ctx.stroke();
+			ctx.restore();
+		} else {
+			ctx.arc(this.posX,this.posY,0.5*this.size,0,2*Math.PI);
+			ctx.fill();
+			ctx.stroke();
+		}
+	},
+	*/
+	/*update: function() {
+		this.posX = this.posX + this.velX;
+		this.posY = this.posY + this.velY; 
+		this.size = 2*this.mass;
+		
+		if(this.square){
+		this.ang = (this.ang + this.rot)%360;
+		}
+		
+		if(this.walls){
+			if((this.velX > 0 && this.posX > width) || (this.velX < 0 && this.posX < 0)){
+				this.velX = -0.7*this.velX;
+			}
+			if((this.velY > 0 && this.posY > height) || (this.velY < 0 && this.posY < 0)){
+				this.velY = -0.7*this.velY;
+			}
+		}
+		this.iList = [];
+	}*/
+};
 
 
 
