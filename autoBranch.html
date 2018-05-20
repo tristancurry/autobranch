@@ -3,7 +3,7 @@
  <!-- Simulation of the operation of an automatic firefighting branch, e.g. TFT -->
  <!-- Attempt to use a simplified fluid flow model to adjust pressures/flow rates throughout a section of hose, valves and other infrastructure -->
  <!-- Created by Tristan Miller, May 2018 -->
- <!-- Download and then open in your browser. -->  
+ <!-- Download and then open in your browser. -->
 <head>
 <meta charset="utf-8">
 <title>Automatic Branch Simulation</title>
@@ -83,16 +83,16 @@ h2
 */
 
 var rho = 1.0 // density of fluid, g/mm^3
-var K = 2e9; //  bulk modulus of fluid, Pa
+var K = 2e8; //  bulk modulus of fluid, Pa
 
 var PipeElement = function(diam) {
     this.diam = diam;
-	this.mass = (Math.PI*diam*diam*0.25)*length*rho/1000; //cross-sectional area * length * density in g/mm^3 
+	this.mass = (Math.PI*diam*diam*0.25)*length*rho/1000; //cross-sectional area * length * density in g/mm^3
 	//if(Math.random() > 0.8){this.square = true;}
-	
+
     return this;
 };
- 
+
 
 PipeElement.prototype = {
     diam: 64, //mm
@@ -103,8 +103,8 @@ PipeElement.prototype = {
     //square: false,
 	colour: "rgba(255, 200, 50, 1)";
 	size: 20;  //size for rendering will depend on how many elements there are, and aesthetic considerations!
-	
-	
+
+
 	//the following is dross from another program!
 	/*render: function(ctx) {
         ctx.fillStyle= this.colour;
@@ -130,13 +130,13 @@ PipeElement.prototype = {
 	*/
 	/*update: function() {
 		this.posX = this.posX + this.velX;
-		this.posY = this.posY + this.velY; 
+		this.posY = this.posY + this.velY;
 		this.size = 2*this.mass;
-		
+
 		if(this.square){
 		this.ang = (this.ang + this.rot)%360;
 		}
-		
+
 		if(this.walls){
 			if((this.velX > 0 && this.posX > width) || (this.velX < 0 && this.posX < 0)){
 				this.velX = -0.7*this.velX;
