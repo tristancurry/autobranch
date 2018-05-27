@@ -57,11 +57,34 @@ h2
 <h1 id="theTitle">AutoBranch</h1>
 <h2 id="status">0 | 0</h2>
 
-
+<canvas id="canvas0" height="1024" width="1024">This text is displayed if your browser don't support HTML5 Canvas!</canvas>
 
 <script>
 
+	var title = document.querySelector("#theTitle");
+	var canvas0 = document.querySelector("#canvas0");
+	var ctx0 = canvas0.getContext("2d");
 
+	var width = canvas0.width; //main dimensions of the 'world' - canvas0 is the 'base layer' of the animation
+	var height = canvas0.height;
+	
+	//create canvases that never appear onscreen or in the DOM but are used for layered rendering
+	var canvas1 = document.createElement("canvas");
+	canvas1.width = width;
+	canvas1.height = height;
+	var ctx1 = canvas1.getContext("2d");
+
+	var canvas2 = document.createElement("canvas");
+	canvas2.width = width;
+	canvas2.height = height;
+	var ctx2 = canvas2.getContext("2d");
+
+	var canvas3 = document.createElement("canvas");
+	canvas3.width = width;
+	canvas3.height = height;
+	var ctx3 = canvas3.getContext("2d");
+	
+	
 //OBJECTS NEEDED
 //Pipe element
 /* 	fluid velocity
@@ -83,7 +106,11 @@ h2
 */
 
 var rho = 1.0 // density of fluid, g/cm^3
-var K = 2e8; //  bulk modulus of fluid, Pa
+var K = 2e9; //  bulk modulus of fluid, Pa
+
+var Pipe = [];
+var N; //number of elements in pipe
+
 
 var PipeElement = function(diam, length) {
     this.diam = diam;
@@ -110,43 +137,39 @@ PipeElement.prototype = {
 	fluidResL: 0, //fluid resistive force at LHS interface - depends on veloL and pipe diameter
 	fluidResR: 0, //fluid resistive force at RHS interface - depends on veloR and pipe diameter
 	//also, these left and right terms will later be replaced by an array representing connections to other elements
+	//RENDERING VARIABLES
+	posX: 0,
+	posY: 0,
 	label: "",
     //square: false,
-	colour: "rgba(255, 200, 50, 1)";
-	size: 20;  //size for rendering will depend on how many elements there are, and aesthetic considerations!
+	colour: "rgba(255, 200, 50, 1)",
+	size: 20,  //size for rendering will depend on how many elements there are, and aesthetic considerations!
 
 
 
 	
-	updateDensity: function(this.mass, this.massFlowL, this.massFlowR) {
+	update: function() {
 		this.mass = this.mass + this.massFlowL - this.massFlowR;
 		this.density = this.mass/this.volume;
 
-	}
+	},
 	
-		//the following is dross from another program!
-	/*render: function(ctx) {
+	
+	render: function(ctx) {
         ctx.fillStyle= this.colour;
 		ctx.strokeStyle = "rgba(255,255,255,0.4)";
 		ctx.lineWidth = 1;
 		ctx.fillStyle= this.colour;
 		ctx.beginPath();
-		if(this.square){
-			ctx.save();
-			ctx.translate(this.posX - 0.5*this.size, this.posY - 0.5*this.size);
-			ctx.rotate(2*Math.PI*this.ang/360);
-			ctx.rect(0,0, this.size, this.size);
+		ctx.save();
+		ctx.translate(this.posX - 0.5*this.size, this.posY - 0.5*this.size);
+		ctx.rect(0,0, this.size, this.size);
+		ctx.fill();
+		ctx.stroke();
+		ctx.restore();
 
-			ctx.fill();
-			ctx.stroke();
-			ctx.restore();
-		} else {
-			ctx.arc(this.posX,this.posY,0.5*this.size,0,2*Math.PI);
-			ctx.fill();
-			ctx.stroke();
-		}
-	},
-	*/
+	}
+	//the following is dross from another program!
 	/*update: function() {
 		this.posX = this.posX + this.velX;
 		this.posY = this.posY + this.velY;
@@ -170,5 +193,15 @@ PipeElement.prototype = {
 
 
 
+var ctr = 0;
+	   
+function drawWorld(){   ///main animation loop
+	ctx0.fillStyle = "rgba("+ (155 - (ctr%155)) + ",0,"+ ctr%155 +",1)";
+	ctx0.fillRect(0,0,width,height);
+	ctr = 0;
+	requestAnimationFrame(drawWorld);
+}
+console.log("All good!");
+drawWorld();
 </script>
 </body>
