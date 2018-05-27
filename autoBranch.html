@@ -82,12 +82,14 @@ h2
 
 */
 
-var rho = 1.0 // density of fluid, g/mm^3
+var rho = 1.0 // density of fluid, g/cm^3
 var K = 2e8; //  bulk modulus of fluid, Pa
 
-var PipeElement = function(diam) {
+var PipeElement = function(diam, length) {
     this.diam = diam;
-	this.mass = (Math.PI*diam*diam*0.25)*length*rho/1000; //cross-sectional area * length * density in g/mm^3
+	this.length = length;
+	this.volume = (Math.PI*diam*diam*0.25)*this.length
+	this.mass = this.volume*this.density/1000; //cross-sectional area * length * density in g/mm^3
 	//if(Math.random() > 0.8){this.square = true;}
 
     return this;
@@ -97,8 +99,13 @@ var PipeElement = function(diam) {
 PipeElement.prototype = {
     diam: 64, //mm
 	length: 1, //mm
+	volume: 1, //cm^3
 	mass: 1, //kg
 	pressure: 0, //gauge pressure, Pa
+	density: 1, //g/cm^3
+	massOutL: 0, //g
+	massOutR: 0, //g
+	massIn: 0, //g
 	label: "",
     //square: false,
 	colour: "rgba(255, 200, 50, 1)";
@@ -106,6 +113,12 @@ PipeElement.prototype = {
 
 
 	//the following is dross from another program!
+	
+	updateDensity: function(this.mass, this.massOutL, this.massOutR, this.massIn) {
+		this.mass = this.mass - this.massOutL - this.massOutR + this.massIn;
+		this.density = this.mass/this.volume;
+
+	}
 	/*render: function(ctx) {
         ctx.fillStyle= this.colour;
 		ctx.strokeStyle = "rgba(255,255,255,0.4)";
