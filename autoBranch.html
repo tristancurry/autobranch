@@ -103,22 +103,28 @@ PipeElement.prototype = {
 	mass: 1, //kg
 	pressure: 0, //gauge pressure, Pa
 	density: 1, //g/cm^3
-	massOutL: 0, //g
-	massOutR: 0, //g
-	massIn: 0, //g
+	massFlowL: 0, //g, positive is IN from the LEFT
+	massFlowR: 0, //g, positive is OUT to the RIGHT
+	veloL: 0, //ms^-1, velocity of fluid at LHS interface, positive is IN
+	veloR: 0, //ms^-1, velocity of fluid at RHS interface, positive is OUT
+	fluidResL: 0, //fluid resistive force at LHS interface - depends on veloL and pipe diameter
+	fluidResR: 0, //fluid resistive force at RHS interface - depends on veloR and pipe diameter
+	//also, these left and right terms will later be replaced by an array representing connections to other elements
 	label: "",
     //square: false,
 	colour: "rgba(255, 200, 50, 1)";
 	size: 20;  //size for rendering will depend on how many elements there are, and aesthetic considerations!
 
 
-	//the following is dross from another program!
+
 	
-	updateDensity: function(this.mass, this.massOutL, this.massOutR, this.massIn) {
-		this.mass = this.mass - this.massOutL - this.massOutR + this.massIn;
+	updateDensity: function(this.mass, this.massFlowL, this.massFlowR) {
+		this.mass = this.mass + this.massFlowL - this.massFlowR;
 		this.density = this.mass/this.volume;
 
 	}
+	
+		//the following is dross from another program!
 	/*render: function(ctx) {
         ctx.fillStyle= this.colour;
 		ctx.strokeStyle = "rgba(255,255,255,0.4)";
