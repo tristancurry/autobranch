@@ -105,19 +105,17 @@ h2
 
 */
 
-var rho = 1.0 // density of fluid, g/cm^3
-var K = 2e9; //  bulk modulus of fluid, Pa
-
-var Pipe = [];
-var N; //number of elements in pipe
 
 
-var PipeElement = function(diam, length) {
+
+var PipeElement = function(diam, length, posX, posY) {
     this.diam = diam;
 	this.length = length;
+	this.posX = posX;
+	this.posY = posY;
 	this.volume = (Math.PI*diam*diam*0.25)*this.length
 	this.mass = this.volume*this.density/1000; //cross-sectional area * length * density in g/mm^3
-	//if(Math.random() > 0.8){this.square = true;}
+	this.size = this.length * 10;
 
     return this;
 };
@@ -142,7 +140,7 @@ PipeElement.prototype = {
 	posY: 0,
 	label: "",
     //square: false,
-	colour: "rgba(255, 200, 50, 1)",
+	colour: "rgba(0, 0, 0, 1)",
 	size: 20,  //size for rendering will depend on how many elements there are, and aesthetic considerations!
 
 
@@ -167,6 +165,8 @@ PipeElement.prototype = {
 		ctx.fill();
 		ctx.stroke();
 		ctx.restore();
+		ctx.font="20px Arial";
+		ctx.fillText(this.pressure, this.posX, this.posY - 50);
 
 	}
 	//the following is dross from another program!
@@ -191,6 +191,18 @@ PipeElement.prototype = {
 	}*/
 };
 
+var rho = 1.0 // density of fluid, g/cm^3
+var K = 2e9; //  bulk modulus of fluid, Pa
+var Pipe = [];
+var N = 7; //number of elements in pipe
+
+for (var i = 0; i < N; i++){
+	var X;
+	if(i == 0){X = 100;} else {X = Pipe[i - 1].posX + Pipe[i - 1].size + 5}
+	var p = new PipeElement(64, 5, X, height/2);
+	Pipe.push(p);
+}
+
 
 
 var ctr = 0;
@@ -198,7 +210,16 @@ var ctr = 0;
 function drawWorld(){   ///main animation loop
 	ctx0.fillStyle = "rgba("+ (155 - (ctr%155)) + ",0,"+ ctr%155 +",1)";
 	ctx0.fillRect(0,0,width,height);
+	
+	ctx1.clearRect(0,0,width,height);
+	for (var i = 0; i < N; i++){
+		Pipe[i].render(ctx1);
+	}
+	ctx0.drawImage(canvas1,0,0);
+	
 	ctr = 0;
+	
+	
 	requestAnimationFrame(drawWorld);
 }
 console.log("All good!");
