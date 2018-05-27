@@ -57,7 +57,7 @@ h2
 <h1 id="theTitle">AutoBranch</h1>
 <h2 id="status">0 | 0</h2>
 
-<canvas id="canvas0" height="1024" width="1024">This text is displayed if your browser don't support HTML5 Canvas!</canvas>
+<canvas id="canvas0" height="1024" width="1024" onclick="requestAnimationFrame(drawWorld)">This text is displayed if your browser don't support HTML5 Canvas!</canvas>
 
 <script>
 
@@ -105,17 +105,20 @@ h2
 
 */
 
-
+	var rho = 1.0 // density of fluid, g/cm^3
+	var K = 2e9; //  bulk modulus of fluid, Pa
 
 
 var PipeElement = function(diam, length, posX, posY) {
     this.diam = diam;
-	this.length = length;
+	this.length = length; //mm
 	this.posX = posX;
 	this.posY = posY;
-	this.volume = (Math.PI*diam*diam*0.25)*this.length
+	
+	this.area = (Math.PI*diam*diam*0.25);
+	this.volume = this.area*this.length; //mm^3
 	this.mass = this.volume*this.density/1000; //cross-sectional area * length * density in g/mm^3
-	this.size = this.length * 10;
+	this.size = this.length;
 
     return this;
 };
@@ -124,6 +127,7 @@ var PipeElement = function(diam, length, posX, posY) {
 PipeElement.prototype = {
     diam: 64, //mm
 	length: 1, //mm
+	area: 1, //mm^2
 	volume: 1, //cm^3
 	mass: 1, //kg
 	pressure: 0, //gauge pressure, Pa
@@ -145,11 +149,28 @@ PipeElement.prototype = {
 
 
 
+
 	
 	update: function() {
+		
+		
+		console.log("old mass = " + this.mass);
 		this.mass = this.mass + this.massFlowL - this.massFlowR;
-		this.density = this.mass/this.volume;
+		console.log("new mass = " + this.mass);
+		console.log("-----");
+		var oldDensity = this.density;
+		this.density = this.mass/(this.volume/1000);
+		var oldPressure = this.pressure;
+		this.pressure = K*(1 - (oldDensity/this.density)) + oldPressure;
+		//console.log(oldPressure - this.pressure);
+		this.colour = "hsla(100, 0%, " + this.pressure/100 +"%, 1)" //pressure range between 2550000 and 0
 
+	},
+	
+	densityFromPressure: function() {
+		
+		this.density = rho/(1 - this.pressure/K);
+		this.mass = this.density*this.volume/1000;
 	},
 	
 	
@@ -165,54 +186,69 @@ PipeElement.prototype = {
 		ctx.fill();
 		ctx.stroke();
 		ctx.restore();
-		ctx.font="20px Arial";
-		ctx.fillText(this.pressure, this.posX, this.posY - 50);
+		ctx.font="9px Arial";
+		ctx.fillText(Math.round(this.pressure/100) + "kPa", this.posX - 0.5*this.size, this.posY - 65);
+		ctx.fillText(Math.round(this.mass)+ "g", this.posX - 0.5*this.size, this.posY - 40);
 
 	}
-	//the following is dross from another program!
-	/*update: function() {
-		this.posX = this.posX + this.velX;
-		this.posY = this.posY + this.velY;
-		this.size = 2*this.mass;
-
-		if(this.square){
-		this.ang = (this.ang + this.rot)%360;
-		}
-
-		if(this.walls){
-			if((this.velX > 0 && this.posX > width) || (this.velX < 0 && this.posX < 0)){
-				this.velX = -0.7*this.velX;
-			}
-			if((this.velY > 0 && this.posY > height) || (this.velY < 0 && this.posY < 0)){
-				this.velY = -0.7*this.velY;
-			}
-		}
-		this.iList = [];
-	}*/
+	
 };
 
 var rho = 1.0 // density of fluid, g/cm^3
 var K = 2e9; //  bulk modulus of fluid, Pa
 var Pipe = [];
-var N = 7; //number of elements in pipe
+var N = 16; //number of elements in pipe
 
 for (var i = 0; i < N; i++){
 	var X;
 	if(i == 0){X = 100;} else {X = Pipe[i - 1].posX + Pipe[i - 1].size + 5}
-	var p = new PipeElement(64, 5, X, height/2);
+	var p = new PipeElement(64, 50, X, height/2);
+	p.pressure = 0;
+	console.log("Mass of element " + i + " = " + p.mass + " :-)");
 	Pipe.push(p);
 }
 
+Pipe[0].pressure = 100000; //Pa
+Pipe[0].densityFromPressure();
+console.log(Pipe[0].density);
+console.log(Pipe[0].mass);
 
 
 var ctr = 0;
 	   
 function drawWorld(){   ///main animation loop
-	ctx0.fillStyle = "rgba("+ (155 - (ctr%155)) + ",0,"+ ctr%155 +",1)";
+	ctx0.fillStyle = "rgba(100,0,100,1)";
 	ctx0.fillRect(0,0,width,height);
 	
 	ctx1.clearRect(0,0,width,height);
 	for (var i = 0; i < N; i++){
+		if(i == 0){
+			calculateElementMassFlowsLeftEnd(Pipe[i], Pipe[i+1]);
+		} else
+		if(i < (N - 1)){
+			calculateElementMassFlows(Pipe[i - 1], Pipe[i], Pipe[i+1]);
+		} else
+		if(i == (N - 1)){
+			calculateElementMassFlowsRightEnd(Pipe[i - 1], Pipe[i]);
+		}
+		
+	}
+	
+	for (var i = 0; i < N; i++){
+		if(i == 0){
+			applyOtherElementMassFlowsLeftEnd(Pipe[i], Pipe[i+1]);
+		} else
+		if(i < (N - 1)){
+			applyOtherElementMassFlows(Pipe[i - 1], Pipe[i], Pipe[i+1]);
+		} else
+		if(i == (N - 1)){
+			applyOtherElementMassFlowsRightEnd(Pipe[i - 1], Pipe[i]);
+		}
+		
+		
+		
+		
+		Pipe[i].update(ctx1);
 		Pipe[i].render(ctx1);
 	}
 	ctx0.drawImage(canvas1,0,0);
@@ -220,9 +256,70 @@ function drawWorld(){   ///main animation loop
 	ctr = 0;
 	
 	
-	requestAnimationFrame(drawWorld);
+	//requestAnimationFrame(drawWorld);
 }
 console.log("All good!");
 drawWorld();
+
+function calculateElementMassFlows(peL, pe, peR){
+	var pL = peL.pressure;
+	var pR = peR.pressure;
+	var FL = pL*peL.area/1e6; //get area of contact in m^2, so that F is in Newtons
+	var FR = pR*peR.area/1e6; //get area of contact in m^2, so that F is in Newtons
+	var F = FL - FR; //meaning that a net force to the right will be positive
+
+	var a = (F/pe.mass); //resultant acceleration of fluid in ms^-2
+	a = a/1e5;
+
+	pe.veloR = pe.veloR + a;
+	pe.veloL = pe.veloL + a;
+	pe.massFlowR = (pe.veloR)*(pe.area/1000)*pe.density; //this will need to be adjusted by a factor to make it all per time step
+	pe.massFlowL = (pe.veloL)*(pe.area/1000)*pe.density; //this will need to be adjusted by a factor to make it all per time step
+	
+}
+
+function applyOtherElementMassFlows(peL, pe, peR){
+	pe.massFlowL = pe.massFlowL + peL.massFlowR;
+	pe.massFlowR = pe.massFlowR + peR.massFlowL;
+}
+
+function calculateElementMassFlowsLeftEnd(pe, peR){
+	var pL = pe.pressure;
+	var pR = peR.pressure;
+	var FL = pL*pe.area/1e6;
+	var FR = pR*peR.area/1e6; //get area of contact in m^2, so that F is in Newtons
+	var F = FL - FR; //meaning that a net force to the right will be positive
+
+	var a = (F/pe.mass); //resultant acceleration of fluid in ms^-2
+	a = a/1e5;
+
+	pe.veloR = pe.veloR + a;
+	pe.massFlowR = (pe.veloR)*(pe.area/1000)*pe.density; //this will need to be adjusted by a factor to make it all per time step
+	
+}
+
+function applyOtherElementMassFlowsLeftEnd(pe, peR){
+	pe.massFlowR = pe.massFlowR + peR.massFlowL;
+}
+
+function calculateElementMassFlowsRightEnd(peL, pe){
+
+	var pL = peL.pressure;
+	var pR = pe.pressure
+	var FL = pL*peL.area/1e6; //get area of contact in m^2, so that F is in Newtons
+	var FR = pR*pe.area/1e6;
+	var F = FL - FR; //meaning that a net force to the right will be positive
+
+	var a = (F/pe.mass); //resultant acceleration of fluid in ms^-2
+	a = a/1e5;
+	pe.veloL = pe.veloL + a;
+	pe.massFlowL = (pe.veloL)*(pe.area/1000)*pe.density; //this will need to be adjusted by a factor to make it all per time step
+	
+}
+
+function applyOtherElementMassFlowsRightEnd(peL, pe){
+	pe.massFlowL = pe.massFlowL + peL.massFlowR;
+}
+
 </script>
 </body>
