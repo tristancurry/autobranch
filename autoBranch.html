@@ -198,19 +198,19 @@ PipeElement.prototype = {
 
 var rho = 1.0 // density of fluid, g/cm^3
 var K = 2e9; //  bulk modulus of fluid, Pa
-var timescale = 60000; //how many frames are equivalent to 1 second?
-var physicsSteps = 1000; //how much to subdivide each frame for finer (more accurate?) calculations
+var timescale = 600000; //how many frames are equivalent to 1 second?
+var physicsSteps = 100; //how much to subdivide each frame for finer (more accurate?) calculations
 //consider also having within this a physics step time - do multiple (small) updates in a single frame
 //to avoid overshoots
 var pAtmo = 1e5; //atmospheric pressure, Pa
 var Pipe = [];
-var N = 15; //number of elements in pipe
+var N = 400; //number of elements in pipe
 var POW = 10000; //watts of pump power
 
 for (var i = 0; i < N; i++){
 	var X;
-	if(i == 0){X = 100;} else {X = Pipe[i - 1].posX + Pipe[i - 1].size + 5}
-	var p = new PipeElement(64, 50, X, height/2);
+	if(i == 0){X = 100;} else {X = Pipe[i - 1].posX + Pipe[i - 1].size + 0}
+	var p = new PipeElement(64, 2, X, height/2);
 	p.pressure = pAtmo;
 	console.log("Mass of element " + i + " = " + p.mass + " :-)");
 	Pipe.push(p);
@@ -232,7 +232,14 @@ for (var i = 0; i < N; i++){
 //Pipe[13].changeDiam(38);
 //Pipe[N-2].changeDiam(10);
 
-
+var PCU = [];
+var PCUElements = 100;
+if(PCUElements > Pipe.length - 2 ){
+	PCUElements = Pipe.length - 2;
+}
+for(var i = 0; i < PCUElements; i++){
+	PCU.push(Pipe[N - 1 - PCUElements + i]);
+}
 
 //var altPipe = new PipeElement(38, 50, Pipe[8].posX, Pipe[8].posY);
 //altPipe.pressure = pAtmo;
@@ -264,15 +271,28 @@ function drawWorld(){   ///main animation loop
 		totalMass += Pipe[i].mass;
 	}
 	
-	var nozDiff = Pipe[N-2].pressure - Pipe[N-1].pressure;
+	var nozDiff = Pipe[N - 2 - PCUElements].pressure - Pipe[N-1].pressure;
 	var nozDiam = Pipe[N-2].diam;
+	for(var i=0; i < PCUElements; i++){
+		if(nozDiff > 800000){
+			if(nozDiff < 750000){
+				PCU[i].changeDiam(nozDiam*1.0001);
+			} else {
+				PCU[i].changeDiam(nozDiam*1.001);
+			}
+		}
+		if(nozDiff < 600000){
+			if(nozDiff > 650000){
+				PCU[i].changeDiam(nozDiam*0.9999);
+			} else {
+				PCU[i].changeDiam(nozDiam*0.999);
+			}
+		}
+		
+	}
+
 	//console.log(nozDiff);
-	if(nozDiff > 750000){
-		Pipe[N-2].changeDiam(nozDiam*1.001);
-	}
-	if(nozDiff < 650000){
-		Pipe[N-2].changeDiam(nozDiam*0.999);
-	}
+	
 	
 	ctx0.drawImage(canvas1,0,0);
 	
