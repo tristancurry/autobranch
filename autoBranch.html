@@ -135,7 +135,7 @@ PipeElement.prototype = {
 	massFlowR: 0, //g, positive is OUT to the RIGHT
 	veloL: 0, //ms^-1, velocity of fluid at LHS interface, positive is IN
 	veloR: 0, //ms^-1, velocity of fluid at RHS interface, positive is OUT
-	k: 5e16, //friction coefficient;
+	k: 0, //friction coefficient;
 	fluidResL: 0, //fluid resistive force at LHS interface - depends on veloL and pipe diameter
 	fluidResR: 0, //fluid resistive force at RHS interface - depends on veloR and pipe diameter
 	//also, these left and right terms will later be replaced by an array representing connections to other elements
@@ -148,13 +148,15 @@ PipeElement.prototype = {
 	size: 20,  //size for rendering will depend on how many elements there are, and aesthetic considerations!
 
 
-
+	changeDiam: function(newDiam){
+		this.diam = newDiam;
+		this.area = (Math.PI*this.diam*this.diam*0.25);
+		this.volume = this.area*this.length; //mm^3
+		this.mass = this.volume*this.density/1000; //cross-sectional area * length * density in g/mm^3;
+	},
 
 	
 	update: function() {
-		
-		
-
 		this.mass = this.mass + this.massFlowL - this.massFlowR;
 		var oldDensity = this.density;
 		this.density = this.mass/(this.volume/1000);
@@ -195,13 +197,13 @@ PipeElement.prototype = {
 
 var rho = 1.0 // density of fluid, g/cm^3
 var K = 2e9; //  bulk modulus of fluid, Pa
-var timescale = 600000; //how many frames are equivalent to 1 second?
+var timescale = 60000; //how many frames are equivalent to 1 second?
 var physicsSteps = 1000; //how much to subdivide each frame for finer (more accurate?) calculations
 //consider also having within this a physics step time - do multiple (small) updates in a single frame
 //to avoid overshoots
 var pAtmo = 1e5; //atmospheric pressure, Pa
 var Pipe = [];
-var N = 16; //number of elements in pipe
+var N = 15; //number of elements in pipe
 
 for (var i = 0; i < N; i++){
 	var X;
@@ -211,9 +213,19 @@ for (var i = 0; i < N; i++){
 	console.log("Mass of element " + i + " = " + p.mass + " :-)");
 	Pipe.push(p);
 }
+//Pipe[7].pressure = 1000000;
+Pipe[2].changeDiam(80);
+Pipe[3].changeDiam(100);
+Pipe[4].changeDiam(100);
+Pipe[5].changeDiam(80);
+Pipe[6].changeDiam(64);
+Pipe[7].changeDiam(52);
+Pipe[8].changeDiam(38);
+Pipe[9].changeDiam(25);
+Pipe[10].changeDiam(25);
+Pipe[11].changeDiam(38);
 
-//Pipe[7].pressure = 3000000; //Pa
-//Pipe[7].densityFromPressure();
+
 
 //var altPipe = new PipeElement(38, 50, Pipe[8].posX, Pipe[8].posY);
 //altPipe.pressure = pAtmo;
@@ -245,7 +257,7 @@ function drawWorld(){   ///main animation loop
 	}
 			
 	ctx0.drawImage(canvas1,0,0);
-	console.log(totalMass);	
+	//console.log(totalMass);	
 	requestAnimationFrame(drawWorld);
 }
 console.log("All good!");
@@ -263,8 +275,8 @@ function calculateElementMassFlows(peL,peR){
 	aL = aL/(timescale*physicsSteps);
 	aR = aR/(timescale*physicsSteps);
 
-	peL.veloR = peL.veloR + aR;
-	peR.veloL = peR.veloL + aL;
+	peL.veloR = 0.9999*peL.veloR + aR;
+	peR.veloL = 0.9999*peR.veloL + aL;
 	peL.massFlowR = (peL.veloR)*(peL.area/1000)*peL.density;
 	peR.massFlowL = (peR.veloL)*(peR.area/1000)*peR.density;
 	var massFlow = Math.min(Math.abs(peL.massFlowR, peR.massFlowL));
