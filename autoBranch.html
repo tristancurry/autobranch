@@ -105,12 +105,7 @@ h2
 
 */
 
-	var rho = 1.0 // density of fluid, g/cm^3
-	var K = 2e9; //  bulk modulus of fluid, Pa
-	var timescale = 600000; //how many frames are equivalent to 1 second?
-	var physicsSteps = 1000; //how much to subdivide each frame for finer (more accurate?) calculations
-	//consider also having within this a physics step time - do multiple (small) updates in a single frame
-	//to avoid overshoots
+
 
 
 var PipeElement = function(diam, length, posX, posY) {
@@ -140,6 +135,7 @@ PipeElement.prototype = {
 	massFlowR: 0, //g, positive is OUT to the RIGHT
 	veloL: 0, //ms^-1, velocity of fluid at LHS interface, positive is IN
 	veloR: 0, //ms^-1, velocity of fluid at RHS interface, positive is OUT
+	k: 5e11, //friction coefficient;
 	fluidResL: 0, //fluid resistive force at LHS interface - depends on veloL and pipe diameter
 	fluidResR: 0, //fluid resistive force at RHS interface - depends on veloR and pipe diameter
 	//also, these left and right terms will later be replaced by an array representing connections to other elements
@@ -196,10 +192,14 @@ PipeElement.prototype = {
 };
 
 var rho = 1.0 // density of fluid, g/cm^3
-var K = 2e7; //  bulk modulus of fluid, Pa
+var K = 2e9; //  bulk modulus of fluid, Pa
+var timescale = 600000; //how many frames are equivalent to 1 second?
+var physicsSteps = 1000; //how much to subdivide each frame for finer (more accurate?) calculations
+//consider also having within this a physics step time - do multiple (small) updates in a single frame
+//to avoid overshoots
 var pAtmo = 1e5; //atmospheric pressure, Pa
 var Pipe = [];
-var N = 17; //number of elements in pipe
+var N = 16; //number of elements in pipe
 
 for (var i = 0; i < N; i++){
 	var X;
@@ -210,12 +210,12 @@ for (var i = 0; i < N; i++){
 	Pipe.push(p);
 }
 
-Pipe[0].pressure = 150000; //Pa
+Pipe[0].pressure = 3000000; //Pa
 Pipe[0].densityFromPressure();
 
-var altPipe = new PipeElement(38, 50, Pipe[8].posX, Pipe[8].posY);
-altPipe.pressure = pAtmo;
-Pipe[8] = altPipe;
+//var altPipe = new PipeElement(38, 50, Pipe[8].posX, Pipe[8].posY);
+//altPipe.pressure = pAtmo;
+//Pipe[8] = altPipe;
 
 	   
 function drawWorld(){   ///main animation loop
@@ -252,8 +252,8 @@ function calculateElementMassFlows(peL,peR){
 	var pL = peL.pressure;
 	var pR = peR.pressure;
 	var workingArea = Math.min(peL.area,peR.area)/1e6;  //find size of interface between pipe elements, then convert to m^2
-	var FL = pL*workingArea; // F is in Newtons
-	var FR = pR*workingArea; //F is in Newtons
+	var FL = pL*workingArea - peL.k*peL.veloR*peL.veloR; // F is in Newtons
+	var FR = pR*workingArea - peR.k*peR.veloL*peR.veloL; //F is in Newtons
 	var F = FL - FR; //meaning that a net force to the right will be positive
 	var aL = (F/peL.mass); //resultant acceleration of fluid in ms^-2
 	var aR = (F/peR.mass); //resultant acceleration of fluid in ms^-2
