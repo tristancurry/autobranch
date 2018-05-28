@@ -108,7 +108,7 @@ h2
 	var rho = 1.0 // density of fluid, g/cm^3
 	var K = 2e9; //  bulk modulus of fluid, Pa
 	var timescale = 600000; //how many frames are equivalent to 1 second?
-	var physicsSteps = 100; //how much to subdivide each frame for finer (more accurate?) calculations
+	var physicsSteps = 1000; //how much to subdivide each frame for finer (more accurate?) calculations
 	//consider also having within this a physics step time - do multiple (small) updates in a single frame
 	//to avoid overshoots
 
@@ -196,7 +196,7 @@ PipeElement.prototype = {
 };
 
 var rho = 1.0 // density of fluid, g/cm^3
-var K = 2e9; //  bulk modulus of fluid, Pa
+var K = 2e7; //  bulk modulus of fluid, Pa
 var pAtmo = 1e5; //atmospheric pressure, Pa
 var Pipe = [];
 var N = 17; //number of elements in pipe
@@ -210,48 +210,35 @@ for (var i = 0; i < N; i++){
 	Pipe.push(p);
 }
 
-Pipe[0].pressure = 200000; //Pa
+Pipe[0].pressure = 1000000; //Pa
 Pipe[0].densityFromPressure();
 
-
-var ctr = 0;
 	   
 function drawWorld(){   ///main animation loop
 	ctx0.fillStyle = "rgba(100,0,100,1)";
 	ctx0.fillRect(0,0,width,height);
 	for(var j = 0; j < physicsSteps; j++ ){
-	for (var i = 0; i < N; i++){
-		if(i == 0){
-			Pipe[i].massFlowL = 0;
-		} else {
-			calculateElementMassFlows(Pipe[i - 1], Pipe[i], Pipe[i+1]);
-		} 
-		Pipe[i].update(ctx1);
+		for (var i = 0; i < N; i++){
+			if(i == 0){
+				Pipe[i].massFlowL = 0;
+			} else {
+				calculateElementMassFlows(Pipe[i - 1], Pipe[i], Pipe[i+1]);
+			} 
+			Pipe[i].update(ctx1);
+		}
+		Pipe[N - 1].massFlowR = 0;
 	}
-	Pipe[N - 1].massFlowR = 0;
-}
-	
-
-	
-	
-	
+		
 	ctx1.clearRect(0,0,width,height);
+	
+		var totalMass = 0;
 	for (var i = 0; i < N; i++){
 		Pipe[i].render(ctx1);
+		totalMass += Pipe[i].mass;
 	}
-	
-
-		
-		
-		
-		
-		
-
+			
 	ctx0.drawImage(canvas1,0,0);
-	
-	ctr = 0;
-	
-	
+	console.log(totalMass);	
 	requestAnimationFrame(drawWorld);
 }
 console.log("All good!");
@@ -271,8 +258,11 @@ function calculateElementMassFlows(peL,peR){
 
 	peL.veloR = peL.veloR + aR;
 	peR.veloL = peR.veloL + aL;
-	peL.massFlowR = (peL.veloR)*(peL.area/1000)*peL.density; //this will need to be adjusted by a factor to make it all per time step
-	peR.massFlowL = (peR.veloL)*(peR.area/1000)*peR.density; //this will need to be adjusted by a factor to make it all per time step
+	peL.massFlowR = (peL.veloR)*(peL.area/1000)*peL.density;
+	peR.massFlowL = (peR.veloL)*(peR.area/1000)*peR.density;
+	var massFlow = Math.min(Math.abs(peL.massFlowR, peR.massFlowL));
+	peL.massFlowR = Math.sign(peL.massFlowR)*massFlow;
+	peR.massFlowL = peL.massFlowR; //all about continuity of mass over the boundary between the elements. This chooses the smallest mass flow of the two to be applied to both.
 	
 }
 
