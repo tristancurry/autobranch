@@ -135,7 +135,7 @@ PipeElement.prototype = {
 	massFlowR: 0, //g, positive is OUT to the RIGHT
 	veloL: 0, //ms^-1, velocity of fluid at LHS interface, positive is IN
 	veloR: 0, //ms^-1, velocity of fluid at RHS interface, positive is OUT
-	k: 5e11, //friction coefficient;
+	k: 5e16, //friction coefficient;
 	fluidResL: 0, //fluid resistive force at LHS interface - depends on veloL and pipe diameter
 	fluidResR: 0, //fluid resistive force at RHS interface - depends on veloR and pipe diameter
 	//also, these left and right terms will later be replaced by an array representing connections to other elements
@@ -184,8 +184,10 @@ PipeElement.prototype = {
 		ctx.stroke();
 		ctx.restore();
 		ctx.font="9px Arial";
-		ctx.fillText(Math.round(this.pressure/1000) + "kPa", this.posX - 0.5*this.size, this.posY - 100);
-		ctx.fillText(Math.round(this.mass)+ "g", this.posX - 0.5*this.size, this.posY - 70);
+		ctx.fillText("p: " + Math.round(this.pressure/1000) + "kPa", this.posX - 0.5*this.size, this.posY - 100);
+		ctx.fillText("mass: " + Math.round(this.mass)+ "g", this.posX - 0.5*this.size, this.posY - 80);
+		ctx.fillText("In: " + Math.round(60*this.massFlowL*timescale*physicsSteps/1000)+ "L/m", this.posX - 0.5*this.size, this.posY - 60);
+		ctx.fillText("Out: " + Math.round(60*this.massFlowR*timescale*physicsSteps/1000)+ "L/m", this.posX - 0.5*this.size, this.posY - 40);
 
 	}
 	
@@ -210,8 +212,8 @@ for (var i = 0; i < N; i++){
 	Pipe.push(p);
 }
 
-Pipe[0].pressure = 3000000; //Pa
-Pipe[0].densityFromPressure();
+//Pipe[7].pressure = 3000000; //Pa
+//Pipe[7].densityFromPressure();
 
 //var altPipe = new PipeElement(38, 50, Pipe[8].posX, Pipe[8].posY);
 //altPipe.pressure = pAtmo;
@@ -224,13 +226,14 @@ function drawWorld(){   ///main animation loop
 	for(var j = 0; j < physicsSteps; j++ ){
 		for (var i = 0; i < N; i++){
 			if(i == 0){
-				Pipe[i].massFlowL = 0;
+				Pipe[i].massFlowL = ((1e5/6)/timescale)/physicsSteps; //approx 1000 L/min
 			} else {
 				calculateElementMassFlows(Pipe[i - 1], Pipe[i], Pipe[i+1]);
 			} 
 			Pipe[i].update(ctx1);
 		}
-		Pipe[N - 1].massFlowR = 0;
+
+		Pipe[N - 1].massFlowR = Pipe[N - 1].massFlowL;
 	}
 		
 	ctx1.clearRect(0,0,width,height);
