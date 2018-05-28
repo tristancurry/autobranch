@@ -152,7 +152,8 @@ PipeElement.prototype = {
 		this.diam = newDiam;
 		this.area = (Math.PI*this.diam*this.diam*0.25);
 		this.volume = this.area*this.length; //mm^3
-		this.mass = this.volume*this.density/1000; //cross-sectional area * length * density in g/mm^3;
+		this.mass = this.volume*this.density/1000;
+		//this.density = 1000*this.mass/this.volume //cross-sectional area * length * density in g/mm^3;
 	},
 
 	
@@ -162,7 +163,7 @@ PipeElement.prototype = {
 		this.density = this.mass/(this.volume/1000);
 		var oldPressure = this.pressure;
 		this.pressure = K*(1 - (oldDensity/this.density)) + oldPressure;
-		this.colour = "hsla(" + 200*(this.pressure - 80000)/920000 +", 100%, 50%, 1)" //pressure range between 2550000 and 0
+		this.colour = "hsla(" + 200*(this.pressure - 100000)/900000 +", 100%, 50%, 1)" //pressure range between 2550000 and 0
 
 	},
 	
@@ -204,6 +205,7 @@ var physicsSteps = 1000; //how much to subdivide each frame for finer (more accu
 var pAtmo = 1e5; //atmospheric pressure, Pa
 var Pipe = [];
 var N = 15; //number of elements in pipe
+var POW = 10000; //watts of pump power
 
 for (var i = 0; i < N; i++){
 	var X;
@@ -214,16 +216,21 @@ for (var i = 0; i < N; i++){
 	Pipe.push(p);
 }
 //Pipe[7].pressure = 1000000;
-Pipe[2].changeDiam(80);
-Pipe[3].changeDiam(100);
-Pipe[4].changeDiam(100);
-Pipe[5].changeDiam(80);
-Pipe[6].changeDiam(64);
-Pipe[7].changeDiam(52);
-Pipe[8].changeDiam(38);
-Pipe[9].changeDiam(25);
-Pipe[10].changeDiam(25);
-Pipe[11].changeDiam(38);
+//Pipe[0].changeDiam(25);
+//Pipe[1].changeDiam(52);
+//Pipe[2].changeDiam(80);
+//Pipe[3].changeDiam(100);
+//Pipe[4].changeDiam(100);
+//Pipe[5].changeDiam(80);
+//Pipe[6].changeDiam(25);
+//Pipe[7].changeDiam(52);
+//Pipe[8].changeDiam(38);
+//Pipe[9].changeDiam(10);
+//Pipe[10].changeDiam(25);
+//Pipe[11].changeDiam(38);
+//Pipe[12].changeDiam(38);
+//Pipe[13].changeDiam(38);
+//Pipe[N-2].changeDiam(10);
 
 
 
@@ -238,9 +245,10 @@ function drawWorld(){   ///main animation loop
 	for(var j = 0; j < physicsSteps; j++ ){
 		for (var i = 0; i < N; i++){
 			if(i == 0){
-				Pipe[i].massFlowL = ((1e5/6)/timescale)/physicsSteps; //approx 1000 L/min
+				//Pipe[i].massFlowL = ((1e5/6)/timescale)/physicsSteps; //approx 1000 L/min
+				Pipe[i].massFlowL = Pipe[i].density*1e6*((POW/Pipe[i].pressure)/timescale)/physicsSteps;
 			} else {
-				calculateElementMassFlows(Pipe[i - 1], Pipe[i], Pipe[i+1]);
+				calculateElementMassFlows(Pipe[i - 1], Pipe[i]);
 			} 
 			Pipe[i].update(ctx1);
 		}
@@ -255,8 +263,19 @@ function drawWorld(){   ///main animation loop
 		Pipe[i].render(ctx1);
 		totalMass += Pipe[i].mass;
 	}
-			
+	
+	var nozDiff = Pipe[N-2].pressure - Pipe[N-1].pressure;
+	var nozDiam = Pipe[N-2].diam;
+	//console.log(nozDiff);
+	if(nozDiff > 750000){
+		Pipe[N-2].changeDiam(nozDiam*1.001);
+	}
+	if(nozDiff < 650000){
+		Pipe[N-2].changeDiam(nozDiam*0.999);
+	}
+	
 	ctx0.drawImage(canvas1,0,0);
+	
 	//console.log(totalMass);	
 	requestAnimationFrame(drawWorld);
 }
@@ -275,8 +294,8 @@ function calculateElementMassFlows(peL,peR){
 	aL = aL/(timescale*physicsSteps);
 	aR = aR/(timescale*physicsSteps);
 
-	peL.veloR = 0.9999*peL.veloR + aR;
-	peR.veloL = 0.9999*peR.veloL + aL;
+	peL.veloR = (1 - 100/(timescale*physicsSteps))*peL.veloR + aR;
+	peR.veloL = (1 - 100/(timescale*physicsSteps))*peR.veloL + aL;
 	peL.massFlowR = (peL.veloR)*(peL.area/1000)*peL.density;
 	peR.massFlowL = (peR.veloL)*(peR.area/1000)*peR.density;
 	var massFlow = Math.min(Math.abs(peL.massFlowR, peR.massFlowL));
