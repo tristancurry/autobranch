@@ -182,7 +182,7 @@ PipeElement.prototype = {
 		ctx.fillStyle= this.colour;
 		ctx.beginPath();
 		ctx.save();
-		ctx.translate(this.posX - 0.5*this.size, this.posY - 0.5*this.size);
+		ctx.translate(this.posX - 0.5*this.size, this.posY - 0.5*this.diam);
 		ctx.rect(0,0, this.size, this.diam);
 		ctx.fill();
 		ctx.stroke();
@@ -210,8 +210,12 @@ for (var i = 0; i < N; i++){
 	Pipe.push(p);
 }
 
-Pipe[0].pressure = 1000000; //Pa
+Pipe[0].pressure = 150000; //Pa
 Pipe[0].densityFromPressure();
+
+var altPipe = new PipeElement(38, 50, Pipe[8].posX, Pipe[8].posY);
+altPipe.pressure = pAtmo;
+Pipe[8] = altPipe;
 
 	   
 function drawWorld(){   ///main animation loop
