@@ -154,16 +154,16 @@ PipeElement.prototype = {
 	update: function() {
 		
 		
-		console.log("old mass = " + this.mass);
+		//console.log("old mass = " + this.mass);
 		this.mass = this.mass + this.massFlowL - this.massFlowR;
-		console.log("new mass = " + this.mass);
-		console.log("-----");
+		//console.log("new mass = " + this.mass);
+		//console.log("-----");
 		var oldDensity = this.density;
 		this.density = this.mass/(this.volume/1000);
 		var oldPressure = this.pressure;
 		this.pressure = K*(1 - (oldDensity/this.density)) + oldPressure;
 		//console.log(oldPressure - this.pressure);
-		this.colour = "hsla(100, 0%, " + this.pressure/100 +"%, 1)" //pressure range between 2550000 and 0
+		this.colour = "hsla(100, 0%, " + (this.pressure+1000)/1000 +"%, 1)" //pressure range between 2550000 and 0
 
 	},
 	
@@ -182,13 +182,13 @@ PipeElement.prototype = {
 		ctx.beginPath();
 		ctx.save();
 		ctx.translate(this.posX - 0.5*this.size, this.posY - 0.5*this.size);
-		ctx.rect(0,0, this.size, this.size);
+		ctx.rect(0,0, this.size, this.diam);
 		ctx.fill();
 		ctx.stroke();
 		ctx.restore();
 		ctx.font="9px Arial";
-		ctx.fillText(Math.round(this.pressure/100) + "kPa", this.posX - 0.5*this.size, this.posY - 65);
-		ctx.fillText(Math.round(this.mass)+ "g", this.posX - 0.5*this.size, this.posY - 40);
+		ctx.fillText(Math.round(this.pressure/1000) + "kPa", this.posX - 0.5*this.size, this.posY - 100);
+		ctx.fillText(Math.round(this.mass)+ "g", this.posX - 0.5*this.size, this.posY - 70);
 
 	}
 	
@@ -197,19 +197,19 @@ PipeElement.prototype = {
 var rho = 1.0 // density of fluid, g/cm^3
 var K = 2e9; //  bulk modulus of fluid, Pa
 var Pipe = [];
-var N = 16; //number of elements in pipe
+var N = 3; //number of elements in pipe
 
 for (var i = 0; i < N; i++){
 	var X;
 	if(i == 0){X = 100;} else {X = Pipe[i - 1].posX + Pipe[i - 1].size + 5}
-	var p = new PipeElement(64, 50, X, height/2);
+	var p = new PipeElement(64, 100, X, height/2);
 	p.pressure = 0;
 	console.log("Mass of element " + i + " = " + p.mass + " :-)");
 	Pipe.push(p);
 }
 
-Pipe[0].pressure = 100000; //Pa
-Pipe[0].densityFromPressure();
+Pipe[1].pressure = 1000000; //Pa
+Pipe[1].densityFromPressure();
 console.log(Pipe[0].density);
 console.log(Pipe[0].mass);
 
@@ -267,9 +267,9 @@ function calculateElementMassFlows(peL, pe, peR){
 	var FL = pL*peL.area/1e6; //get area of contact in m^2, so that F is in Newtons
 	var FR = pR*peR.area/1e6; //get area of contact in m^2, so that F is in Newtons
 	var F = FL - FR; //meaning that a net force to the right will be positive
-
+	console.log("net force = " + F + "N");
 	var a = (F/pe.mass); //resultant acceleration of fluid in ms^-2
-	a = a/1e5;
+	a = a/1e7;
 
 	pe.veloR = pe.veloR + a;
 	pe.veloL = pe.veloL + a;
@@ -289,9 +289,9 @@ function calculateElementMassFlowsLeftEnd(pe, peR){
 	var FL = pL*pe.area/1e6;
 	var FR = pR*peR.area/1e6; //get area of contact in m^2, so that F is in Newtons
 	var F = FL - FR; //meaning that a net force to the right will be positive
-
+	console.log("net force = " + F + "N");
 	var a = (F/pe.mass); //resultant acceleration of fluid in ms^-2
-	a = a/1e5;
+	a = a/1e7;
 
 	pe.veloR = pe.veloR + a;
 	pe.massFlowR = (pe.veloR)*(pe.area/1000)*pe.density; //this will need to be adjusted by a factor to make it all per time step
@@ -309,9 +309,9 @@ function calculateElementMassFlowsRightEnd(peL, pe){
 	var FL = pL*peL.area/1e6; //get area of contact in m^2, so that F is in Newtons
 	var FR = pR*pe.area/1e6;
 	var F = FL - FR; //meaning that a net force to the right will be positive
-
+	console.log("net force = " + F + "N");
 	var a = (F/pe.mass); //resultant acceleration of fluid in ms^-2
-	a = a/1e5;
+	a = a/1e7;
 	pe.veloL = pe.veloL + a;
 	pe.massFlowL = (pe.veloL)*(pe.area/1000)*pe.density; //this will need to be adjusted by a factor to make it all per time step
 	
