@@ -217,13 +217,13 @@ var physicsSteps = 100; //how much to subdivide each frame for finer (more accur
 //to avoid overshoots
 var pAtmo = 1e5; //atmospheric pressure, Pa
 var thisPipe = [];
-var N = 400; //number of elements in pipe
-var POW = 10000; //watts of pump power
+var N = 150; //number of elements in pipe
+var POW = 100000; //watts of pump power
 
 for (var i = 0; i < N; i++){
 	var X;
 	if(i == 0){X = 100;} else {X = thisPipe[i - 1].posX + thisPipe[i - 1].size + 0}
-	var p = new PipeElement(64, 2, X, height/2);
+	var p = new PipeElement(64, 5, X, height/2);
 	p.pressure = pAtmo;
 	console.log("Mass of element " + i + " = " + p.mass + " :-)");
 	thisPipe.push(p);
