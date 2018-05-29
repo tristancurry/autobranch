@@ -196,7 +196,7 @@ PipeElement.prototype = {
 	
 };
 
-var rho = 1.0 // density of fluid, g/cm^3
+var rho = 1 // density of fluid, g/cm^3
 var K = 2e9; //  bulk modulus of fluid, Pa
 var timescale = 600000; //how many frames are equivalent to 1 second?
 var physicsSteps = 100; //how much to subdivide each frame for finer (more accurate?) calculations
@@ -232,13 +232,13 @@ for (var i = 0; i < N; i++){
 //thisPipe[13].changeDiam(38);
 //thisPipe[N-2].changeDiam(10);
 
-var PCU = [];
-var PCUElements = 100;
-if(PCUElements > thisPipe.length - 2 ){
-	PCUElements = thisPipe.length - 2;
+var thisPCU = [];
+var thisPCUElements = 100;
+if(thisPCUElements > thisPipe.length - 2 ){
+	thisPCUElements = thisPipe.length - 2;
 }
-for(var i = 0; i < PCUElements; i++){
-	PCU.push(thisPipe[N - 1 - PCUElements + i]);
+for(var i = 0; i < thisPCUElements; i++){
+	thisPCU.push(thisPipe[N - 1 - thisPCUElements + i]);
 }
 
 //var altPipe = new PipeElement(38, 50, Pipe[8].posX, Pipe[8].posY);
@@ -271,21 +271,21 @@ function drawWorld(){   ///main animation loop
 		totalMass += thisPipe[i].mass;
 	}
 	
-	var nozDiff = thisPipe[N - 2 - PCUElements].pressure - thisPipe[N-1].pressure;
+	var nozDiff = thisPipe[N - 2 - thisPCUElements].pressure - thisPipe[N-1].pressure;
 	var nozDiam = thisPipe[N-2].diam;
-	for(var i=0; i < PCUElements; i++){
+	for(var i=0; i < thisPCUElements; i++){
 		if(nozDiff > 800000){
 			if(nozDiff < 750000){
-				PCU[i].changeDiam(nozDiam*1.0001);
+				thisPCU[i].changeDiam(nozDiam*1.0001);
 			} else {
-				PCU[i].changeDiam(nozDiam*1.001);
+				thisPCU[i].changeDiam(nozDiam*1.001);
 			}
 		}
 		if(nozDiff < 600000){
 			if(nozDiff > 650000){
-				PCU[i].changeDiam(nozDiam*0.9999);
+				thisPCU[i].changeDiam(nozDiam*0.9999);
 			} else {
-				PCU[i].changeDiam(nozDiam*0.999);
+				thisPCU[i].changeDiam(nozDiam*0.999);
 			}
 		}
 		
