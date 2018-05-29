@@ -105,7 +105,20 @@ h2
 
 */
 
+var Pipe = function(diam, length) {
+	this.diam = diam; 		//mm
+	this.length = length; 	//mm
+	
+	return this;
+};
 
+Pipe.protoype = {
+	diam: 64, //mm
+	length: 100, //mm
+	
+	
+	
+};
 
 
 var PipeElement = function(diam, length, posX, posY) {
