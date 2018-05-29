@@ -203,47 +203,47 @@ var physicsSteps = 100; //how much to subdivide each frame for finer (more accur
 //consider also having within this a physics step time - do multiple (small) updates in a single frame
 //to avoid overshoots
 var pAtmo = 1e5; //atmospheric pressure, Pa
-var Pipe = [];
+var thisPipe = [];
 var N = 400; //number of elements in pipe
 var POW = 10000; //watts of pump power
 
 for (var i = 0; i < N; i++){
 	var X;
-	if(i == 0){X = 100;} else {X = Pipe[i - 1].posX + Pipe[i - 1].size + 0}
+	if(i == 0){X = 100;} else {X = thisPipe[i - 1].posX + thisPipe[i - 1].size + 0}
 	var p = new PipeElement(64, 2, X, height/2);
 	p.pressure = pAtmo;
 	console.log("Mass of element " + i + " = " + p.mass + " :-)");
-	Pipe.push(p);
+	thisPipe.push(p);
 }
-//Pipe[7].pressure = 1000000;
-//Pipe[0].changeDiam(25);
-//Pipe[1].changeDiam(52);
-//Pipe[2].changeDiam(80);
-//Pipe[3].changeDiam(100);
-//Pipe[4].changeDiam(100);
-//Pipe[5].changeDiam(80);
-//Pipe[6].changeDiam(25);
-//Pipe[7].changeDiam(52);
-//Pipe[8].changeDiam(38);
-//Pipe[9].changeDiam(10);
-//Pipe[10].changeDiam(25);
-//Pipe[11].changeDiam(38);
-//Pipe[12].changeDiam(38);
-//Pipe[13].changeDiam(38);
-//Pipe[N-2].changeDiam(10);
+//thisPipe[7].pressure = 1000000;
+//thisPipe[0].changeDiam(25);
+//thisPipe[1].changeDiam(52);
+//thisPipe[2].changeDiam(80);
+//thisPipe[3].changeDiam(100);
+//thisPipe[4].changeDiam(100);
+//thisPipe[5].changeDiam(80);
+//thisPipe[6].changeDiam(25);
+//thisPipe[7].changeDiam(52);
+//thisPipe[8].changeDiam(38);
+//thisPipe[9].changeDiam(10);
+//thisPipe[10].changeDiam(25);
+//thisPipe[11].changeDiam(38);
+//thisPipe[12].changeDiam(38);
+//thisPipe[13].changeDiam(38);
+//thisPipe[N-2].changeDiam(10);
 
 var PCU = [];
 var PCUElements = 100;
-if(PCUElements > Pipe.length - 2 ){
-	PCUElements = Pipe.length - 2;
+if(PCUElements > thisPipe.length - 2 ){
+	PCUElements = thisPipe.length - 2;
 }
 for(var i = 0; i < PCUElements; i++){
-	PCU.push(Pipe[N - 1 - PCUElements + i]);
+	PCU.push(thisPipe[N - 1 - PCUElements + i]);
 }
 
 //var altPipe = new PipeElement(38, 50, Pipe[8].posX, Pipe[8].posY);
 //altPipe.pressure = pAtmo;
-//Pipe[8] = altPipe;
+//thisPipe[8] = altPipe;
 
 	   
 function drawWorld(){   ///main animation loop
@@ -252,27 +252,27 @@ function drawWorld(){   ///main animation loop
 	for(var j = 0; j < physicsSteps; j++ ){
 		for (var i = 0; i < N; i++){
 			if(i == 0){
-				//Pipe[i].massFlowL = ((1e5/6)/timescale)/physicsSteps; //approx 1000 L/min
-				Pipe[i].massFlowL = Pipe[i].density*1e6*((POW/Pipe[i].pressure)/timescale)/physicsSteps;
+				//thisPipe[i].massFlowL = ((1e5/6)/timescale)/physicsSteps; //approx 1000 L/min
+				thisPipe[i].massFlowL = thisPipe[i].density*1e6*((POW/thisPipe[i].pressure)/timescale)/physicsSteps;
 			} else {
-				calculateElementMassFlows(Pipe[i - 1], Pipe[i]);
+				calculateElementMassFlows(thisPipe[i - 1], thisPipe[i]);
 			} 
-			Pipe[i].update(ctx1);
+			thisPipe[i].update(ctx1);
 		}
 
-		Pipe[N - 1].massFlowR = Pipe[N - 1].massFlowL;
+		thisPipe[N - 1].massFlowR = thisPipe[N - 1].massFlowL;
 	}
 		
 	ctx1.clearRect(0,0,width,height);
 	
 		var totalMass = 0;
 	for (var i = 0; i < N; i++){
-		Pipe[i].render(ctx1);
-		totalMass += Pipe[i].mass;
+		thisPipe[i].render(ctx1);
+		totalMass += thisPipe[i].mass;
 	}
 	
-	var nozDiff = Pipe[N - 2 - PCUElements].pressure - Pipe[N-1].pressure;
-	var nozDiam = Pipe[N-2].diam;
+	var nozDiff = thisPipe[N - 2 - PCUElements].pressure - thisPipe[N-1].pressure;
+	var nozDiam = thisPipe[N-2].diam;
 	for(var i=0; i < PCUElements; i++){
 		if(nozDiff > 800000){
 			if(nozDiff < 750000){
