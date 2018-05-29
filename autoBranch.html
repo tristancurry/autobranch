@@ -115,6 +115,30 @@ var Pipe = function(diam, length) {
 Pipe.prototype = {
 	diam: 64, //mm
 	length: 100, //mm
+	elements: [],
+	label: "",
+	
+	calculateInterfaceMassFlows: function(peL,peR){
+		var pL = peL.pressure;
+		var pR = peR.pressure;
+		var workingArea = Math.min(peL.area,peR.area)/1e6;  //find size of interface between pipe elements, then convert to m^2
+		var FL = pL*workingArea - peL.k*peL.veloR*peL.veloR; // F is in Newtons
+		var FR = pR*workingArea - peR.k*peR.veloL*peR.veloL; //F is in Newtons
+		var F = FL - FR; //meaning that a net force to the right will be positive
+		var aL = (F/peL.mass); //resultant acceleration of fluid in ms^-2
+		var aR = (F/peR.mass); //resultant acceleration of fluid in ms^-2
+		aL = aL/(timescale*physicsSteps);
+		aR = aR/(timescale*physicsSteps);
+
+		peL.veloR = (1 - 100/(timescale*physicsSteps))*peL.veloR + aR;
+		peR.veloL = (1 - 100/(timescale*physicsSteps))*peR.veloL + aL;
+		peL.massFlowR = (peL.veloR)*(peL.area/1000)*peL.density;
+		peR.massFlowL = (peR.veloL)*(peR.area/1000)*peR.density;
+		var massFlow = Math.min(Math.abs(peL.massFlowR, peR.massFlowL));
+		peL.massFlowR = Math.sign(peL.massFlowR)*massFlow;
+		peR.massFlowL = peL.massFlowR; //all about continuity of mass over the boundary between the elements. This chooses the smallest mass flow of the two to be applied to both.
+	
+	}
 	
 	
 	
