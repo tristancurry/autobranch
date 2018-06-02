@@ -144,6 +144,51 @@ Pipe.prototype = {
 	
 };
 
+var Interface = function(){
+	this.elements = [];
+	this.velos = [];
+	
+}
+
+Interface.prototype = {
+	buildVelos: function(){ //build an NxN matrix to contain speeds across each pair of elements
+		for(var i = 0; i < this.elements.length; i++){
+			var sub = [];
+			for(var j = 0; j < this.elements.length, j++){
+				sub.push[0];
+			}
+			this.velos.push(sub);
+		}	
+	}
+
+
+	calculateMassFlows: function(time_scale){
+		if(this.elements.length > 0){
+			for(var i = 0; i < this.elements.length - 1; i++){
+				for(var j = i + 1; j < this.elements.length; j++){
+					var A = this.elements[i];
+					var B = this.elements[j];
+					var workingArea = Math.min(A.area,B.area)/1e6;  //find size of interface between pipe elements, then convert to m^2
+					var F = (A.pressure - B.pressure)*workingArea;  //find net force in direction of B, Newtons
+					var aA = 1000*(F/B.mass); //resultant acceleration of fluid in ms^-2
+					var aB = 1000*(F/B.mass); //resultant acceleration of fluid in ms^-2
+					
+					aA = aA/time_scale;
+					aB = aB/time_scale; //speed gain over time interval
+					
+					this.velos[i][j] += aA;
+					this.velos[j][i] += aB; //new speed after accn over time interval, ms^-1
+					
+					var veloAtoB = this.velos[i][j];
+					var veloBfromA = this.velos[j][i];
+					
+					A.massFlow -= (veloAtoB/time_scale)*(A.area/1000)*A.density;  //g of mass flow during time interval
+					B.massFlow += (veloBfromA/time_scale)*(B.area/1000)*B.density;
+				}
+			}
+		}
+	}
+}
 
 var PipeElement = function(diam, length, posX, posY) {
     this.diam = diam;
@@ -168,19 +213,13 @@ PipeElement.prototype = {
 	mass: 1, //kg
 	pressure: 0, //gauge pressure, Pa
 	density: 1, //g/cm^3
-	massFlowL: 0, //g, positive is IN from the LEFT
-	massFlowR: 0, //g, positive is OUT to the RIGHT
-	veloL: 0, //ms^-1, velocity of fluid at LHS interface, positive is IN
-	veloR: 0, //ms^-1, velocity of fluid at RHS interface, positive is OUT
+	massFlow: 0, //g, positive is IN
 	k: 0, //friction coefficient;
-	fluidResL: 0, //fluid resistive force at LHS interface - depends on veloL and pipe diameter
-	fluidResR: 0, //fluid resistive force at RHS interface - depends on veloR and pipe diameter
-	//also, these left and right terms will later be replaced by an array representing connections to other elements
+	
 	//RENDERING VARIABLES
 	posX: 0,
 	posY: 0,
 	label: "",
-    //square: false,
 	colour: "rgba(0, 0, 0, 1)",
 	size: 20,  //size for rendering will depend on how many elements there are, and aesthetic considerations!
 
@@ -195,7 +234,7 @@ PipeElement.prototype = {
 
 	
 	update: function() {
-		this.mass = this.mass + this.massFlowL - this.massFlowR;
+		this.mass = this.mass + this.massFlow;
 		var oldDensity = this.density;
 		this.density = this.mass/(this.volume/1000);
 		var oldPressure = this.pressure;
@@ -278,9 +317,6 @@ for(var i = 0; i < thisPCUElements; i++){
 	thisPCU.push(thisPipe[N - 1 - thisPCUElements + i]);
 }
 
-//var altPipe = new PipeElement(38, 50, Pipe[8].posX, Pipe[8].posY);
-//altPipe.pressure = pAtmo;
-//thisPipe[8] = altPipe;
 
 	   
 function drawWorld(){   ///main animation loop
@@ -290,14 +326,14 @@ function drawWorld(){   ///main animation loop
 		for (var i = 0; i < N; i++){
 			if(i == 0){
 				//thisPipe[i].massFlowL = ((1e5/6)/timescale)/physicsSteps; //approx 1000 L/min
-				thisPipe[i].massFlowL = thisPipe[i].density*1e6*((POW/thisPipe[i].pressure)/timescale)/physicsSteps;
+				thisPipe[i].massFlow = thisPipe[i].density*1e6*((POW/thisPipe[i].pressure)/timescale)/physicsSteps;
 			} else {
 				calculateElementMassFlows(thisPipe[i - 1], thisPipe[i]);
 			} 
 			thisPipe[i].update(ctx1);
 		}
 
-		thisPipe[N - 1].massFlowR = thisPipe[N - 1].massFlowL;
+		thisPipe[N - 1].massFlow = 0;
 	}
 		
 	ctx1.clearRect(0,0,width,height);
@@ -339,6 +375,8 @@ function drawWorld(){   ///main animation loop
 console.log("All good!");
 drawWorld();
 
+
+/* deprecated - to be handled by Interfaces
 function calculateElementMassFlows(peL,peR){
 	var pL = peL.pressure;
 	var pR = peR.pressure;
@@ -361,7 +399,7 @@ function calculateElementMassFlows(peL,peR){
 	
 }
 
-
+*/
 
 
 </script>
