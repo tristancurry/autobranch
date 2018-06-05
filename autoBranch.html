@@ -104,7 +104,7 @@ h2
 	leaving this as a means of grouping elements that are in important sub-sections of the pipe network
 
 */
-var elementLength = 100; //mm
+var elementLength = 10; //mm
 
 var Pipe = function(diam, length, posX, angle) {
 	this.diam = diam; 		//mm
@@ -195,12 +195,20 @@ Interface.prototype = {
 					
 					aA = aA/time_scale;
 					aB = aB/time_scale; //speed gain over time interval
+					
+					var kAtoB = Math.min(Math.abs(10000*this.velos[i][j]*A.length/(1e6*A.diam*A.diam)),0.5);
+					
+					var kBfromA = Math.min(Math.abs(10000*this.velos[j][i]*B.length/(1e6*B.diam*B.diam)),0.5);
+					//console.log(1 - kAtoB);
+					//console.log(1 - kBfromA);
 
-					this.velos[i][j] += aA;
-					this.velos[j][i] += aB; //new speed after accn over time interval, ms^-1
+					this.velos[i][j] = (1-kAtoB)*this.velos[i][j] + aA;
+					this.velos[j][i] = (1-kBfromA)*this.velos[j][i] + aB; //new speed after accn over time interval, ms^-1
 
 					var veloAtoB = this.velos[i][j];
 					var veloBfromA = this.velos[j][i];
+					
+					
 					
 					A.massFlow -= (veloAtoB/time_scale)*(A.area/1000)*A.density;  //g of mass flow during time interval
 					B.massFlow += (veloBfromA/time_scale)*(B.area/1000)*B.density;
@@ -262,6 +270,7 @@ PipeElement.prototype = {
 	
 	update: function() {
 		this.mass = this.mass + this.massFlow;
+		if(this.mass < 0){this.mass = 0.001;}
 		var oldDensity = this.density;
 		this.density = this.mass/(this.volume/1000);
 		var oldPressure = this.pressure;
@@ -296,8 +305,8 @@ PipeElement.prototype = {
 
 var rho = 1 // density of fluid, g/cm^3
 var K = 2e9; //  bulk modulus of fluid, Pa
-var timescale = 60000; //how many frames are equivalent to 1 second?
-var physicsSteps = 1000; //how much to subdivide each frame for finer (more accurate?) calculations
+var timescale = 6000; //how many frames are equivalent to 1 second?
+var physicsSteps = 200; //how much to subdivide each frame for finer (more accurate?) calculations
 //consider also having within this a physics step time - do multiple (small) updates in a single frame
 //to avoid overshoots
 var pAtmo = 1e5; //atmospheric pressure, Pa
@@ -305,6 +314,21 @@ var POW = 100000; //watts of pump power
 
 var thisPipe = new Pipe(64, 800, 0, 0);
 thisPipe.elements[0].pressure = 1000000;
+thisPipe.elements[0].densityFromPressure();
+
+thisPipe.elements[5].changeDiam(52);
+thisPipe.elements[6].changeDiam(45);
+thisPipe.elements[7].changeDiam(38);
+thisPipe.elements[8].changeDiam(25);
+thisPipe.elements[9].changeDiam(25);
+thisPipe.elements[10].changeDiam(25);
+thisPipe.elements[11].changeDiam(25);
+thisPipe.elements[12].changeDiam(25);
+thisPipe.elements[13].changeDiam(25);
+thisPipe.elements[14].changeDiam(38);
+thisPipe.elements[15].changeDiam(45);
+thisPipe.elements[16].changeDiam(52);
+
 
 	   
 function drawWorld(){   ///main animation loop
