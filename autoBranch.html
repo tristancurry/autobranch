@@ -104,48 +104,68 @@ h2
 	leaving this as a means of grouping elements that are in important sub-sections of the pipe network
 
 */
+var elementLength = 100; //mm
 
-var Pipe = function(diam, length) {
+var Pipe = function(diam, length, posX, angle) {
 	this.diam = diam; 		//mm
 	this.length = length; 	//mm
+	this.posX = posX;
+	this.angle = angle; //rotation ccw in radians
+	
+	var N = Math.round(length/elementLength);
+	
+	for (var i = 0; i < N; i++){
+		var X;
+		if(i == 0){X = 100;} else {X = this.elements[i - 1].posX + this.elements[i - 1].size + 0}
+		var p = new PipeElement(this.diam, elementLength, X, height/2); //create a pipe's worth of elements
+		p.pressure = pAtmo;
+		this.elements.push(p);
+	}
+		
+	for (var i = 0; i < N - 1; i++){
+		var f = new Interface(this.elements[i], this.elements[i + 1]); //create interfaces joining each neighbouring element
+		f.buildVelos();
+		this.interfaces.push(f);
+	}
+	
 	
 	return this;
+	
+	
 };
 
 Pipe.prototype = {
 	diam: 64, //mm
 	length: 100, //mm
+	posX: 0,
+	angle: 0,
 	elements: [],
+	interfaces: [],
 	label: "",
 	
-	calculateInterfaceMassFlows: function(peL,peR){
-		var pL = peL.pressure;
-		var pR = peR.pressure;
-		var workingArea = Math.min(peL.area,peR.area)/1e6;  //find size of interface between pipe elements, then convert to m^2
-		var FL = pL*workingArea - peL.k*peL.veloR*peL.veloR; // F is in Newtons
-		var FR = pR*workingArea - peR.k*peR.veloL*peR.veloL; //F is in Newtons
-		var F = FL - FR; //meaning that a net force to the right will be positive
-		var aL = (F/peL.mass); //resultant acceleration of fluid in ms^-2
-		var aR = (F/peR.mass); //resultant acceleration of fluid in ms^-2
-		aL = aL/(timescale*physicsSteps);
-		aR = aR/(timescale*physicsSteps);
-
-		peL.veloR = (1 - 100/(timescale*physicsSteps))*peL.veloR + aR;
-		peR.veloL = (1 - 100/(timescale*physicsSteps))*peR.veloL + aL;
-		peL.massFlowR = (peL.veloR)*(peL.area/1000)*peL.density;
-		peR.massFlowL = (peR.veloL)*(peR.area/1000)*peR.density;
-		var massFlow = Math.min(Math.abs(peL.massFlowR, peR.massFlowL));
-		peL.massFlowR = Math.sign(peL.massFlowR)*massFlow;
-		peR.massFlowL = peL.massFlowR; //all about continuity of mass over the boundary between the elements. This chooses the smallest mass flow of the two to be applied to both.
+	calculateMassFlows: function(time_scale){
+		for(var i = 0; i < this.elements.length; i++){  //reset mass flows to zero for this round of calculations
+			this.elements[i].massFlow = 0;
+		}
+		for(var i = 0; i < this.interfaces.length; i++){ //calculate mass flows across each interface
+			this.interfaces[i].calculateInterfaceMassFlows(time_scale);
+		}
+		for(var i = 0; i < this.elements.length; i++){  //update the mass of each pipe element
+			this.elements[i].update();
+		}
+	},
 	
+	render: function(ctx){
+		for(var i = 0; i < this.elements.length; i++){
+			this.elements[i].render(ctx);
+		}
 	}
-	
 	
 	
 };
 
-var Interface = function(){
-	this.elements = [];
+var Interface = function(elm1, elm2){
+	this.elements = [elm1, elm2];
 	this.velos = [];
 	
 }
@@ -154,15 +174,15 @@ Interface.prototype = {
 	buildVelos: function(){ //build an NxN matrix to contain speeds across each pair of elements
 		for(var i = 0; i < this.elements.length; i++){
 			var sub = [];
-			for(var j = 0; j < this.elements.length, j++){
-				sub.push[0];
+			for(var j = 0; j < this.elements.length; j++){
+				sub.push(0);
 			}
 			this.velos.push(sub);
 		}	
-	}
+	},
 
 
-	calculateMassFlows: function(time_scale){
+	calculateInterfaceMassFlows: function(time_scale){
 		if(this.elements.length > 0){
 			for(var i = 0; i < this.elements.length - 1; i++){
 				for(var j = i + 1; j < this.elements.length; j++){
@@ -175,10 +195,10 @@ Interface.prototype = {
 					
 					aA = aA/time_scale;
 					aB = aB/time_scale; //speed gain over time interval
-					
+
 					this.velos[i][j] += aA;
 					this.velos[j][i] += aB; //new speed after accn over time interval, ms^-1
-					
+
 					var veloAtoB = this.velos[i][j];
 					var veloBfromA = this.velos[j][i];
 					
@@ -210,7 +230,7 @@ PipeElement.prototype = {
 	length: 1, //mm
 	area: 1, //mm^2
 	volume: 1, //cm^3
-	mass: 1, //kg
+	mass: 1, //g
 	pressure: 0, //gauge pressure, Pa
 	density: 1, //g/cm^3
 	massFlow: 0, //g, positive is IN
@@ -231,6 +251,13 @@ PipeElement.prototype = {
 		this.mass = this.volume*this.density/1000;
 		//this.density = 1000*this.mass/this.volume //cross-sectional area * length * density in g/mm^3;
 	},
+	
+	
+	densityFromPressure: function() {
+		
+		this.density = rho/(1 - (this.pressure - pAtmo)/K);
+		this.mass = this.density*this.volume/1000;
+	},
 
 	
 	update: function() {
@@ -242,12 +269,7 @@ PipeElement.prototype = {
 		this.colour = "hsla(" + 200*(this.pressure - 100000)/900000 +", 100%, 50%, 1)" //pressure range between 2550000 and 0
 
 	},
-	
-	densityFromPressure: function() {
-		
-		this.density = rho/(1 - (this.pressure - pAtmo)/K);
-		this.mass = this.density*this.volume/1000;
-	},
+
 	
 	
 	render: function(ctx) {
@@ -265,8 +287,8 @@ PipeElement.prototype = {
 		ctx.font="9px Arial";
 		ctx.fillText("p: " + Math.round(this.pressure/1000) + "kPa", this.posX - 0.5*this.size, this.posY - 100);
 		ctx.fillText("mass: " + Math.round(this.mass)+ "g", this.posX - 0.5*this.size, this.posY - 80);
-		ctx.fillText("In: " + Math.round(60*this.massFlowL*timescale*physicsSteps/1000)+ "L/m", this.posX - 0.5*this.size, this.posY - 60);
-		ctx.fillText("Out: " + Math.round(60*this.massFlowR*timescale*physicsSteps/1000)+ "L/m", this.posX - 0.5*this.size, this.posY - 40);
+		ctx.fillText("q: " + Math.round(60*this.massFlow*timescale*physicsSteps)+ "L/m", this.posX - 0.5*this.size, this.posY - 60);
+
 
 	}
 	
@@ -274,76 +296,29 @@ PipeElement.prototype = {
 
 var rho = 1 // density of fluid, g/cm^3
 var K = 2e9; //  bulk modulus of fluid, Pa
-var timescale = 600000; //how many frames are equivalent to 1 second?
-var physicsSteps = 100; //how much to subdivide each frame for finer (more accurate?) calculations
+var timescale = 60000; //how many frames are equivalent to 1 second?
+var physicsSteps = 1000; //how much to subdivide each frame for finer (more accurate?) calculations
 //consider also having within this a physics step time - do multiple (small) updates in a single frame
 //to avoid overshoots
 var pAtmo = 1e5; //atmospheric pressure, Pa
-var thisPipe = [];
-var N = 150; //number of elements in pipe
 var POW = 100000; //watts of pump power
 
-for (var i = 0; i < N; i++){
-	var X;
-	if(i == 0){X = 100;} else {X = thisPipe[i - 1].posX + thisPipe[i - 1].size + 0}
-	var p = new PipeElement(64, 5, X, height/2);
-	p.pressure = pAtmo;
-	console.log("Mass of element " + i + " = " + p.mass + " :-)");
-	thisPipe.push(p);
-}
-//thisPipe[7].pressure = 1000000;
-//thisPipe[0].changeDiam(25);
-//thisPipe[1].changeDiam(52);
-//thisPipe[2].changeDiam(80);
-//thisPipe[3].changeDiam(100);
-//thisPipe[4].changeDiam(100);
-//thisPipe[5].changeDiam(80);
-//thisPipe[6].changeDiam(25);
-//thisPipe[7].changeDiam(52);
-//thisPipe[8].changeDiam(38);
-//thisPipe[9].changeDiam(10);
-//thisPipe[10].changeDiam(25);
-//thisPipe[11].changeDiam(38);
-//thisPipe[12].changeDiam(38);
-//thisPipe[13].changeDiam(38);
-//thisPipe[N-2].changeDiam(10);
-
-var thisPCU = [];
-var thisPCUElements = 100;
-if(thisPCUElements > thisPipe.length - 2 ){
-	thisPCUElements = thisPipe.length - 2;
-}
-for(var i = 0; i < thisPCUElements; i++){
-	thisPCU.push(thisPipe[N - 1 - thisPCUElements + i]);
-}
-
+var thisPipe = new Pipe(64, 800, 0, 0);
+thisPipe.elements[0].pressure = 1000000;
 
 	   
 function drawWorld(){   ///main animation loop
 	ctx0.fillStyle = "rgba(100,0,100,1)";
 	ctx0.fillRect(0,0,width,height);
-	for(var j = 0; j < physicsSteps; j++ ){
-		for (var i = 0; i < N; i++){
-			if(i == 0){
-				//thisPipe[i].massFlowL = ((1e5/6)/timescale)/physicsSteps; //approx 1000 L/min
-				thisPipe[i].massFlow = thisPipe[i].density*1e6*((POW/thisPipe[i].pressure)/timescale)/physicsSteps;
-			} else {
-				calculateElementMassFlows(thisPipe[i - 1], thisPipe[i]);
-			} 
-			thisPipe[i].update(ctx1);
-		}
-
-		thisPipe[N - 1].massFlow = 0;
+	for(var j = 0; j < physicsSteps; j++){
+		thisPipe.calculateMassFlows(timescale*physicsSteps);
 	}
-		
 	ctx1.clearRect(0,0,width,height);
 	
-		var totalMass = 0;
-	for (var i = 0; i < N; i++){
-		thisPipe[i].render(ctx1);
-		totalMass += thisPipe[i].mass;
-	}
+	thisPipe.render(ctx1);
 	
+
+	/*
 	var nozDiff = thisPipe[N - 2 - thisPCUElements].pressure - thisPipe[N-1].pressure;
 	var nozDiam = thisPipe[N-2].diam;
 	for(var i=0; i < thisPCUElements; i++){
@@ -363,13 +338,11 @@ function drawWorld(){   ///main animation loop
 		}
 		
 	}
-
-	//console.log(nozDiff);
+	*/
 	
 	
 	ctx0.drawImage(canvas1,0,0);
-	
-	//console.log(totalMass);	
+
 	requestAnimationFrame(drawWorld);
 }
 console.log("All good!");
