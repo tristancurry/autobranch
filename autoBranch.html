@@ -196,9 +196,9 @@ Interface.prototype = {
 					aA = aA/time_scale;
 					aB = aB/time_scale; //speed gain over time interval
 					
-					var kAtoB = Math.min(Math.abs(10000*this.velos[i][j]*A.length/(1e6*A.diam*A.diam)),0.5);
+					var kAtoB = Math.min(Math.abs(30000*this.velos[i][j]*A.length/(1e6*A.diam*A.diam)),0.5);
 					
-					var kBfromA = Math.min(Math.abs(10000*this.velos[j][i]*B.length/(1e6*B.diam*B.diam)),0.5);
+					var kBfromA = Math.min(Math.abs(30000*this.velos[j][i]*B.length/(1e6*B.diam*B.diam)),0.5);
 					//console.log(1 - kAtoB);
 					//console.log(1 - kBfromA);
 
@@ -305,8 +305,8 @@ PipeElement.prototype = {
 
 var rho = 1 // density of fluid, g/cm^3
 var K = 2e9; //  bulk modulus of fluid, Pa
-var timescale = 6000; //how many frames are equivalent to 1 second?
-var physicsSteps = 200; //how much to subdivide each frame for finer (more accurate?) calculations
+var timescale = 60000; //how many frames are equivalent to 1 second?
+var physicsSteps = 1; //how much to subdivide each frame for finer (more accurate?) calculations
 //consider also having within this a physics step time - do multiple (small) updates in a single frame
 //to avoid overshoots
 var pAtmo = 1e5; //atmospheric pressure, Pa
