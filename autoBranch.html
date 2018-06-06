@@ -171,7 +171,7 @@ Interface.prototype = {
 				for(var j = i + 1; j < this.elements.length; j++){
 					var A = this.elements[i];
 					var B = this.elements[j];
-					if(Math.abs(A.pressure - B.pressure) > 10){
+					if(Math.abs(A.pressure - B.pressure) > 0){
 					
 					var workingArea = Math.min(A.area,B.area)/1e6;  //find size of interface between pipe elements, then convert to m^2
 					var F = (A.pressure - B.pressure)*workingArea;  //find net force in direction of B, Newtons
@@ -198,10 +198,11 @@ Interface.prototype = {
 					var veloAtoB = kA*this.velos[i][j] + aA;
 					var veloBfromA = kB*this.velos[j][i] + aB;
 					//console.log("vAB: " + veloAtoB);
-									
+			
 					A.massFlow -= (veloAtoB/time_scale)*(A.area/1000)*A.density;  //g of mass flow during time interval
+
 					B.massFlow += (veloBfromA/time_scale)*(B.area/1000)*B.density;
-				
+
 					this.velos[i][j] = veloAtoB;
 					this.velos[j][i] = veloBfromA;
 				}
@@ -314,10 +315,10 @@ Sink.prototype.update = function() {
 
 Sink.constructor = Sink;
 
-var elementLength = 20; //mm 
+var elementLength = 30; //mm 
 var rho = 1 // density of fluid, g/cm^3
 var K = 2e9; //  bulk modulus of fluid, Pa
-var timescale = 1; //how many frames are equivalent to 1 second?
+var timescale = 6; //how many frames are equivalent to 1 second?
 var physicsSteps = 100	; //how much to subdivide each frame for finer (more accurate?) calculations. Do not let timescale*physicsSteps < 600, oscillations become too nasty!
 
 while(timescale*physicsSteps*elementLength < 3000){
@@ -334,13 +335,13 @@ var pAtmo = 1e5; //atmospheric pressure, Pa
 var POW = 100000; //watts of pump power
 
 var thisPipe = new Pipe(64, 800, 0, 0);
-for(var i = 0; i < thisPipe.elements.length/16; i++){
-thisPipe.elements[i].pressure = 10000000;
+for(var i = 0; i < thisPipe.elements.length/8; i++){
+thisPipe.elements[i].pressure = 1000000/(i+1);
 thisPipe.elements[i].densityFromPressure();
 }
 
 for(var i = Math.round(0.4*thisPipe.elements.length); i < Math.round(0.6*thisPipe.elements.length); i++){
-thisPipe.elements[i].changeDiam(5);
+thisPipe.elements[i].changeDiam(1);
 }
 
 
