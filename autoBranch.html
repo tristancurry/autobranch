@@ -335,12 +335,12 @@ var POW = 100000; //watts of pump power
 
 var thisPipe = new Pipe(64, 800, 0, 0);
 for(var i = 0; i < thisPipe.elements.length/16; i++){
-thisPipe.elements[i].pressure = 1000000;
+thisPipe.elements[i].pressure = 10000000;
 thisPipe.elements[i].densityFromPressure();
 }
 
 for(var i = Math.round(0.4*thisPipe.elements.length); i < Math.round(0.6*thisPipe.elements.length); i++){
-thisPipe.elements[i].changeDiam(1);
+thisPipe.elements[i].changeDiam(5);
 }
 
 
