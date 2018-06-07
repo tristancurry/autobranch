@@ -176,14 +176,12 @@ Interface.prototype = {
 				for(var j = i + 1; j < this.elements.length; j++){
 					var A = this.elements[i];
 					var B = this.elements[j];
-					if(Math.abs(A.pressure - B.pressure) > 0){
+					if(Math.abs(A.pressure - B.pressure) > 0 || A.isPump || B.isPump){
 					
 					var workingArea = Math.min(A.area,B.area)/1e6;  //find size of interface between pipe elements, then convert to m^2
-					var F = (A.pressure - B.pressure)*workingArea;  //find net force in direction of B, Newtons
-	
-					var kA = Math.pow(0.9999,60000/time_scale);
-					var kB = Math.pow(0.9999,60000/time_scale);
-					//console.log("kA = " + kA);
+					var F = 1000*(A.pressure - B.pressure)*workingArea;  //find net force in direction of B, Newtons
+					
+					
 					if(A.mass > 0){
 						var aA = (F/A.mass)/time_scale; //resultant acceleration of fluid in ms^-2
 					} else {
@@ -194,11 +192,18 @@ Interface.prototype = {
 					} else {
 						var aB = (F/A.mass)/time_scale;
 					}
-				 
-					//aA = Math.sign(aA)*Math.min(Math.abs(aA),0.1);
-					//aB = Math.sign(aB)*Math.min(Math.abs(aB),0.1);
-					//console.log("mass: " + A.mass);
-					//console.log("aAB: " + aA);
+					
+					if(A.isPump){
+						if(aB < 0){aB = 0};
+					}
+					
+					if(B.isPump){
+						if(aA > 0){aA = 0};
+					}
+					
+					var kA = Math.pow(0.99,60000/time_scale);
+					var kB = Math.pow(0.99,60000/time_scale);
+
 				
 					var veloAtoB = kA*this.velos[i][j] + aA;
 					var veloBfromA = kB*this.velos[j][i] + aB;
@@ -244,6 +249,7 @@ PipeElement.prototype = {
 	density: 1, //g/cm^3
 	massFlow: 0, //g, positive is IN
 	k: 0, //friction coefficient;
+	isPump: false,
 	
 	//RENDERING VARIABLES
 	posX: 0,
@@ -276,7 +282,7 @@ PipeElement.prototype = {
 		this.density = this.mass/(this.volume/1000);
 		var oldPressure = this.pressure;
 		this.pressure = K*(1 - (oldDensity/this.density)) + oldPressure;
-		this.colour = "hsla(" + 200*(this.pressure - 100000)/900000 +", 100%, 50%, 1)" //pressure range between 2550000 and 0
+		this.colour = "hsla(200, 100%, " + 100*(this.pressure - 100000)/1900000 +"%, 1)" //pressure range between 2550000 and 0
 
 	},
 
@@ -327,29 +333,41 @@ var Pump = function(diam, length, power, posX, posY){
 }
 
 Pump.prototype = Object.create(PipeElement.prototype);
+Pump.prototype.isPump = true;
+
 Pump.prototype.colour = "rgba(100,100,100,1)";
+
 Pump.prototype.update = function(time_scale) {
-	console.log(this.massFlow);
-	this.mass = this.massFlow + this.density*1e6*((this.power/this.pressure)/time_scale);
-	var volFlow = time_scale*(this.massFlow/this.density)/1e6; //m^3s^-1
-	console.log(" after " + this.massFlow);
-	this.pressure = this.power/volFlow;
-	this.densityFromPressure();
+	//console.log((this.density*1e6/time_scale)*(this.power/this.pressure));
+	//console.log(this.power/this.pressure);
+	var massOut = this.massFlow;
+	this.massFlow = this.massFlow + (this.density*1e6/time_scale)*((this.power/this.pressure));
+	this.mass = this.mass + this.massFlow;
+	if(this.mass < 0){this.mass = 0.001;}
+	var oldDensity = this.density;
+	this.density = this.mass/(this.volume/1000);
+	var oldPressure = this.pressure;
+	this.pressure = K*(1 - (oldDensity/this.density)) + oldPressure;
+	//console.log("oldPressure: " + oldPressure + ", newPressure: " + this.pressure);
+	this.colour = "hsla(200, 100%, " + 100*(this.pressure - 100000)/1900000 +"%, 1)" //pressure range between 2550000 and 0
+	this.massFlow = massOut; //for testing of pump output visually
+
+		
 }
 
 Pump.constructor = Pump;
 
 //thisPipe[i].massFlowL = thisPipe[i].density*1e6*((POW/thisPipe[i].pressure)/timescale)/physicsSteps;
 
-var elementLength = 60; //mm 
+var elementLength = 5; //mm 
 var rho = 1 // density of fluid, g/cm^3
 var K = 2e9; //  bulk modulus of fluid, Pa
-var timescale = 600; //how many frames are equivalent to 1 second?
-var physicsSteps = 1	; //how much to subdivide each frame for finer (more accurate?) calculations. Do not let timescale*physicsSteps < 600, oscillations become too nasty!
+var timescale = 60; //how many frames are equivalent to 1 second?
+var physicsSteps = 100	; //how much to subdivide each frame for finer (more accurate?) calculations. Do not let timescale*physicsSteps < 600, oscillations become too nasty!
 
-while(timescale*physicsSteps*elementLength < 3000){
-	physicsSteps *=2;
-	elementLength *= 2;
+while(timescale*physicsSteps*elementLength < 60000){
+	physicsSteps *=4;
+	elementLength += 1;
 	console.log("eL = " + elementLength);
 	console.log("pS = " + physicsSteps);
 
@@ -359,25 +377,25 @@ while(timescale*physicsSteps*elementLength < 3000){
 //to avoid overshoots
 var pAtmo = 1e5; //atmospheric pressure, Pa
 var thisPipe = new Pipe(64, 800, 0, 0);
-for(var i = 0; i < thisPipe.elements.length/8; i++){
+/*for(var i = 0; i < thisPipe.elements.length/8; i++){
 thisPipe.elements[i].pressure = 1000000/(i+1);
 thisPipe.elements[i].densityFromPressure();
-}
+}*/
 
 for(var i = Math.round(0.4*thisPipe.elements.length); i < Math.round(0.6*thisPipe.elements.length); i++){
-thisPipe.elements[i].changeDiam(5);
+thisPipe.elements[i].changeDiam(64);
 }
 
 
-thisSink = new Sink(64, elementLength, thisPipe.endX, height/2);
+thisSink = new Sink(64, elementLength, thisPipe.endX, height/2 - 64);
 sinkInterface = new Interface(thisPipe.elements[thisPipe.elements.length - 1], thisSink);
 sinkInterface.buildVelos();
 thisPipe.elements.push(thisSink);
 thisPipe.interfaces.push(sinkInterface);
 thisPipe.updateEndX();
 
-thisPump = new Pump(64, elementLength, 10000, thisPipe.elements[0].posX - elementLength, height/2);
-thisPump.pressure = 1000000;
+thisPump = new Pump(64, elementLength, 20, thisPipe.elements[0].posX - elementLength, height/2 - 64);
+thisPump.pressure = 200000;
 thisPump.densityFromPressure();
 pumpInterface = new Interface(thisPump, thisPipe.elements[0]);
 pumpInterface.buildVelos();
