@@ -334,13 +334,14 @@ var Pump = function(diam, length, power, posX, posY){
 
 Pump.prototype = Object.create(PipeElement.prototype);
 Pump.prototype.isPump = true;
-
+Pump.prototype.maxPressure = 6000000;
 Pump.prototype.colour = "rgba(100,100,100,1)";
 
 Pump.prototype.update = function(time_scale) {
 	//console.log((this.density*1e6/time_scale)*(this.power/this.pressure));
 	//console.log(this.power/this.pressure);
 	var massOut = this.massFlow;
+	if(this.pressure < this.maxPressure){
 	this.massFlow = this.massFlow + (this.density*1e6/time_scale)*((this.power/this.pressure));
 	this.mass = this.mass + this.massFlow;
 	if(this.mass < 0){this.mass = 0.001;}
@@ -351,6 +352,7 @@ Pump.prototype.update = function(time_scale) {
 	//console.log("oldPressure: " + oldPressure + ", newPressure: " + this.pressure);
 	this.colour = "hsla(200, 100%, " + 100*(this.pressure - 100000)/1900000 +"%, 1)" //pressure range between 2550000 and 0
 	this.massFlow = massOut; //for testing of pump output visually
+}
 
 		
 }
@@ -383,7 +385,7 @@ thisPipe.elements[i].densityFromPressure();
 }*/
 
 for(var i = Math.round(0.4*thisPipe.elements.length); i < Math.round(0.6*thisPipe.elements.length); i++){
-thisPipe.elements[i].changeDiam(64);
+thisPipe.elements[i].changeDiam(70);
 }
 
 
@@ -395,7 +397,7 @@ thisPipe.interfaces.push(sinkInterface);
 thisPipe.updateEndX();
 
 thisPump = new Pump(64, elementLength, 20, thisPipe.elements[0].posX - elementLength, height/2 - 64);
-thisPump.pressure = 200000;
+thisPump.pressure = 100000;
 thisPump.densityFromPressure();
 pumpInterface = new Interface(thisPump, thisPipe.elements[0]);
 pumpInterface.buildVelos();
