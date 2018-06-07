@@ -110,7 +110,7 @@ var Pipe = function(diam, length, posX, angle) {
 		this.interfaces.push(f);
 	}
 	
-	this.endX = this.elements[N-1].posX + this.elements[N-1].size;
+	this.updateEndX();
 	
 	return this;
 	
@@ -134,7 +134,7 @@ Pipe.prototype = {
 			this.interfaces[i].calculateInterfaceMassFlows(time_scale);
 		}
 		for(var i = 0; i < this.elements.length; i++){  //update the mass of each pipe element
-			this.elements[i].update();
+			this.elements[i].update(time_scale);
 		}
 	},
 	
@@ -142,6 +142,11 @@ Pipe.prototype = {
 		for(var i = 0; i < this.elements.length; i++){
 			this.elements[i].render(ctx);
 		}
+	},
+	
+	updateEndX: function(){
+		var N = this.elements.length;
+		this.endX = this.elements[N-1].posX + this.elements[N-1].size;
 	}
 	
 	
@@ -315,11 +320,32 @@ Sink.prototype.update = function() {
 
 Sink.constructor = Sink;
 
-var elementLength = 30; //mm 
+var Pump = function(diam, length, power, posX, posY){
+	PipeElement.call(this, diam, length, posX, posY);
+	this.power = power; //Js^-1
+	
+}
+
+Pump.prototype = Object.create(PipeElement.prototype);
+Pump.prototype.colour = "rgba(100,100,100,1)";
+Pump.prototype.update = function(time_scale) {
+	console.log(this.massFlow);
+	this.mass = this.massFlow + this.density*1e6*((this.power/this.pressure)/time_scale);
+	var volFlow = time_scale*(this.massFlow/this.density)/1e6; //m^3s^-1
+	console.log(" after " + this.massFlow);
+	this.pressure = this.power/volFlow;
+	this.densityFromPressure();
+}
+
+Pump.constructor = Pump;
+
+//thisPipe[i].massFlowL = thisPipe[i].density*1e6*((POW/thisPipe[i].pressure)/timescale)/physicsSteps;
+
+var elementLength = 60; //mm 
 var rho = 1 // density of fluid, g/cm^3
 var K = 2e9; //  bulk modulus of fluid, Pa
-var timescale = 6; //how many frames are equivalent to 1 second?
-var physicsSteps = 100	; //how much to subdivide each frame for finer (more accurate?) calculations. Do not let timescale*physicsSteps < 600, oscillations become too nasty!
+var timescale = 600; //how many frames are equivalent to 1 second?
+var physicsSteps = 1	; //how much to subdivide each frame for finer (more accurate?) calculations. Do not let timescale*physicsSteps < 600, oscillations become too nasty!
 
 while(timescale*physicsSteps*elementLength < 3000){
 	physicsSteps *=2;
@@ -332,8 +358,6 @@ while(timescale*physicsSteps*elementLength < 3000){
 //consider also having within this a physics step time - do multiple (small) updates in a single frame
 //to avoid overshoots
 var pAtmo = 1e5; //atmospheric pressure, Pa
-var POW = 100000; //watts of pump power
-
 var thisPipe = new Pipe(64, 800, 0, 0);
 for(var i = 0; i < thisPipe.elements.length/8; i++){
 thisPipe.elements[i].pressure = 1000000/(i+1);
@@ -350,6 +374,15 @@ sinkInterface = new Interface(thisPipe.elements[thisPipe.elements.length - 1], t
 sinkInterface.buildVelos();
 thisPipe.elements.push(thisSink);
 thisPipe.interfaces.push(sinkInterface);
+thisPipe.updateEndX();
+
+thisPump = new Pump(64, elementLength, 10000, thisPipe.elements[0].posX - elementLength, height/2);
+thisPump.pressure = 1000000;
+thisPump.densityFromPressure();
+pumpInterface = new Interface(thisPump, thisPipe.elements[0]);
+pumpInterface.buildVelos();
+thisPipe.elements.unshift(thisPump);
+thisPipe.interfaces.unshift(pumpInterface);
 
 	   
 function drawWorld(){   ///main animation loop
