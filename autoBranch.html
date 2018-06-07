@@ -88,24 +88,27 @@ h2
 
 
 
-var Pipe = function(diam, length, posX, angle) {
+var Pipe = function(diam, length, posX, posY, angle) {
 	this.diam = diam; 		//mm
 	this.length = length; 	//mm
 	this.posX = posX;
+	this.posY = posY; //starting position of pipe
 	this.angle = angle; //rotation ccw in radians
+	this.elements = [];
+	this.interfaces = [];
 	
 	var N = Math.round(length/(elementLength));
 	
 	for (var i = 0; i < N; i++){
 		var X;
-		if(i == 0){X = 100;} else {X = this.elements[i - 1].posX + this.elements[i - 1].size}
-		var p = new PipeElement(this.diam, elementLength, X, height/2); //create a pipe's worth of elements
+		if(i == 0){X = this.posX+ 100;} else {X = this.elements[i - 1].posX + this.elements[i - 1].size}
+		var p = new PipeElement(this.diam, elementLength, X, this.posY); //create a pipe's worth of elements
 		p.pressure = pAtmo;
 		this.elements.push(p);
 	}
 		
 	for (var i = 0; i < N - 1; i++){
-		var f = new Interface(this.elements[i], this.elements[i + 1]); //create interfaces joining each neighbouring element
+		var f = new Interface([this.elements[i], this.elements[i + 1]]); //create interfaces joining each neighbouring element
 		f.buildVelos();
 		this.interfaces.push(f);
 	}
@@ -122,22 +125,26 @@ Pipe.prototype = {
 	length: 100, //mm
 	posX: 0,
 	angle: 0,
-	elements: [],
-	interfaces: [],
 	label: "",
 	
-	calculateMassFlows: function(time_scale){
+	resetMassFlows: function(){
 		for(var i = 0; i < this.elements.length; i++){  //reset mass flows to zero for this round of calculations
 			this.elements[i].massFlow = 0;
 		}
+	},
+	
+	calculateMassFlows: function(time_scale){
 		for(var i = 0; i < this.interfaces.length; i++){ //calculate mass flows across each interface
 			this.interfaces[i].calculateInterfaceMassFlows(time_scale);
 		}
-		for(var i = 0; i < this.elements.length; i++){  //update the mass of each pipe element
+
+	},
+	
+	update: function(time_scale){
+			for(var i = 0; i < this.elements.length; i++){  //update the mass of each pipe element
 			this.elements[i].update(time_scale);
 		}
 	},
-	
 	render: function(ctx){
 		for(var i = 0; i < this.elements.length; i++){
 			this.elements[i].render(ctx);
@@ -152,14 +159,15 @@ Pipe.prototype = {
 	
 };
 
-var Interface = function(elm1, elm2){
-	this.elements = [elm1, elm2];
+var Interface = function(elms){
+	this.elements = elms;
 	this.velos = [];
 	
 }
 
 Interface.prototype = {
 	buildVelos: function(){ //build an NxN matrix to contain speeds across each pair of elements
+		this.velos = [];
 		for(var i = 0; i < this.elements.length; i++){
 			var sub = [];
 			for(var j = 0; j < this.elements.length; j++){
@@ -177,6 +185,7 @@ Interface.prototype = {
 					var A = this.elements[i];
 					var B = this.elements[j];
 					if(Math.abs(A.pressure - B.pressure) > 0 || A.isPump || B.isPump){
+					
 					
 					var workingArea = Math.min(A.area,B.area)/1e6;  //find size of interface between pipe elements, then convert to m^2
 					var F = 1000*(A.pressure - B.pressure)*workingArea;  //find net force in direction of B, Newtons
@@ -196,7 +205,6 @@ Interface.prototype = {
 					if(A.isPump){
 						if(aB < 0){aB = 0};
 					}
-					
 					if(B.isPump){
 						if(aA > 0){aA = 0};
 					}
@@ -207,11 +215,18 @@ Interface.prototype = {
 				
 					var veloAtoB = kA*this.velos[i][j] + aA;
 					var veloBfromA = kB*this.velos[j][i] + aB;
-					//console.log("vAB: " + veloAtoB);
 			
-					A.massFlow -= (veloAtoB/time_scale)*(A.area/1000)*A.density;  //g of mass flow during time interval
-
+					if(A.isSink){
+						A.massFlow -= (veloAtoB/time_scale)*(B.area/1000)*A.density;
+					} else {
+						A.massFlow -= (veloAtoB/time_scale)*(A.area/1000)*A.density;  //g of mass flow during time interval
+					}
+					if(B.isSink){
+						B.massFlow += (veloBfromA/time_scale)*(A.area/1000)*B.density;
+					} else {
 					B.massFlow += (veloBfromA/time_scale)*(B.area/1000)*B.density;
+					}
+	
 
 					this.velos[i][j] = veloAtoB;
 					this.velos[j][i] = veloBfromA;
@@ -248,8 +263,8 @@ PipeElement.prototype = {
 	pressure: 0, //gauge pressure, Pa
 	density: 1, //g/cm^3
 	massFlow: 0, //g, positive is IN
-	k: 0, //friction coefficient;
 	isPump: false,
+	isSink: false,
 	
 	//RENDERING VARIABLES
 	posX: 0,
@@ -279,10 +294,10 @@ PipeElement.prototype = {
 		this.mass = this.mass + this.massFlow;
 		if(this.mass < 0){this.mass = 0.001;}
 		var oldDensity = this.density;
-		this.density = this.mass/(this.volume/1000);
+		if(this.mass !=0){this.density = this.mass/(this.volume/1000)};
 		var oldPressure = this.pressure;
 		this.pressure = K*(1 - (oldDensity/this.density)) + oldPressure;
-		this.colour = "hsla(200, 100%, " + 100*(this.pressure - 100000)/1900000 +"%, 1)" //pressure range between 2550000 and 0
+		this.colour = "hsla(200, 100%, " + 100*(this.pressure - 100000)/5900000 +"%, 1)" //pressure range between 2550000 and 0
 
 	},
 
@@ -317,10 +332,12 @@ var Sink = function(diam, length, posX, posY){
 
 Sink.prototype = Object.create(PipeElement.prototype);
 Sink.prototype.colour = "rgba(0,0,0,1)";
+Sink.prototype.isSink = true;
 Sink.prototype.update = function() {
 		this.mass = 0;
 		this.pressure = pAtmo;
 		this.density = rho;
+		
 	}
 
 
@@ -338,8 +355,6 @@ Pump.prototype.maxPressure = 6000000;
 Pump.prototype.colour = "rgba(100,100,100,1)";
 
 Pump.prototype.update = function(time_scale) {
-	//console.log((this.density*1e6/time_scale)*(this.power/this.pressure));
-	//console.log(this.power/this.pressure);
 	var massOut = this.massFlow;
 	if(this.pressure < this.maxPressure){
 	this.massFlow = this.massFlow + (this.density*1e6/time_scale)*((this.power/this.pressure));
@@ -349,7 +364,6 @@ Pump.prototype.update = function(time_scale) {
 	this.density = this.mass/(this.volume/1000);
 	var oldPressure = this.pressure;
 	this.pressure = K*(1 - (oldDensity/this.density)) + oldPressure;
-	//console.log("oldPressure: " + oldPressure + ", newPressure: " + this.pressure);
 	this.colour = "hsla(200, 100%, " + 100*(this.pressure - 100000)/1900000 +"%, 1)" //pressure range between 2550000 and 0
 	this.massFlow = massOut; //for testing of pump output visually
 }
@@ -359,15 +373,13 @@ Pump.prototype.update = function(time_scale) {
 
 Pump.constructor = Pump;
 
-//thisPipe[i].massFlowL = thisPipe[i].density*1e6*((POW/thisPipe[i].pressure)/timescale)/physicsSteps;
-
-var elementLength = 5; //mm 
+var elementLength = 40; //mm 
 var rho = 1 // density of fluid, g/cm^3
 var K = 2e9; //  bulk modulus of fluid, Pa
 var timescale = 60; //how many frames are equivalent to 1 second?
-var physicsSteps = 100	; //how much to subdivide each frame for finer (more accurate?) calculations. Do not let timescale*physicsSteps < 600, oscillations become too nasty!
+var physicsSteps = 10	; //how much to subdivide each frame for finer (more accurate?) calculations. 
 
-while(timescale*physicsSteps*elementLength < 60000){
+while(timescale*physicsSteps*elementLength < 60000){ //Do not let timescale*physicsSteps*elementLength < 60000, oscillations become too nasty!
 	physicsSteps *=4;
 	elementLength += 1;
 	console.log("eL = " + elementLength);
@@ -375,48 +387,53 @@ while(timescale*physicsSteps*elementLength < 60000){
 
 }
 
-//consider also having within this a physics step time - do multiple (small) updates in a single frame
-//to avoid overshoots
+
 var pAtmo = 1e5; //atmospheric pressure, Pa
-var thisPipe = new Pipe(64, 800, 0, 0);
-/*for(var i = 0; i < thisPipe.elements.length/8; i++){
-thisPipe.elements[i].pressure = 1000000/(i+1);
-thisPipe.elements[i].densityFromPressure();
-}*/
+var thisPipe = new Pipe(64, 800, 0, height/2, 0);
+var thatPipe = new Pipe(64, 800, 0, height/4, 0);
+
 
 for(var i = Math.round(0.4*thisPipe.elements.length); i < Math.round(0.6*thisPipe.elements.length); i++){
-thisPipe.elements[i].changeDiam(70);
+	thisPipe.elements[i].changeDiam(38);
 }
 
 
-thisSink = new Sink(64, elementLength, thisPipe.endX, height/2 - 64);
-sinkInterface = new Interface(thisPipe.elements[thisPipe.elements.length - 1], thisSink);
-sinkInterface.buildVelos();
-thisPipe.elements.push(thisSink);
-thisPipe.interfaces.push(sinkInterface);
-thisPipe.updateEndX();
+	thisSink = new Sink(64, elementLength, thisPipe.endX, height/2 - 64);
+	sinkInterface = new Interface([thisPipe.elements[thisPipe.elements.length - 1],thatPipe.elements[thisPipe.elements.length - 1], thisSink]);
+	sinkInterface.buildVelos();
+	thisPipe.elements.push(thisSink);
+	thisPipe.interfaces.push(sinkInterface);
+	thisPipe.updateEndX();
 
-thisPump = new Pump(64, elementLength, 20, thisPipe.elements[0].posX - elementLength, height/2 - 64);
-thisPump.pressure = 100000;
-thisPump.densityFromPressure();
-pumpInterface = new Interface(thisPump, thisPipe.elements[0]);
-pumpInterface.buildVelos();
-thisPipe.elements.unshift(thisPump);
-thisPipe.interfaces.unshift(pumpInterface);
+	thisPump = new Pump(64, elementLength, 20, thisPipe.elements[0].posX - elementLength, height/2 - 64);
+	thisPump.pressure = 100000;
+	thisPump.densityFromPressure();
+	pumpInterface = new Interface([thisPump, thisPipe.elements[0], thatPipe.elements[0]]);
+	pumpInterface.buildVelos();
+	thisPipe.elements.unshift(thisPump);
+	thisPipe.interfaces.unshift(pumpInterface);
+	
 
+	
 	   
 function drawWorld(){   ///main animation loop
 	//console.log("=======================");
 	ctx0.fillStyle = "rgba(100,0,100,1)";
 	ctx0.fillRect(0,0,width,height);
 	for(var j = 0; j < physicsSteps; j++){
+		thisPipe.resetMassFlows();	
+		thatPipe.resetMassFlows();
 		thisPipe.calculateMassFlows(timescale*physicsSteps);
+		thatPipe.calculateMassFlows(timescale*physicsSteps);
+		thisPipe.update(timescale*physicsSteps);
+		thatPipe.update(timescale*physicsSteps);
 
 		
 	}
 	ctx1.clearRect(0,0,width,height);
 	
 	thisPipe.render(ctx1);
+	thatPipe.render(ctx1);
 	ctx0.drawImage(canvas1,0,0);
 
 	requestAnimationFrame(drawWorld);
