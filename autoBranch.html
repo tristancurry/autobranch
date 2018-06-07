@@ -59,6 +59,9 @@ h2
 
 <canvas id="canvas0" height="1024" width="1024" onclick="requestAnimationFrame(drawWorld)">This text is displayed if your browser don't support HTML5 Canvas!</canvas>
 
+<div id="controls">
+
+</div>
 <script>
 
 	var title = document.querySelector("#theTitle");
@@ -356,9 +359,16 @@ Sink.prototype.update = function() {
 
 Sink.constructor = Sink;
 
-var Pump = function(diam, length, power, posX, posY){
+var Pump = function(diam, length, power, posX, posY, id){
 	PipeElement.call(this, diam, length, posX, posY);
 	this.power = power; //Js^-1
+	this.id = id;
+	if(id == null){this.id = "pump1"}
+	var controlPanel = document.getElementById("controls");
+	controlPanel.innerHTML += '<label for="'+ this.id + 'throttle" >Throttle:'+ this.id + '</label>';
+	controlPanel.innerHTML += '<input type="range" id="' + this.id + 'throttle" class="comptrol" min = "0" max = "100" step = "0.10" value="' + this.power + '" onInput="this.updatePower(value)">';
+	controlPanel.innerHTML += '<span id="'+ this.id + 'throttleDisplay">' + this.power + '</span>';
+
 	
 }
 
@@ -384,7 +394,9 @@ Pump.prototype.update = function(time_scale) {
 	this.massFlow = massOut; //for testing of pump output visually
 	this.velo = this.findVelo();
 
-
+	Pump.prototype.updatePower = function(value){
+		this.power = value;
+	}
 		
 }
 
