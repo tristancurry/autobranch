@@ -252,20 +252,26 @@ Interface.prototype = {
 				for(var j = i + 1; j < l; j++){
 					var A = this.elements[i];
 					var B = this.elements[j];
-			
-					if(Math.abs(A.pressure - B.pressure) > 0 || A.isPump || B.isPump){
+					
+					if(A.area == 0 || B.area == 0){
+						
+						this.velos[i][j] = 0;
+						this.velos[j][i] = 0;
+						
+					
+						
+					} else if(Math.abs(A.pressure - B.pressure) > 0 || (A.isPump || B.isPump) && (A.area > 0 && B.area > 0)){
 					
 						var workingArea = Math.min(A.area,B.area)/1e6;  //find size of interface between pipe elements, then convert to m^2
 						var F = 1000*(A.pressure - B.pressure)*workingArea;  //find net force in direction of B, Newtons
 						
 						if(A.mass > 0){
 							var aA = (F/A.mass)/time_scale; //resultant acceleration of fluid in ms^-2
-						} else {
-							var aA = (F/B.mass)/time_scale;
-						}
+						} else {var aA = (F/B.mass)/time_scale;}
 						if(B.mass > 0){
 							var aB = (F/B.mass)/time_scale; //resultant acceleration of fluid in ms^-2
 						} else { var aB = (F/A.mass)/time_scale; }
+
 					
 						if(A.isPump){
 							if(aB < 0){aB = 0};
@@ -295,9 +301,10 @@ Interface.prototype = {
 
 						this.velos[i][j] = veloAtoB;
 						this.velos[j][i] = veloBfromA;
-						A.peVelos.push(veloAtoB);
-						B.peVelos.push(veloBfromA);
+
 					}
+					A.peVelos.push(this.velos[i][j]);
+					B.peVelos.push(this.velos[j][i]);
 				}
 			}
 		}
@@ -453,6 +460,7 @@ Pump.prototype.colour = "rgba(100,100,100,1)";
 
 Pump.prototype.update = function(time_scale) {
 	var massOut = this.massFlow;
+		
 	if(this.pressure <= this.maxPressure){
 		this.massFlow = this.massFlow + (this.density*1e6/time_scale)*((this.power/this.pressure));
 		this.mass = this.mass + this.massFlow;
@@ -469,9 +477,6 @@ Pump.prototype.update = function(time_scale) {
 	this.massFlow = massOut; //for testing of pump output visually
 	this.velo = this.findVelo();
 
-	Pump.prototype.updatePower = function(value){
-		this.power = value;
-	}
 		
 }
 
@@ -490,8 +495,8 @@ var Sinks = [];
 var elementLength = 40; //mm 
 var rho = 1 // density of fluid, g/cm^3
 var K = 2e9; //  bulk modulus of fluid, Pa
-var timescale = 600; //how many frames are equivalent to 1 second?
-var physicsSteps = 100; //how much to subdivide each frame for finer (more accurate?) calculations. 
+var timescale = 60; //how many frames are equivalent to 1 second?
+var physicsSteps = 10; //how much to subdivide each frame for finer (more accurate?) calculations. 
 
 while(timescale*physicsSteps*elementLength < 120000){ //Do not let timescale*physicsSteps*elementLength < 60000, oscillations become too nasty!
 	physicsSteps *=2;
@@ -522,7 +527,7 @@ var thatValve = new Valve(64, 200, 400, 0.75*height, 0);
 	thisPipe.updateEndX();
 	
 	thisPump = new Pump(64, elementLength, 10, thisPipe.elements[0].posX - elementLength, height/2 - 64);
-	thisPump.pressure = 0;
+	thisPump.pressure = pAtmo;
 	thisPump.densityFromPressure();
 	PumpInterface = new Interface([thisPump, thisValve.elements[0], thatValve.elements[0]]);
 	
@@ -543,7 +548,7 @@ var thatValve = new Valve(64, 200, 400, 0.75*height, 0);
 	
 	   
 function drawWorld(){   ///main animation loop
-
+	//console.log("=============")
 	ctx0.fillStyle = "rgba(100,0,100,1)";
 	ctx0.fillRect(0,0,width,height);
 	for(var j = 0; j < physicsSteps; j++){
