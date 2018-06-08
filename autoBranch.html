@@ -492,13 +492,13 @@ var Pumps = [];
 var Valves = [];
 var Sinks = [];
 
-var elementLength = 40; //mm 
+var elementLength = 30; //mm 
 var rho = 1 // density of fluid, g/cm^3
 var K = 2e9; //  bulk modulus of fluid, Pa
 var timescale = 60; //how many frames are equivalent to 1 second?
-var physicsSteps = 10; //how much to subdivide each frame for finer (more accurate?) calculations. 
+var physicsSteps = 100; //how much to subdivide each frame for finer (more accurate?) calculations. 
 
-while(timescale*physicsSteps*elementLength < 120000){ //Do not let timescale*physicsSteps*elementLength < 60000, oscillations become too nasty!
+while(timescale*physicsSteps*elementLength < 160000){ //Do not let timescale*physicsSteps*elementLength < 60000, oscillations become too nasty!
 	physicsSteps *=2;
 	elementLength += 2;
 	console.log("eL = " + elementLength);
