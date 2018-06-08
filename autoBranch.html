@@ -367,7 +367,7 @@ PipeElement.prototype = {
 		var oldPressure = this.pressure;
 		this.pressure = K*(1 - (oldDensity/this.density)) + oldPressure;
 		this.velo = this.findVelo();
-		this.colour = "hsla(200, 100%, " + 100*(this.pressure - 100000)/1400000 +"%, 1)" //pressure range between 2550000 and 0
+		this.colour = "hsla(200, 100%, " + 100*(this.pressure - 100000)/2900000 +"%, 1)" //pressure range between 2550000 and 0
 
 	},
 	
@@ -465,7 +465,7 @@ Pump.prototype.update = function(time_scale) {
 		this.pressure = this.maxPressure;
 		this.densityFromPressure();
 	}
-	this.colour = "hsla(200, 100%, " + 100*(this.pressure - 100000)/1400000 +"%, 1)" //pressure range between 2550000 and 0
+	this.colour = "hsla(200, 100%, " + 100*(this.pressure - 100000)/2900000 +"%, 1)" //pressure range between 2550000 and 0
 	this.massFlow = massOut; //for testing of pump output visually
 	this.velo = this.findVelo();
 
@@ -487,10 +487,10 @@ var Pumps = [];
 var Valves = [];
 var Sinks = [];
 
-var elementLength = 30; //mm 
+var elementLength = 40; //mm 
 var rho = 1 // density of fluid, g/cm^3
 var K = 2e9; //  bulk modulus of fluid, Pa
-var timescale = 60; //how many frames are equivalent to 1 second?
+var timescale = 600; //how many frames are equivalent to 1 second?
 var physicsSteps = 100; //how much to subdivide each frame for finer (more accurate?) calculations. 
 
 while(timescale*physicsSteps*elementLength < 120000){ //Do not let timescale*physicsSteps*elementLength < 60000, oscillations become too nasty!
@@ -511,9 +511,7 @@ var thatValve = new Valve(64, 200, 400, 0.75*height, 0);
 
 
 
-for(var i = Math.round(0.4*thisPipe.elements.length); i < Math.round(0.6*thisPipe.elements.length); i++){
-	thisPipe.elements[i].changeDiam(64);
-}
+
 
 
 	thisSink = new Sink(64, elementLength, thisPipe.endX, height/2 - 64);
