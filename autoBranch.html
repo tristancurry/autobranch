@@ -55,9 +55,9 @@ h2
 </head>
 <body>
 <h1 id="theTitle">AutoBranch</h1>
-<h2 id="status">0 | 0</h2>
+<h3 id="status">0 | 0</h2>
 
-<canvas id="canvas0" height="1024" width="1024" onclick="requestAnimationFrame(drawWorld)">This text is displayed if your browser don't support HTML5 Canvas!</canvas>
+<canvas id="canvas0" height="800" width="1024" onclick="requestAnimationFrame(drawWorld)">This text is displayed if your browser don't support HTML5 Canvas!</canvas>
 
 <div id="controls">
 	<div id = "throttles">
@@ -93,12 +93,13 @@ h2
 	var controlPanel = document.getElementById("controls");
 	controlPanel.addEventListener("input", doThing, false);
 	
+	var today = new Date();
+	document.getElementById("status").innerHTML = today;
+	
 	function doThing(e){
 		if (e.target !== e.currentTarget) {
 			var inputSN = e.target.dataset.connectedto;
-			console.log(inputSN);
 			var inputObject = Controls[inputSN];
-			console.log(inputObject);
 			inputObject.applySliderValue(e.target.value);
 		}
 		e.stopPropagation();
@@ -273,8 +274,8 @@ Interface.prototype = {
 							if(aA > 0){aA = 0};
 						}
 					
-						var kA = Math.pow(0.99,60000/time_scale);
-						var kB = Math.pow(0.99,60000/time_scale);
+						var kA = Math.pow(0.991,60000/time_scale);
+						var kB = Math.pow(0.991,60000/time_scale);
 					
 				
 						var veloAtoB = kA*this.velos[i][j] + aA;
@@ -391,7 +392,6 @@ PipeElement.prototype = {
 		ctx.translate(this.posX - 0.5*this.size, this.posY - 0.5*this.diam);
 		ctx.rect(0,0, this.size, this.diam);
 		ctx.fill();
-		//ctx.stroke();
 		ctx.restore();
 		ctx.font="9px Arial";
 		ctx.fillText(this.label, this.posX - 0.5*this.size, this.posY - 120);
@@ -405,8 +405,14 @@ PipeElement.prototype = {
 	
 };
 
-var Sink = function(diam, length, posX, posY){
+var Sink = function(diam, length, posX, posY, id){
 	PipeElement.call(this, diam, length, posX, posY);
+	this.id = id;
+	if(id == null){this.id = "sink" + Sinks.length}
+	this.label = this.id;
+	
+	Sinks.push(this);
+	
 }
 
 Sink.prototype = Object.create(PipeElement.prototype);
@@ -427,19 +433,17 @@ var Pump = function(diam, length, power, posX, posY, id){
 	this.id = id;
 	if(id == null){this.id = "pump" + Pumps.length}
 	this.label = this.id;
-	var self = this;
+
+	Pumps.push(this); //add to the global list of Pumps, for auto-naming
+	Controls.push(this);
+	this.SN = Controls.length - 1;
+	
 	var controlPanel = document.getElementById("throttles");
 	controlPanel.innerHTML += '<label for="'+ this.id + 'throttle" >Throttle: '+ this.id + '</label>';
-	controlPanel.innerHTML += '<input type="range" id="' + this.id + 'throttle" class="comptrol" min = "0" max = "100" step = "0.10" value="' + this.power + '" >';
+	controlPanel.innerHTML += '<input type="range" id="' + this.id + 'throttle" class="comptrol" min = "0" max = "100" step = "0.10" value="' + this.power + '" data-connectedto="'+ this.SN +'" >';
 	controlPanel.innerHTML += '<span id="'+ this.id + 'throttleDisplay">' + this.power + '</span>';
-
-	this.slider = document.getElementById(this.id + "throttle");
-	this.slider.oninput = function(){
-		self.power = this.value;
-		document.getElementById(self.id + "throttleDisplay").innerHTML = this.value;
-	}
 	
-	Pumps.push(this); //add to the global list of Pumps, for auto-naming
+
 }
 
 Pump.prototype = Object.create(PipeElement.prototype);
@@ -471,19 +475,25 @@ Pump.prototype.update = function(time_scale) {
 		
 }
 
+Pump.prototype.applySliderValue = function(val){
+	this.power = val;
+	document.getElementById(this.id + "throttleDisplay").innerHTML = this.power;
+}
+
 Pump.constructor = Pump;
 
 var Controls = [];
 var Pumps = [];
 var Valves = [];
+var Sinks = [];
 
-var elementLength = 50; //mm 
+var elementLength = 30; //mm 
 var rho = 1 // density of fluid, g/cm^3
 var K = 2e9; //  bulk modulus of fluid, Pa
 var timescale = 60; //how many frames are equivalent to 1 second?
 var physicsSteps = 100; //how much to subdivide each frame for finer (more accurate?) calculations. 
 
-while(timescale*physicsSteps*elementLength < 60000){ //Do not let timescale*physicsSteps*elementLength < 60000, oscillations become too nasty!
+while(timescale*physicsSteps*elementLength < 120000){ //Do not let timescale*physicsSteps*elementLength < 60000, oscillations become too nasty!
 	physicsSteps *=2;
 	elementLength += 2;
 	console.log("eL = " + elementLength);
@@ -499,7 +509,7 @@ var thisValve = new Valve(64, 200, 0, 0.75*height, 0);
 var thatValve = new Valve(64, 200, 400, 0.75*height, 0);
 
 
-console.log(Controls);
+
 
 for(var i = Math.round(0.4*thisPipe.elements.length); i < Math.round(0.6*thisPipe.elements.length); i++){
 	thisPipe.elements[i].changeDiam(64);
@@ -507,35 +517,35 @@ for(var i = Math.round(0.4*thisPipe.elements.length); i < Math.round(0.6*thisPip
 
 
 	thisSink = new Sink(64, elementLength, thisPipe.endX, height/2 - 64);
-	thisSinkInterface = new Interface([thisPipe.elements[thisPipe.elements.length - 1], thisSink]);
-	thatSinkInterface = new Interface([thatPipe.elements[thisPipe.elements.length - 1], thisSink]);
+	SinkInterface = new Interface([thisPipe.elements[thisPipe.elements.length - 1],thatPipe.elements[thisPipe.elements.length - 1], thisSink]);
+	
 	thisPipe.elements.push(thisSink);
-	thisPipe.interfaces.push(thisSinkInterface);
-	thatPipe.interfaces.push(thatSinkInterface);
+	thisPipe.interfaces.push(SinkInterface);
 	thisPipe.updateEndX();
-
+	
 	thisPump = new Pump(64, elementLength, 10, thisPipe.elements[0].posX - elementLength, height/2 - 64);
-	thisPump.pressure = 100000;
+	thisPump.pressure = 0;
 	thisPump.densityFromPressure();
-	thisPumpInterface = new Interface([thisPump, thisValve.elements[0]]);
-	thatPumpInterface = new Interface([thisPump, thatValve.elements[0]]);
+	PumpInterface = new Interface([thisPump, thisValve.elements[0], thatValve.elements[0]]);
+	
 	thisValveInterface = new Interface([thisValve.elements[thisValve.elements.length - 1],thisPipe.elements[0]]);
 	thatValveInterface = new Interface([thatValve.elements[thisValve.elements.length - 1],thatPipe.elements[0]]);
-	thisPipe.elements.unshift(thisValve);
-	thisPipe.elements.unshift(thisPump);
-	thisPipe.interfaces.unshift(thisValveInterface);
-	thisPipe.interfaces.unshift(thisPumpInterface);
-	thatPipe.elements.unshift(thatValve);
-	thatPipe.interfaces.unshift(thatValveInterface);
-	thisPipe.interfaces.unshift(thatPumpInterface);
 	
+	
+	thisPipe.elements.unshift(thisPump);	// not that the pipe is actually connected (interface-wise) to the pump, but it's a convenient way to get the pump iterated through for now (can't add it to the Valve elements because of the dynamic diameter!)
+	thisPipe.interfaces.unshift(thisValveInterface); //
+	thatPipe.interfaces.unshift(thatValveInterface); //it actually doesn't matter at the moment where the interfaces are stored, as long as they are iterated through
+	thisPipe.interfaces.unshift(PumpInterface);
+
+
+	//this is an entirely cumbersome way to build the network! Please streamline (perhaps making 'NETWORK' objects)
 	
 	
 
 	
 	   
 function drawWorld(){   ///main animation loop
-	//console.log("=======================");
+
 	ctx0.fillStyle = "rgba(100,0,100,1)";
 	ctx0.fillRect(0,0,width,height);
 	for(var j = 0; j < physicsSteps; j++){
@@ -551,7 +561,7 @@ function drawWorld(){   ///main animation loop
 		thatPipe.update(timescale*physicsSteps);
 		thisValve.update(timescale*physicsSteps);
 		thatValve.update(timescale*physicsSteps);
-
+		//again, cumbersome - should be grouped into NETWORKS
 
 		
 	}
