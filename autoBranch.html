@@ -106,6 +106,48 @@ h2
 	}
 
 
+var Network = function() {
+	this.components = [];
+	this.interfaces = [];
+}
+
+Network.prototype = {
+	install: function(comps){
+			this.components = this.components.concat(comps); //add these components to the Network's component list
+		for(var i = 0, l = comps.length; i < l; i++){
+				if(comps[i].interfaces != null){
+			this.interfaces = this.interfaces.concat(comps[i].interfaces); //add this component's interfaces to the Network's list, if they exist.
+			}
+		} 
+	},
+	
+	connect: function(comps){ //would be good to check if the components are already in the Network before hooking them up.
+		var intfc = new Interface(comps); //would also be good to check to see if they're already hooked up!
+		this.interfaces.push(intfc);
+		
+	},
+	
+	update: function(time_scale){ 
+		for(var i = 0, l = this.components.length; i < l; i++){
+			this.components[i].resetMassFlows();
+		}
+		for(var i = 0, l = this.interfaces.length; i < l; i++){
+			this.interfaces[i].calculateMassFlows(time_scale);
+		}
+		for(var i = 0, l = this.components.length; i < l; i++){
+			this.components[i].update(time_scale);
+		}
+	},
+	
+	render: function(ctx){
+		for(var i = 0, l = this.components.length; i < l; i++){
+			this.components[i].render(ctx);
+		}		
+	}
+	
+	//be nice to be able to augment an existing Interface somehow...the trick is finding it again.
+}
+
 
 var Pipe = function(diam, length, posX, posY, angle) {
 	this.diam = diam; 		//mm
@@ -131,6 +173,10 @@ var Pipe = function(diam, length, posX, posY, angle) {
 		f.buildVelos();
 		this.interfaces.push(f);
 	}
+	
+	this.end1 = this.elements[0];
+	this.end2 = this.elements[N-1];
+	
 	
 	this.updateEndX();
 	
@@ -511,40 +557,44 @@ while(timescale*physicsSteps*elementLength < 160000){ //Do not let timescale*phy
 
 
 var pAtmo = 1e5; //atmospheric pressure, Pa
+
+var thisNetwork = new Network();
+
 var thisPipe = new Pipe(64, 800, 0, height/4, 0);
 var thatPipe = new Pipe(64, 800, 0, height/2, 0);
 var thisValve = new Valve(64, 200, 0, 0.75*height, 0);
 var thatValve = new Valve(64, 200, 400, 0.75*height, 0);
 
+var thisSink = new Sink(64, elementLength, thisPipe.endX, height/2 - 64);
 
-
-
-
-
-
-	thisSink = new Sink(64, elementLength, thisPipe.endX, height/2 - 64);
-	SinkInterface = new Interface([thisPipe.elements[thisPipe.elements.length - 1],thatPipe.elements[thisPipe.elements.length - 1], thisSink]);
+//var SinkInterface = new Interface([thisPipe.elements[thisPipe.elements.length - 1],thatPipe.elements[thisPipe.elements.length - 1], thisSink]);
 	
-	thisPipe.elements.push(thisSink);
-	thisPipe.interfaces.push(SinkInterface);
-	thisPipe.updateEndX();
+	//thisPipe.elements.push(thisSink);
+	//thisPipe.interfaces.push(SinkInterface);
+	//thisPipe.updateEndX();
 	
-	thisPump = new Pump(64, elementLength, 10, thisPipe.elements[0].posX - elementLength, height/2 - 64);
+var	thisPump = new Pump(64, elementLength, 10, thisPipe.elements[0].posX - elementLength, height/2 - 64);
 	thisPump.pressure = pAtmo;
 	thisPump.densityFromPressure();
-	PumpInterface = new Interface([thisPump, thisValve.elements[0], thatValve.elements[0]]);
+//var	PumpInterface = new Interface([thisPump, thisValve.elements[0], thatValve.elements[0]]);
 	
-	thisValveInterface = new Interface([thisValve.elements[thisValve.elements.length - 1],thisPipe.elements[0]]);
-	thatValveInterface = new Interface([thatValve.elements[thisValve.elements.length - 1],thatPipe.elements[0]]);
+//var thisValveInterface = new Interface([thisValve.elements[thisValve.elements.length - 1],thisPipe.elements[0]]);
+//var	thatValveInterface = new Interface([thatValve.elements[thisValve.elements.length - 1],thatPipe.elements[0]]);
 	
 	
-	thisPipe.elements.unshift(thisPump);	// not that the pipe is actually connected (interface-wise) to the pump, but it's a convenient way to get the pump iterated through for now (can't add it to the Valve elements because of the dynamic diameter!)
-	thisPipe.interfaces.unshift(thisValveInterface); //
-	thatPipe.interfaces.unshift(thatValveInterface); //it actually doesn't matter at the moment where the interfaces are stored, as long as they are iterated through
-	thisPipe.interfaces.unshift(PumpInterface);
+	//thisPipe.elements.unshift(thisPump);	// not that the pipe is actually connected (interface-wise) to the pump, but it's a convenient way to get the pump iterated through for now (can't add it to the Valve elements because of the dynamic diameter!)
+	//thisPipe.interfaces.unshift(thisValveInterface); //
+	//thatPipe.interfaces.unshift(thatValveInterface); //it actually doesn't matter at the moment where the interfaces are stored, as long as they are iterated through
+	//thisPipe.interfaces.unshift(PumpInterface);
 
 
 	//this is an entirely cumbersome way to build the network! Please streamline (perhaps making 'NETWORK' objects)
+	
+	thisNetwork.install([thisPump, thisPipe, thatPipe, thisValve, thatValve, thisSink]);
+	thisNetwork.connect([thisPump, thisValve.end1, thatValve.end1]);
+	thisNetwork.connect([thisValve.end2, thisPipe.end1]);
+	thisNetwork.connect([thatValve.end2, thatPipe.end1]);
+	thisNetwork.connect([thisPipe.end2, thatPipe.end2, thisSink]);
 	
 	
 
@@ -555,28 +605,28 @@ function drawWorld(){   ///main animation loop
 	ctx0.fillStyle = "rgba(100,0,100,1)";
 	ctx0.fillRect(0,0,width,height);
 	for(var j = 0; j < physicsSteps; j++){
-		thisPipe.resetMassFlows();	
-		thatPipe.resetMassFlows();
-		thisValve.resetMassFlows();
-		thatValve.resetMassFlows();
-		thisPipe.calculateMassFlows(timescale*physicsSteps);
-		thatPipe.calculateMassFlows(timescale*physicsSteps);
-		thisValve.calculateMassFlows(timescale*physicsSteps);
-		thatValve.calculateMassFlows(timescale*physicsSteps);
-		thisPipe.update(timescale*physicsSteps);
-		thatPipe.update(timescale*physicsSteps);
-		thisValve.update(timescale*physicsSteps);
-		thatValve.update(timescale*physicsSteps);
+		//thisPipe.resetMassFlows();	
+		//thatPipe.resetMassFlows();
+		//thisValve.resetMassFlows();
+		//thatValve.resetMassFlows();
+		//thisPipe.calculateMassFlows(timescale*physicsSteps);
+		//thatPipe.calculateMassFlows(timescale*physicsSteps);
+		//thisValve.calculateMassFlows(timescale*physicsSteps);
+		//thatValve.calculateMassFlows(timescale*physicsSteps);
+		//thisPipe.update(timescale*physicsSteps);
+		//thatPipe.update(timescale*physicsSteps);
+		//thisValve.update(timescale*physicsSteps);
+		//thatValve.update(timescale*physicsSteps);
 		//again, cumbersome - should be grouped into NETWORKS
-
+		thisNetwork.update(timescale*physicsSteps);
 		
 	}
 	ctx1.clearRect(0,0,width,height);
-	
-	thisPipe.render(ctx1);
-	thatPipe.render(ctx1);
-	thisValve.render(ctx1);
-	thatValve.render(ctx1);
+	thisNetwork.render(ctx1);
+	//thisPipe.render(ctx1);
+	//thatPipe.render(ctx1);
+	//thisValve.render(ctx1);
+	//thatValve.render(ctx1);
 	ctx0.drawImage(canvas1,0,0);
 	requestAnimationFrame(drawWorld);
 }
