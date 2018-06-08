@@ -60,7 +60,10 @@ h2
 <canvas id="canvas0" height="1024" width="1024" onclick="requestAnimationFrame(drawWorld)">This text is displayed if your browser don't support HTML5 Canvas!</canvas>
 
 <div id="controls">
-
+	<div id = "throttles">
+	</div>
+	<div id = "valves">
+	</div>
 </div>
 <script>
 
@@ -158,15 +161,62 @@ Pipe.prototype = {
 	updateEndX: function(){
 		var N = this.elements.length;
 		this.endX = this.elements[N-1].posX + this.elements[N-1].size;
+	},
+	
+	updateDiam: function(newDiam){
+		for(var i = 0, l = this.elements.length; i < l; i++){
+			elements[i].changeDiam(newDiam);
+		}
+		
 	}
 	
 	
 };
 
+var Valve = function(diam, length, posX, posY, setting, id){
+	this.oDiam = this.diam;
+	this.setting = setting; //0 = closed, 1 = open
+	this.diam = this.setting*this.oDiam;
+	Pipe.call(this, this.diam, length, posX, posY, 0);
+	if(setting == null || setting < 0 || setting > 1){this.setting = 0;}
+	this.id = id;
+	if(id == null){this.id = "valve" + Valves.length}
+	this.label = this.id;
+	var self = this;
+	var controlPanel = document.getElementById("valves");
+	controlPanel.innerHTML += '<label for="'+ this.id + 'control" >Setting: '+ this.id + '</label>';
+	controlPanel.innerHTML += '<input type="range" id="' + this.id + 'control" class="comptrol" min = "0" max = "1" step = "0.01" value="' + this.setting + '" >';
+	controlPanel.innerHTML += '<span id="'+ this.id + 'controlDisplay">' + this.setting*100 + '%</span>';
+
+	this.slider = document.getElementById(this.id + "control");
+
+	this.slider.oninput = function(){
+		console.log("hi!");
+		self.setting = this.value;
+		document.getElementById(self.id + "controlDisplay").innerHTML = Math.round(this.value*100) + "%";
+		self.diam = self.setting*self.oDiam;
+		for(var i = 0, l = self.elements.length; i < l; i++){
+				self.elements[i].changeDiam(self.diam);
+		}
+	}
+	
+	
+	Valves.push(this); //add to the global list of Valves, for auto-naming
+	
+	var mid = Math.round(this.elements.length/2);
+	this.elements[mid].label = this.label;
+}
+
+Valve.prototype = Object.create(Pipe.prototype);
+
+Valve.constructor = Valve;
+
+
 var Interface = function(elms){
 	this.elements = elms;
 	this.velos = [];
 	this.buildVelos();
+	this.interfaceActive = true;
 	
 }
 
@@ -189,6 +239,7 @@ Interface.prototype = {
 				for(var j = i + 1; j < l; j++){
 					var A = this.elements[i];
 					var B = this.elements[j];
+			
 					if(Math.abs(A.pressure - B.pressure) > 0 || A.isPump || B.isPump){
 					
 						var workingArea = Math.min(A.area,B.area)/1e6;  //find size of interface between pipe elements, then convert to m^2
@@ -283,6 +334,7 @@ PipeElement.prototype = {
 		this.area = (Math.PI*this.diam*this.diam*0.25);
 		this.volume = this.area*this.length; //mm^3
 		this.mass = this.volume*this.density/1000;
+		if(this.diam <= 0){this.pressure = 0;}
 		//this.density = 1000*this.mass/this.volume //cross-sectional area * length * density in g/mm^3;
 	},
 	
@@ -296,7 +348,7 @@ PipeElement.prototype = {
 	
 	update: function() {
 		this.mass = this.mass + this.massFlow;
-		if(this.mass < 0){this.mass = 0.001;}
+		if(this.mass < 0){this.mass = 1;}
 		var oldDensity = this.density;
 		if(this.mass !=0){this.density = this.mass/(this.volume/1000)};
 		var oldPressure = this.pressure;
@@ -330,6 +382,7 @@ PipeElement.prototype = {
 		//ctx.stroke();
 		ctx.restore();
 		ctx.font="9px Arial";
+		ctx.fillText(this.label, this.posX - 0.5*this.size, this.posY - 120);
 		ctx.fillText("p: " + Math.round(this.pressure/1000) + "kPa", this.posX - 0.5*this.size, this.posY - 100);
 		ctx.fillText("mass: " + Math.round(this.mass)+ "g", this.posX - 0.5*this.size, this.posY - 80);
 		ctx.fillText("q: " + Math.round(60*this.massFlow*timescale*physicsSteps)+ "L/m", this.posX - 0.5*this.size, this.posY - 60);
@@ -342,7 +395,6 @@ PipeElement.prototype = {
 
 var Sink = function(diam, length, posX, posY){
 	PipeElement.call(this, diam, length, posX, posY);
-
 }
 
 Sink.prototype = Object.create(PipeElement.prototype);
@@ -355,21 +407,27 @@ Sink.prototype.update = function() {
 		this.velo = this.findVelo();
 		
 	}
-
-
 Sink.constructor = Sink;
 
 var Pump = function(diam, length, power, posX, posY, id){
 	PipeElement.call(this, diam, length, posX, posY);
 	this.power = power; //Js^-1
 	this.id = id;
-	if(id == null){this.id = "pump1"}
-	var controlPanel = document.getElementById("controls");
-	controlPanel.innerHTML += '<label for="'+ this.id + 'throttle" >Throttle:'+ this.id + '</label>';
-	controlPanel.innerHTML += '<input type="range" id="' + this.id + 'throttle" class="comptrol" min = "0" max = "100" step = "0.10" value="' + this.power + '" onInput="this.updatePower(value)">';
+	if(id == null){this.id = "pump" + Pumps.length}
+	this.label = this.id;
+	var self = this;
+	var controlPanel = document.getElementById("throttles");
+	controlPanel.innerHTML += '<label for="'+ this.id + 'throttle" >Throttle: '+ this.id + '</label>';
+	controlPanel.innerHTML += '<input type="range" id="' + this.id + 'throttle" class="comptrol" min = "0" max = "100" step = "0.10" value="' + this.power + '" >';
 	controlPanel.innerHTML += '<span id="'+ this.id + 'throttleDisplay">' + this.power + '</span>';
 
+	this.slider = document.getElementById(this.id + "throttle");
+	this.slider.oninput = function(){
+		self.power = this.value;
+		document.getElementById(self.id + "throttleDisplay").innerHTML = this.value;
+	}
 	
+	Pumps.push(this); //add to the global list of Pumps, for auto-naming
 }
 
 Pump.prototype = Object.create(PipeElement.prototype);
@@ -379,7 +437,7 @@ Pump.prototype.colour = "rgba(100,100,100,1)";
 
 Pump.prototype.update = function(time_scale) {
 	var massOut = this.massFlow;
-	if(this.pressure < this.maxPressure){
+	if(this.pressure <= this.maxPressure){
 		this.massFlow = this.massFlow + (this.density*1e6/time_scale)*((this.power/this.pressure));
 		this.mass = this.mass + this.massFlow;
 		if(this.mass < 0){this.mass = 0.001;}
@@ -389,6 +447,7 @@ Pump.prototype.update = function(time_scale) {
 		this.pressure = K*(1 - (oldDensity/this.density)) + oldPressure;
 	} else {
 		this.pressure = this.maxPressure;
+		this.densityFromPressure();
 	}
 	this.colour = "hsla(200, 100%, " + 100*(this.pressure - 100000)/1400000 +"%, 1)" //pressure range between 2550000 and 0
 	this.massFlow = massOut; //for testing of pump output visually
@@ -402,15 +461,18 @@ Pump.prototype.update = function(time_scale) {
 
 Pump.constructor = Pump;
 
-var elementLength = 40; //mm 
+var Pumps = [];
+var Valves = [];
+
+var elementLength = 50; //mm 
 var rho = 1 // density of fluid, g/cm^3
 var K = 2e9; //  bulk modulus of fluid, Pa
 var timescale = 60; //how many frames are equivalent to 1 second?
-var physicsSteps = 100	; //how much to subdivide each frame for finer (more accurate?) calculations. 
+var physicsSteps = 100; //how much to subdivide each frame for finer (more accurate?) calculations. 
 
 while(timescale*physicsSteps*elementLength < 60000){ //Do not let timescale*physicsSteps*elementLength < 60000, oscillations become too nasty!
-	physicsSteps *=4;
-	elementLength += 1;
+	physicsSteps *=2;
+	elementLength += 2;
 	console.log("eL = " + elementLength);
 	console.log("pS = " + physicsSteps);
 
@@ -418,28 +480,43 @@ while(timescale*physicsSteps*elementLength < 60000){ //Do not let timescale*phys
 
 
 var pAtmo = 1e5; //atmospheric pressure, Pa
-var thisPipe = new Pipe(64, 800, 0, height/2, 0);
-var thatPipe = new Pipe(64, 800, 0, height/4, 0);
+var thisPipe = new Pipe(64, 800, 0, height/4, 0);
+var thatPipe = new Pipe(64, 800, 0, height/2, 0);
+var thisValve = new Valve(64, 200, 0, 0.75*height, 0);
+var thatValve = new Valve(64, 200, 400, 0.75*height, 0);
+
+
 
 
 for(var i = Math.round(0.4*thisPipe.elements.length); i < Math.round(0.6*thisPipe.elements.length); i++){
-	thisPipe.elements[i].changeDiam(10);
+	thisPipe.elements[i].changeDiam(64);
 }
 
 
 	thisSink = new Sink(64, elementLength, thisPipe.endX, height/2 - 64);
-	sinkInterface = new Interface([thisPipe.elements[thisPipe.elements.length - 1],thatPipe.elements[thisPipe.elements.length - 1], thisSink]);
+	thisSinkInterface = new Interface([thisPipe.elements[thisPipe.elements.length - 1], thisSink]);
+	thatSinkInterface = new Interface([thatPipe.elements[thisPipe.elements.length - 1], thisSink]);
 	thisPipe.elements.push(thisSink);
-	thisPipe.interfaces.push(sinkInterface);
+	thisPipe.interfaces.push(thisSinkInterface);
+	thatPipe.interfaces.push(thatSinkInterface);
 	thisPipe.updateEndX();
 
 	thisPump = new Pump(64, elementLength, 10, thisPipe.elements[0].posX - elementLength, height/2 - 64);
 	thisPump.pressure = 100000;
 	thisPump.densityFromPressure();
-	pumpInterface = new Interface([thisPump, thisPipe.elements[0], thatPipe.elements[0]]);
-	pumpInterface.buildVelos();
+	thisPumpInterface = new Interface([thisPump, thisValve.elements[0]]);
+	thatPumpInterface = new Interface([thisPump, thatValve.elements[0]]);
+	thisValveInterface = new Interface([thisValve.elements[thisValve.elements.length - 1],thisPipe.elements[0]]);
+	thatValveInterface = new Interface([thatValve.elements[thisValve.elements.length - 1],thatPipe.elements[0]]);
+	thisPipe.elements.unshift(thisValve);
 	thisPipe.elements.unshift(thisPump);
-	thisPipe.interfaces.unshift(pumpInterface);
+	thisPipe.interfaces.unshift(thisValveInterface);
+	thisPipe.interfaces.unshift(thisPumpInterface);
+	thatPipe.elements.unshift(thatValve);
+	thatPipe.interfaces.unshift(thatValveInterface);
+	thisPipe.interfaces.unshift(thatPumpInterface);
+	
+	
 	
 
 	
@@ -451,10 +528,17 @@ function drawWorld(){   ///main animation loop
 	for(var j = 0; j < physicsSteps; j++){
 		thisPipe.resetMassFlows();	
 		thatPipe.resetMassFlows();
+		thisValve.resetMassFlows();
+		thatValve.resetMassFlows();
 		thisPipe.calculateMassFlows(timescale*physicsSteps);
 		thatPipe.calculateMassFlows(timescale*physicsSteps);
+		thisValve.calculateMassFlows(timescale*physicsSteps);
+		thatValve.calculateMassFlows(timescale*physicsSteps);
 		thisPipe.update(timescale*physicsSteps);
 		thatPipe.update(timescale*physicsSteps);
+		thisValve.update(timescale*physicsSteps);
+		thatValve.update(timescale*physicsSteps);
+
 
 		
 	}
@@ -462,8 +546,9 @@ function drawWorld(){   ///main animation loop
 	
 	thisPipe.render(ctx1);
 	thatPipe.render(ctx1);
+	thisValve.render(ctx1);
+	thatValve.render(ctx1);
 	ctx0.drawImage(canvas1,0,0);
-
 	requestAnimationFrame(drawWorld);
 }
 console.log("All good!");
