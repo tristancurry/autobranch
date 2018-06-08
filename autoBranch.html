@@ -148,14 +148,13 @@ Pipe.prototype = {
 	
 	resetMassFlows: function(){
 		for(var i = 0, l = this.elements.length; i < l; i++){  //reset mass flows to zero for this round of calculations
-			this.elements[i].massFlow = 0;
-			this.elements[i].peVelos = [];
+			this.elements[i].resetMassFlows();
 		}
 	},
 	
 	calculateMassFlows: function(time_scale){
 		for(var i = 0, l = this.interfaces.length; i < l; i++){ //calculate mass flows across each interface
-			this.interfaces[i].calculateInterfaceMassFlows(time_scale);
+			this.interfaces[i].calculateMassFlows(time_scale);
 		}
 
 	},
@@ -246,7 +245,7 @@ Interface.prototype = {
 	},
 
 
-	calculateInterfaceMassFlows: function(time_scale){
+	calculateMassFlows: function(time_scale){
 		if(this.elements.length > 0){
 			for(var i = 0, l = this.elements.length; i < l - 1; i++){
 				for(var j = i + 1; j < l; j++){
@@ -364,7 +363,11 @@ PipeElement.prototype = {
 		this.density = rho/(1 - (this.pressure - pAtmo)/K);
 		this.mass = this.density*this.volume/1000;
 	},
-
+	
+	resetMassFlows: function(){
+		this.massFlow = 0;
+		this.peVelos = [];
+	},
 	
 	update: function() {
 		this.mass = this.mass + this.massFlow;
