@@ -90,7 +90,19 @@ h2
 	canvas3.height = height;
 	var ctx3 = canvas3.getContext("2d");
 	
+	var controlPanel = document.getElementById("controls");
+	controlPanel.addEventListener("input", doThing, false);
 	
+	function doThing(e){
+		if (e.target !== e.currentTarget) {
+			var inputSN = e.target.dataset.connectedto;
+			console.log(inputSN);
+			var inputObject = Controls[inputSN];
+			console.log(inputObject);
+			inputObject.applySliderValue(e.target.value);
+		}
+		e.stopPropagation();
+	}
 
 
 
@@ -163,9 +175,9 @@ Pipe.prototype = {
 		this.endX = this.elements[N-1].posX + this.elements[N-1].size;
 	},
 	
-	updateDiam: function(newDiam){
-		for(var i = 0, l = this.elements.length; i < l; i++){
-			elements[i].changeDiam(newDiam);
+	updateDiam: function(newDiam,elms){
+		for(var i = 0, l = elms.length; i < l; i++){
+			elms[i].changeDiam(newDiam);
 		}
 		
 	}
@@ -182,33 +194,33 @@ var Valve = function(diam, length, posX, posY, setting, id){
 	this.id = id;
 	if(id == null){this.id = "valve" + Valves.length}
 	this.label = this.id;
-	var self = this;
-	var controlPanel = document.getElementById("valves");
-	controlPanel.innerHTML += '<label for="'+ this.id + 'control" >Setting: '+ this.id + '</label>';
-	controlPanel.innerHTML += '<input type="range" id="' + this.id + 'control" class="comptrol" min = "0" max = "1" step = "0.01" value="' + this.setting + '" >';
-	controlPanel.innerHTML += '<span id="'+ this.id + 'controlDisplay">' + this.setting*100 + '%</span>';
+	
 
-	this.slider = document.getElementById(this.id + "control");
 
-	this.slider.oninput = function(){
-		console.log("hi!");
-		self.setting = this.value;
-		document.getElementById(self.id + "controlDisplay").innerHTML = Math.round(this.value*100) + "%";
-		self.diam = self.setting*self.oDiam;
-		for(var i = 0, l = self.elements.length; i < l; i++){
-				self.elements[i].changeDiam(self.diam);
-		}
-	}
-	
-	
-	Valves.push(this); //add to the global list of Valves, for auto-naming
-	
 	var mid = Math.round(this.elements.length/2);
 	this.elements[mid].label = this.label;
+	
+	Valves.push(this); //add to the global list of Valves, for auto-naming
+	Controls.push(this);
+	this.SN = Controls.length - 1;
+	
+	var controlPanel = document.getElementById("valves");
+	controlPanel.innerHTML += '<label for="'+ this.id + 'control">Setting: '+ this.id + '</label>';
+	controlPanel.innerHTML += '<input type="range" id="' + this.id + 'control" class="comptrol" min = "0" max = "1" step = "0.01" value="' + this.setting + '" data-connectedto="' + this.SN + '">';
+	controlPanel.innerHTML += '<span id="'+ this.id + 'controlDisplay">' + this.setting*100 + '%</span>';
+	
+
+	
 }
 
 Valve.prototype = Object.create(Pipe.prototype);
-
+Valve.prototype.applySliderValue = function(val){
+	this.setting = val;
+	document.getElementById(this.id + "controlDisplay").innerHTML = Math.round(val*100) + "%";
+	this.diam = this.oDiam*this.setting;
+	this.updateDiam(this.diam, this.elements);
+	
+}
 Valve.constructor = Valve;
 
 
@@ -461,6 +473,7 @@ Pump.prototype.update = function(time_scale) {
 
 Pump.constructor = Pump;
 
+var Controls = [];
 var Pumps = [];
 var Valves = [];
 
@@ -486,7 +499,7 @@ var thisValve = new Valve(64, 200, 0, 0.75*height, 0);
 var thatValve = new Valve(64, 200, 400, 0.75*height, 0);
 
 
-
+console.log(Controls);
 
 for(var i = Math.round(0.4*thisPipe.elements.length); i < Math.round(0.6*thisPipe.elements.length); i++){
 	thisPipe.elements[i].changeDiam(64);
