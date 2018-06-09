@@ -2,6 +2,9 @@
 <html>
  <!-- Simulation of the operation of an automatic firefighting branch, e.g. TFT -->
  <!-- Attempt to use a simplified fluid flow model to adjust pressures/flow rates throughout a section of hose, valves and other infrastructure -->
+ <!-- Developing rapidly into an engine for putting together simple scenarios for firefighter training
+ <!-- FY49/2017
+ <!-- Love you all
  <!-- Created by Tristan Miller, May 2018 -->
  <!-- Download and then open in your browser. -->
 <head>
@@ -107,8 +110,9 @@ h2
 
 
 var Network = function() {
-	this.components = [];
-	this.interfaces = [];
+	this.components = []; //list of every major component in the network (does not include subcomponents, like the PipeElements comprising an added Pipe
+	this.interfaces = []; //this one is a list of EVERY Interface in the network, including those within components
+	this.netInterfaces = []; //this one is for storing only the Interfaces that exist BETWEEN major components
 }
 
 Network.prototype = {
@@ -124,6 +128,7 @@ Network.prototype = {
 	connect: function(comps){ //would be good to check if the components are already in the Network before hooking them up.
 		var intfc = new Interface(comps); //would also be good to check to see if they're already hooked up!
 		this.interfaces.push(intfc);
+		this.netInterfaces.push(intfc);
 		
 	},
 	
@@ -275,6 +280,9 @@ var Interface = function(elms){
 	this.velos = [];
 	this.buildVelos();
 	this.interfaceActive = true;
+	for(var i = 0, l = this.elements.length; i < l; i++){
+		this.elements[i].connectedInterfaces.push(this);
+	}
 	
 }
 
@@ -327,12 +335,12 @@ Interface.prototype = {
 							if(aA > 0){aA = 0};
 						}
 					
-						var kA = Math.pow(0.991, (default_t/time_scale));
-						var kB = Math.pow(0.991, (default_t/time_scale));
+						//var kA = Math.pow(0.991, (default_t/time_scale)); //removed these for now as they don't rely on
+						//var kB = Math.pow(0.991, (default_t/time_scale));	//any element-specific quantities - k is a constant
 					
 				
-						var veloAtoB = kA*this.velos[i][j] + aA;
-						var veloBfromA = kB*this.velos[j][i] + aB;
+						var veloAtoB = k*this.velos[i][j] + aA;
+						var veloBfromA = k*this.velos[j][i] + aB;
 			
 						if(A.isSink){
 							A.massFlow -= (veloAtoB/time_scale)*(B.area/1000)*A.density;
@@ -371,6 +379,7 @@ var PipeElement = function(diam, length, posX, posY) {
 	this.mass = this.volume*this.density/1000; //cross-sectional area * length * density in g/mm^3
 	this.size = this.length;
 	this.peVelos = [];
+	this.connectedInterfaces = [];
 
     return this;
 };
@@ -558,6 +567,8 @@ const timescale = 60; //how many frames are equivalent to 1 second?
 var physicsSteps = 100; //how much to subdivide each frame for finer (more accurate?) calculations. 
 var elementLength = 20; //mm 
 
+const k = Math.pow(0.991, (default_t/(timescale*physicsSteps))); 
+
 while(timescale*physicsSteps*elementLength < 160000){ //Do not let timescale*physicsSteps*elementLength < 60000, oscillations become too nasty!
 	physicsSteps *=2;
 	elementLength += 2;
@@ -591,31 +602,23 @@ var	thisPump = new Pump(64, elementLength, 10, thisPipe.elements[0].posX - eleme
 	thisNetwork.connect([thisPipe.end2, thisSink]);
 	thisNetwork.connect([thatPipe.end2, thatSink]);
 	
-	
-
-	
 	   
 function drawWorld(){   ///main animation loop
 	//console.log("=============")
 	ctx0.fillStyle = "rgba(100,0,100,1)";
 	ctx0.fillRect(0,0,width,height);
+	
 	for(var j = 0; j < physicsSteps; j++){
-
-		thisNetwork.update(timescale*physicsSteps);
-		
+		thisNetwork.update(timescale*physicsSteps);	
 	}
+	
 	ctx1.clearRect(0,0,width,height);
 	thisNetwork.render(ctx1);
-
 	ctx0.drawImage(canvas1,0,0);
 	requestAnimationFrame(drawWorld);
 }
 console.log("All good!");
 drawWorld();
-
-
-
-
 
 </script>
 </body>
