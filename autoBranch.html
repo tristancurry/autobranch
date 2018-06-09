@@ -41,16 +41,49 @@ label
  padding-right: 2px;
 }
 
-div, button
+button
 {
  margin: 5px;
  margin-left:10px;
 }
 
+div
+{
+margin: 0;
+padding: 0;
+border: 0;
+outline: 0;
+}
+
+
 h2
 {
  padding:0px;
  margin:0px;
+}
+
+.component{
+	width:75px;
+	height:75px;
+	background-image: url('images/ph_comp.png');
+	background-size: 75px	75px;
+	position: absolute;
+	transition: transform .2s ease-out, filter .2s ease-out ;
+	
+}
+
+.component:hover{
+transform: scale(1.1);
+filter: hue-rotate(30deg);
+transition: transform .2s ease-in, filter .2s ease-in ;
+
+
+}
+
+#viewport
+{
+ width: 1024px;
+ height: 800px;
 }
 
 
@@ -59,9 +92,9 @@ h2
 <body>
 <h1 id="theTitle">AutoBranch</h1>
 <h3 id="status">0 | 0</h2>
-
+<div id="viewport">
 <canvas id="canvas0" height="800" width="1024" onclick="requestAnimationFrame(drawWorld)">This text is displayed if your browser don't support HTML5 Canvas!</canvas>
-
+</div>
 <div id="controls">
 	<div id = "throttles">
 	</div>
@@ -70,9 +103,11 @@ h2
 </div>
 <script>
 
+
 	var title = document.querySelector("#theTitle");
 	var canvas0 = document.querySelector("#canvas0");
 	var ctx0 = canvas0.getContext("2d");
+	
 
 	var width = canvas0.width; //main dimensions of the 'world' - canvas0 is the 'base layer' of the animation
 	var height = canvas0.height;
@@ -107,6 +142,38 @@ h2
 		}
 		e.stopPropagation();
 	}
+	
+	
+function getPosition(el) { //thx Kirupa
+  var posX = 0;
+  var posY = 0;
+ 
+  while (el) {
+    if (el.tagName == "BODY") {
+      // deal with browser quirks with body/window/document and page scroll
+      var xScroll = el.scrollLeft || document.documentElement.scrollLeft;
+      var yScroll = el.scrollTop || document.documentElement.scrollTop;
+ 
+      posX += (el.offsetLeft - xScroll + el.clientLeft);
+      posY += (el.offsetTop - yScroll + el.clientTop);
+    } else {
+      // for all other non-BODY elements
+      posX += (el.offsetLeft - el.scrollLeft + el.clientLeft);
+      posY += (el.offsetTop - el.scrollTop + el.clientTop);
+    }
+ 
+    el = el.offsetParent;
+  }
+  return {
+    x: posX,
+    y: posY
+  };
+}
+
+
+var viewport = document.getElementById("viewport");
+var viewportW = viewport.clientWidth;
+var viewportH = viewport.clientHeight;
 
 
 var Network = function() {
@@ -512,6 +579,13 @@ var Pump = function(diam, length, power, posX, posY, id){
 	controlPanel.innerHTML += '<input type="range" id="' + this.id + 'throttle" class="comptrol" min = "0" max = "100" step = "0.10" value="' + this.power + '" data-connectedto="'+ this.SN +'" >';
 	controlPanel.innerHTML += '<span id="'+ this.id + 'throttleDisplay">' + this.power + '</span>';
 	
+	this.pgElement = document.createElement("div");
+	this.pgElement.className = 'component';
+	this.style = this.pgElement.style;
+	this.style.left = (getPosition(viewport).x + this.posX - 75/2) + "px";
+	this.style.top = (getPosition(viewport).y + this.posY - 75/2) + "px";
+	viewport.appendChild(this.pgElement);
+
 
 }
 
