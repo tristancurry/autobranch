@@ -14,12 +14,22 @@ var Pump = function(diam, length, power, posX, posY, id){
 	controlPanel.innerHTML += '<input type="range" id="' + this.id + 'throttle" class="comptrol" min = "0" max = "100" step = "0.10" value="' + this.power + '" data-connectedto="'+ this.SN +'" >';
 	controlPanel.innerHTML += '<span id="'+ this.id + 'throttleDisplay">' + this.power + '</span>';
 	
-	this.pgElement = document.createElement("div");
-	this.pgElement.className = 'component';
-	this.style = this.pgElement.style;
+	
+	this.divRep = document.createElement("div");
+	this.divRep.className = 'component';
+	this.style = this.divRep.style;
 	this.style.left = (getPosition(viewport).x + this.posX - 75/2) + "px";
 	this.style.top = (getPosition(viewport).y + this.posY - 75/2) + "px";
-	viewport.appendChild(this.pgElement);
+	viewport.appendChild(this.divRep);
+	
+	this.infobox = document.createElement("div");
+	this.infobox.className = 'infobox';
+	this.style = this.infobox.style;
+	this.style.left = (getPosition(viewport).x + this.posX) + "px";
+	this.style.top = (getPosition(viewport).y + this.posY) + "px";
+	viewport.appendChild(this.infobox);
+	
+	
 
 
 }
@@ -47,6 +57,8 @@ Pump.prototype.update = function(time_scale) {
 	this.colour = "hsla(200, 100%, " + 100*(this.pressure - 100000)/2900000 +"%, 1)" //pressure range between 2550000 and 0
 	this.massFlow = massOut; //for testing of pump output visually
 	this.velo = this.findVelo();
+	
+	this.infobox.innerHTML = '<div class="title">'+ this.label + '</div>throttle = ' + Math.round(this.power) + '%<br>pressure = ' + Math.round(this.pressure/1000) + 'kPa<br>mass = ' + Math.round(this.mass) + 'g<br>q = ' + Math.round(60*this.massFlow*timescale*physicsSteps) + 'L/min';
 
 		
 }

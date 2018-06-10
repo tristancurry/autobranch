@@ -58,6 +58,7 @@ h2
 	position: absolute;
 	width:75px;
 	height:75px;
+	border-radius:37.5px;
 	background-image: url('images/ph_comp.png');
 	background-size: 75px	75px;
 	transition: transform .2s ease-out, filter .2s ease-out ;	
@@ -70,6 +71,30 @@ h2
 }
 
 .infobox {
+	position: absolute;
+	border-radius:5px;
+	box-shadow:3px 3px 10px;
+	background: white;
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 60%;
+	width: 100px;
+	padding-bottom: 3px;
+	
+	
+}
+
+.title {
+	border-style:solid;
+	border-width:1px;
+	border-color:inherit;
+	border-top-left-radius:inherit;
+	border-top-right-radius:inherit;
+	font-family:inherit;
+	font-size: 150%;
+	font-style: italic;
+	font-weight: bold;
+	background:inherit;
+	filter:invert(80%);
 	
 }
 
