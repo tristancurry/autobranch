@@ -77,42 +77,12 @@
     <filter
        inkscape:collect="always"
        style="color-interpolation-filters:sRGB"
-       id="filter6151">
-      <feBlend
-         inkscape:collect="always"
-         mode="screen"
-         in2="BackgroundImage"
-         id="feBlend6153" />
-    </filter>
-    <filter
-       inkscape:collect="always"
-       style="color-interpolation-filters:sRGB"
        id="filter6151-4-0">
       <feBlend
          inkscape:collect="always"
          mode="screen"
          in2="BackgroundImage"
          id="feBlend6153-9-4" />
-    </filter>
-    <filter
-       inkscape:collect="always"
-       style="color-interpolation-filters:sRGB"
-       id="filter6151-4-0-0">
-      <feBlend
-         inkscape:collect="always"
-         mode="screen"
-         in2="BackgroundImage"
-         id="feBlend6153-9-4-4" />
-    </filter>
-    <filter
-       inkscape:collect="always"
-       style="color-interpolation-filters:sRGB"
-       id="filter6151-4-0-0-7">
-      <feBlend
-         inkscape:collect="always"
-         mode="screen"
-         in2="BackgroundImage"
-         id="feBlend6153-9-4-4-0" />
     </filter>
     <filter
        inkscape:collect="always"
@@ -124,26 +94,6 @@
          in2="BackgroundImage"
          id="feBlend6153-9-4-4-5" />
     </filter>
-    <filter
-       inkscape:collect="always"
-       style="color-interpolation-filters:sRGB"
-       id="filter6464">
-      <feBlend
-         inkscape:collect="always"
-         mode="screen"
-         in2="BackgroundImage"
-         id="feBlend6466" />
-    </filter>
-    <filter
-       inkscape:collect="always"
-       style="color-interpolation-filters:sRGB"
-       id="filter6514">
-      <feBlend
-         inkscape:collect="always"
-         mode="hue"
-         in2="BackgroundImage"
-         id="feBlend6516" />
-    </filter>
   </defs>
   <sodipodi:namedview
      id="base"
@@ -152,11 +102,11 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="1.979899"
-     inkscape:cx="340.08657"
-     inkscape:cy="811.97455"
+     inkscape:zoom="0.9899495"
+     inkscape:cx="12.009834"
+     inkscape:cy="817.8263"
      inkscape:document-units="mm"
-     inkscape:current-layer="layer2"
+     inkscape:current-layer="g2736"
      showgrid="false"
      showguides="true"
      inkscape:guide-bbox="true"
@@ -183,93 +133,34 @@
   <g
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
-     id="layer1">
-    <circle
-       style="opacity:1;fill:#3e3e3e;fill-opacity:0.31;stroke:none;stroke-width:1.58749998;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none"
-       id="path3699-6-4"
-       r="29.482143"
-       cy="81.831917"
-       cx="97.553375"
-       inkscape:export-xdpi="947.10999"
-       inkscape:export-ydpi="947.10999" />
-    <circle
-       style="opacity:1;fill:#ffeeaa;fill-opacity:1;stroke:#000000;stroke-width:1.58749998;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none"
-       id="path3699-6"
-       cx="94.346146"
-       cy="77.972618"
-       r="29.482143"
-       inkscape:export-xdpi="947.10999"
-       inkscape:export-ydpi="947.10999" />
-  </g>
-  <g
-     inkscape:groupmode="layer"
-     id="layer2"
-     inkscape:label="Layer 2"
-     style="">
+     id="layer1"
+     style="display:inline">
     <g
-       id="g6459"
-       style="filter:url(#filter6464)"
-       transform="translate(5.078121,-64.411956)" />
-    <g
-       id="g6480"
-       transform="matrix(0.68688249,0,0,1.6112474,67.213278,15.242184)"
-       style="stroke-width:0.95055592;filter:url(#filter6514)"
-       inkscape:export-xdpi="947.10999"
-       inkscape:export-ydpi="947.10999">
-      <path
-         inkscape:connector-curvature="0"
-         transform="matrix(0.26458333,0,0,0.26458333,5.0781209,-64.411955)"
-         id="rect6101"
-         d="m 39.900391,359.71484 v 22.25586 39.50391 H 63.134766 V 381.9707 H 50.640625 v -22.25586 z"
-         style="opacity:1;fill:#0000ff;fill-opacity:1;stroke:none;stroke-width:5.70333576;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;filter:url(#filter6464)"
-         inkscape:export-xdpi="947.10999"
-         inkscape:export-ydpi="947.10999" />
-      <path
-         inkscape:connector-curvature="0"
-         id="rect6101-7"
-         transform="matrix(0.26458333,0,0,0.26458333,5.0781209,-64.411955)"
-         d="M 90.275391,359.71484 V 381.9707 H 77.78125 v 17.89063 21.61328 h 23.07617 v -21.61328 h 0.1582 12.75391 V 381.9707 h -12.75391 v -22.25586 z"
-         style="opacity:1;fill:#0000ff;fill-opacity:1;stroke:none;stroke-width:5.70333576;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;filter:url(#filter6151)"
-         inkscape:export-xdpi="947.10999"
-         inkscape:export-ydpi="947.10999" />
-      <path
-         inkscape:connector-curvature="0"
-         id="rect6101-8-3-8"
-         transform="matrix(0.26458333,0,0,0.26458333,5.0781209,-64.411955)"
-         d="m 140.65234,359.71484 v 22.36328 h -12.49609 v 17.89063 21.50586 h 23.25586 v -21.50586 h -0.0215 v -17.89063 -22.36328 z"
-         style="opacity:1;fill:#0000ff;fill-opacity:1;stroke:none;stroke-width:5.70333576;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;filter:url(#filter6151-4-0)"
-         inkscape:export-xdpi="947.10999"
-         inkscape:export-ydpi="947.10999" />
-      <rect
-         style="opacity:1;fill:#0000ff;fill-opacity:1;stroke:none;stroke-width:10.02089405;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;filter:url(#filter6151-4-0-0)"
-         id="rect6101-8-3-8-6"
-         width="23.233509"
-         height="56.063465"
-         x="0"
-         y="5.6843419e-014"
-         transform="matrix(0.12229509,0,0,0.18542183,48.370286,36.707593)"
-         inkscape:export-xdpi="947.10999"
-         inkscape:export-ydpi="947.10999" />
-      <rect
-         style="opacity:1;fill:#0000ff;fill-opacity:1;stroke:none;stroke-width:10.00737667;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;filter:url(#filter6151-4-0-0-7)"
-         id="rect6101-8-3-8-6-2"
-         width="23.233509"
-         height="56.063465"
-         x="0"
-         y="5.6843419e-014"
-         transform="matrix(0.12229509,0,0,0.18592305,54.44839,36.679494)"
-         inkscape:export-xdpi="947.10999"
-         inkscape:export-ydpi="947.10999" />
-      <rect
-         style="opacity:1;fill:#0000ff;fill-opacity:1;stroke:none;stroke-width:7.99271011;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;filter:url(#filter6151-4-0-0-3)"
-         id="rect6101-8-3-8-6-23"
-         width="23.233509"
-         height="56.063465"
-         x="0"
-         y="5.6843419e-014"
-         transform="matrix(0.12229509,0,0,0.2914645,60.526493,30.762474)"
-         inkscape:export-xdpi="947.10999"
-         inkscape:export-ydpi="947.10999" />
+       id="g2736"
+       style="fill:none"
+       transform="translate(-18.441597,-27.796031)">
+      <g
+         id="g2741">
+        <circle
+           style="opacity:1;fill:none;fill-opacity:1;stroke:#000000;stroke-width:1.58749998;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none"
+           id="path2731"
+           cx="117.46496"
+           cy="119.66666"
+           r="28.998743" />
+        <g
+           id="g6480"
+           transform="matrix(0.68688249,0,0,1.6112474,55.369294,56.841728)"
+           style="display:inline;fill:#808080;stroke-width:0.95055592"
+           inkscape:export-xdpi="947.10999"
+           inkscape:export-ydpi="947.10999">
+          <path
+             id="rect6101-8-3-8-6-23"
+             transform="matrix(0.12229509,0,0,0.2914645,111.42719,30.821121)"
+             style="opacity:1;fill:#808080;fill-opacity:1;stroke:none;stroke-width:7.99271011;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;filter:url(#filter6151-4-0-0-3)"
+             d="M 0,0 H 23.233509 V 56.063465 H 0 Z m -49.700303,20.300997 h 23.233509 v 35.76247 h -23.233509 z m -49.700311,0.09641 h 23.233509 v 35.66606 H -99.400614 Z M -149.09926,4.1589153e-4 V 20.301177 h -27.03508 V 36.541791 56.06421 h 50.31366 V 36.541791 h -0.0465 V 20.301177 4.1589153e-4 Z m -108.98967,0 V 20.203664 h -27.03086 V 36.444278 56.06421 h 49.9249 V 36.444278 h 0.34226 27.59287 V 20.203664 h -27.59287 V 4.1589153e-4 Z m -108.98545,0 V 20.203664 56.06421 h 50.26718 V 20.203664 h -27.03086 V 4.1589153e-4 Z"
+             inkscape:connector-curvature="0" />
+        </g>
+      </g>
     </g>
   </g>
 </svg>

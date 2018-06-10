@@ -13,6 +13,12 @@ input[type="checkbox"]
   padding: 10px;
 }
 
+#viewport
+{
+ width: 1024px;
+ height: 800px;
+}
+
 #controls
 {
   font-size: 110%;
@@ -49,25 +55,21 @@ h2
 }
 
 .component{
+	position: absolute;
 	width:75px;
 	height:75px;
 	background-image: url('images/ph_comp.png');
 	background-size: 75px	75px;
-	position: absolute;
-	transition: transform .2s ease-out, filter .2s ease-out ;
-	
+	transition: transform .2s ease-out, filter .2s ease-out ;	
 }
 
 .component:hover{
-transform: scale(1.1);
-filter: hue-rotate(30deg);
-transition: transform .2s ease-in, filter .2s ease-in ;
-
-
+	transform: scale(1.1);
+	filter: invert(100%);
+	transition: transform .2s ease-in, filter .2s ease-in ;
 }
 
-#viewport
-{
- width: 1024px;
- height: 800px;
+.infobox {
+	
 }
+
