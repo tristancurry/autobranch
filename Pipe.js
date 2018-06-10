@@ -1,11 +1,13 @@
-var Pipe = function(diam, length, posX, posY, angle) {
+var Pipe = function(diam, length, posX, posY, elementLength, id) {
 	this.diam = diam; 		//mm
 	this.length = length; 	//mm
 	this.posX = posX;
 	this.posY = posY; //starting position of pipe
-	this.angle = angle; //rotation ccw in radians
 	this.elements = [];
 	this.interfaces = [];
+	this.id = id;
+	if(id == null){this.id = "pipe" + Pipes.length}
+	this.label = this.id;
 	
 	var N = Math.round(length/(elementLength));
 	
@@ -38,7 +40,8 @@ Pipe.prototype = {
 	diam: 64, //mm
 	length: 100, //mm
 	posX: 0,
-	angle: 0,
+	posY: 0,
+	elementLength: 100, //mm
 	label: "",
 	
 	resetMassFlows: function(){

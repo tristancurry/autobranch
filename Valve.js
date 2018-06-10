@@ -1,8 +1,8 @@
-var Valve = function(diam, length, posX, posY, setting, id){
+var Valve = function(diam, length, posX, posY, setting, elementLength, id){
 	this.oDiam = this.diam;
 	this.setting = setting; //0 = closed, 1 = open
 	this.diam = this.setting*this.oDiam;
-	Pipe.call(this, this.diam, length, posX, posY, 0);
+	Pipe.call(this, this.diam, length, posX, posY, elementLength);
 	if(setting == null || setting < 0 || setting > 1){this.setting = 0;}
 	this.id = id;
 	if(id == null){this.id = "valve" + Valves.length}
