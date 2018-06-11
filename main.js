@@ -41,7 +41,7 @@
 var viewport = document.getElementById("viewport");
 var viewportW = viewport.clientWidth;
 var viewportH = viewport.clientHeight;
-
+viewport.pos = getPosition(viewport);
 
 const default_velo = 0.00129; //ms^-1
 const default_length = 100; //mm

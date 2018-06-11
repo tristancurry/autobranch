@@ -15,18 +15,19 @@ var Pump = function(diam, length, power, posX, posY, id){
 	controlPanel.innerHTML += '<span id="'+ this.id + 'throttleDisplay">' + this.power + '</span>';
 	
 	
+	
 	this.divRep = document.createElement("div");
 	this.divRep.className = 'component';
 	this.style = this.divRep.style;
-	this.style.left = (getPosition(viewport).x + this.posX - 75/2) + "px";
-	this.style.top = (getPosition(viewport).y + this.posY - 75/2) + "px";
+	this.style.left = (viewport.pos.x + this.posX - 75/2) + "px";
+	this.style.top = (viewport.pos.y + this.posY - 75/2) + "px";
 	viewport.appendChild(this.divRep);
 	
 	this.infobox = document.createElement("div");
 	this.infobox.className = 'infobox';
 	this.style = this.infobox.style;
-	this.style.left = (getPosition(viewport).x + this.posX) + "px";
-	this.style.top = (getPosition(viewport).y + this.posY) + "px";
+	this.style.left = (viewport.pos.x  + this.posX) + "px";
+	this.style.top = (viewport.pos.y + this.posY) + "px";
 	viewport.appendChild(this.infobox);
 	
 	
@@ -59,7 +60,9 @@ Pump.prototype.update = function(time_scale) {
 	this.velo = this.findVelo();
 	
 	this.infobox.innerHTML = '<div class="title">'+ this.label + '</div>throttle = ' + Math.round(this.power) + '%<br>pressure = ' + Math.round(this.pressure/1000) + 'kPa<br>mass = ' + Math.round(this.mass) + 'g<br>q = ' + Math.round(60*this.massFlow*timescale*physicsSteps) + 'L/min';
-
+	//do this in a more general way by cycling through a list of info on the object, complete with the units associated with that info.
+	//e.g. this.displayInfo = [this.label, [this.pressure, "kPa"], [this.mass, "g"], [this.massFlow, "L/min"], ...]
+	//this would allow all components to share the same code for displaying the infobox
 		
 }
 

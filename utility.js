@@ -25,4 +25,11 @@ function getPosition(el) { //thx Kirupa - script for getting element coords on p
 }
 
 
-	
+window.addEventListener("scroll", updatePosition, false);
+window.addEventListener("resize", updatePosition, false);
+ 
+function updatePosition() {
+	viewport.pos= getPosition(viewport);
+	console.log("new position = "+ viewport.pos.x +", "+ viewport.pos.y);
+}
+

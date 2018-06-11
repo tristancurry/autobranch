@@ -70,6 +70,9 @@ h2
 	transition: transform .2s ease-in, filter .2s ease-in ;
 }
 
+.component:hover .infobox{
+}
+
 .infobox {
 	position: absolute;
 	border-radius:5px;
@@ -79,6 +82,7 @@ h2
 	font-size: 60%;
 	width: 100px;
 	padding-bottom: 3px;
+	transition: scale 0.3s ease;
 	
 	
 }
