@@ -1,9 +1,16 @@
-var Pump = function(diam, length, power, posX, posY, id){
-	PipeElement.call(this, diam, length, posX, posY);
+var Pump = function(diam, power, posX, posY, elementLength, id){//shall be 3 elements - inlet, midpump, outlet
+	Pipe.call(this, diam, 3*elementLength, posX, posY, elementLength);
 	this.power = power; //Js^-1
+	this.cavitating = false;
 	this.id = id;
 	if(id == null){this.id = "pump" + Pumps.length}
 	this.label = this.id;
+	
+	this.inlet = this.elements[0];
+	this.midPump = this.elements[1];
+	this.outlet = this.elements[2];
+	this.interfaces[1].isOneWay = true;
+	//console.log(this.interfaces);
 
 	Pumps.push(this); //add to the global list of Pumps, for auto-naming
 	Controls.push(this);
@@ -18,51 +25,69 @@ var Pump = function(diam, length, power, posX, posY, id){
 	
 	this.divRep = document.createElement("div");
 	this.divRep.className = 'component';
-	console.log(getComputedStyle(this.divRep));
-	this.divRep.style.transform = "translate3d(" + (this.posX - 0.5*75) + "px, " + (this.posY - 0.5*75) + "px, 0px)";
+	this.style = this.divRep.style;
+	this.style.left = (viewport.pos.x + this.posX - 75/2) + "px";
+	this.style.top = (viewport.pos.y + this.posY - 75/2) + "px";
 	viewport.appendChild(this.divRep);
 	
 	this.infobox = document.createElement("div");
 	this.infobox.className = 'infobox';
-	this.infobox.style.transform = "translate3d(" + this.posX + "px, " + this.posY + "px, 0px)";
+	this.style = this.infobox.style;
+	this.style.left = (viewport.pos.x  + this.posX) + "px";
+	this.style.top = (viewport.pos.y + this.posY) + "px";
 	viewport.appendChild(this.infobox);
-	
-	
 
 
 }
 
-Pump.prototype = Object.create(PipeElement.prototype);
+Pump.prototype = Object.create(Pipe.prototype);
 Pump.prototype.isPump = true;
 Pump.prototype.maxPressure = 6000000;
 Pump.prototype.colour = "rgba(100,100,100,1)";
 
 Pump.prototype.update = function(time_scale) {
-	var massOut = this.massFlow;
-		
-	if(this.pressure <= this.maxPressure){
-		this.massFlow = this.massFlow + (this.density*1e6/time_scale)*((this.power/this.pressure));
-		this.mass = this.mass + this.massFlow;
-		if(this.mass < 0){this.mass = 0.001;}
-		var oldDensity = this.density;
-		this.density = this.mass/(this.volume/1000);
-		var oldPressure = this.pressure;
-		this.pressure = K*(1 - (oldDensity/this.density)) + oldPressure;
-	} else {
-		this.pressure = this.maxPressure;
-		this.densityFromPressure();
-	}
-	this.colour = "hsla(200, 100%, " + 100*(this.pressure - 100000)/2900000 +"%, 1)" //pressure range between 2550000 and 0
-	this.massFlow = massOut; //for testing of pump output visually
-	this.velo = this.findVelo();
 	
-	this.infobox.innerHTML = '<div class="title">'+ this.label + '</div>throttle = ' + Math.round(this.power) + '%<br>pressure = ' + Math.round(this.pressure/1000) + 'kPa<br>mass = ' + Math.round(this.mass) + 'g<br>q = ' + Math.round(60*this.massFlow*timescale*physicsSteps) + 'L/min';
+
+	
+			
+	var massOut = 0; //g
+	if(this.midPump.pressure < 3200 || Math.abs(this.outlet.massFlow) > Math.abs(this.outlet.massFlow)){
+		this.cavitating = true;
+	} else {
+		this.cavitating = false;
+	};
+		
+	
+	
+	for(var i = 0, l = this.elements.length; i < l; i++){  //update the mass of each pipe element
+			this.elements[i].update(time_scale);
+	}
+	
+	if(this.outlet.pressure - this.midPump.pressure < this.maxPressure){
+		if(!this.cavitating){
+		massOut = (this.midPump.density*1e6/time_scale)*((this.power/(this.outlet.pressure)));
+		}
+		//console.log("before: midpump mass: " + this.midPump.mass + ", outlet mass: " + this.outlet.mass);
+		this.midPump.mass -= massOut;
+		this.outlet.mass += massOut;
+		//console.log("before: midpump mass: " + this.midPump.mass + ", outlet mass: " + this.outlet.mass);
+
+	} else {
+		this.outlet.pressure = this.maxPressure + this.midPump.pressure;
+		this.outlet.densityFromPressure();
+		this.midPump.massFlow = 0;
+	}
+	
+	/*this.colour = "hsla(200, 100%, " + 100*(this.pressure - 100000)/2900000 +"%, 1)" //pressure range between 2550000 and 0
+	this.outlet.massFlow = massOut; //for testing of pump output visually
+	this.outlet.velo = this.outlet.findVelo();
+	*/
+	this.infobox.innerHTML = '<div class="title">'+ this.label + '</div>throttle = ' + Math.round(this.power) + '%<br>pressure = ' + Math.round(this.outlet.pressure/1000) + 'kPa<br>mass = ' + Math.round(this.outlet.mass) + 'g<br>q = ' + Math.round(60*this.outlet.massFlow*timescale*physicsSteps) + 'L/min';
+
 	//do this in a more general way by cycling through a list of info on the object, complete with the units associated with that info.
 	//e.g. this.displayInfo = [this.label, [this.pressure, "kPa"], [this.mass, "g"], [this.massFlow, "L/min"], ...]
 	//this would allow all components to share the same code for displaying the infobox
-	//this.infobox.style.left = (viewport.pos.x) + "px";
-	//this.infobox.style.top = (-1*viewport.pos.y) + "px";
-	//this.infobox.style.transform = "translate3d(" + this.posX + "px, " + this.posY + "px, 0px)";
+		
 }
 
 Pump.prototype.applySliderValue = function(val){

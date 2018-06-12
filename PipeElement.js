@@ -10,6 +10,7 @@ var PipeElement = function(diam, length, posX, posY) {
 	this.size = this.length;
 	this.peVelos = [];
 	this.connectedInterfaces = [];
+	this.velo = 0;
 
     return this;
 };
@@ -60,11 +61,15 @@ PipeElement.prototype = {
 	
 	update: function() {
 		this.mass = this.mass + this.massFlow;
+
 		if(this.mass < 0){this.mass = 1;}
 		var oldDensity = this.density;
 		if(this.mass !=0){this.density = this.mass/(this.volume/1000)};
 		var oldPressure = this.pressure;
 		this.pressure = K*(1 - (oldDensity/this.density)) + oldPressure;
+		if(this.pressure < 0){
+			this.pressure = 0.1
+			this.densityFromPressure()};
 		this.velo = this.findVelo();
 		this.colour = "hsla(200, 100%, " + 100*(this.pressure - 100000)/2900000 +"%, 1)" //pressure range between 2550000 and 0
 

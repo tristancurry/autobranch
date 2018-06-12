@@ -1,8 +1,13 @@
-var Interface = function(elms){
+var Interface = function(elms, isOneWay){
 	this.elements = elms;
 	this.velos = [];
+	if(isOneWay === true){
+		this.isOneWay = true;
+	} else {
+		this.isOneWay = false;
+	}
+	
 	this.buildVelos();
-	this.interfaceActive = true;
 	for(var i = 0, l = this.elements.length; i < l; i++){
 		this.elements[i].connectedInterfaces.push(this);
 	}
@@ -43,23 +48,24 @@ Interface.prototype = {
 						var workingArea = Math.min(A.area,B.area)/1e6;  //find size of interface between pipe elements, then convert to m^2
 						var F = 1000*(A.pressure - B.pressure)*workingArea;  //find net force in direction of B, Newtons
 						
+					
+						
 						if(A.mass > 0){
 							var aA = (F/A.mass)/time_scale; //resultant acceleration of fluid in ms^-2
 						} else {var aA = (F/B.mass)/time_scale;}
+						//} else {var aA = 0;}
 						if(B.mass > 0){
 							var aB = (F/B.mass)/time_scale; //resultant acceleration of fluid in ms^-2
 						} else { var aB = (F/A.mass)/time_scale; }
+						//} else {var aB = 0;}
 
-					
-						if(A.isPump){
-							if(aB < 0){aB = 0};
+						//if(aA < 0 && this.isOneWay){
+						//	aA = 0;
+						//}
+						
+						if(aB < 0 && this.isOneWay){
+							aB = 0;  //acceleration can only happen from A into B if it's a one-way Inferface
 						}
-						if(B.isPump){
-							if(aA > 0){aA = 0};
-						}
-					
-						//var kA = Math.pow(0.991, (default_t/time_scale)); //removed these for now as they don't rely on
-						//var kB = Math.pow(0.991, (default_t/time_scale));	//any element-specific quantities - k is a constant
 					
 				
 						var veloAtoB = k*this.velos[i][j] + aA;

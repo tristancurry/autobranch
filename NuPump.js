@@ -1,9 +1,17 @@
-var Pump = function(diam, length, power, posX, posY, id){//shall be 3 elements - inlet, midpump, outlet
-	PipeElement.call(this, diam, length, posX, posY);
+var Pump = function(diam, power, posX, posY, elementLength, id){//shall be 3 elements - inlet, midpump, outlet
+	Pipe.call(this, diam, 3*elementLength, posX, posY, elementLength);
 	this.power = power; //Js^-1
 	this.id = id;
 	if(id == null){this.id = "pump" + Pumps.length}
 	this.label = this.id;
+	
+	for(var i = 0; i < 3; i++){
+		var X;
+		if(i == 0){X = this.posX+ 100;} else {X = this.elements[i - 1].posX + this.elements[i - 1].size}
+		var p = new PipeElement(this.diam, elementLength, X, this.posY); //create a pipe's worth of elements
+		p.pressure = pAtmo;
+		this.elements.push(p);
+	}
 
 	Pumps.push(this); //add to the global list of Pumps, for auto-naming
 	Controls.push(this);

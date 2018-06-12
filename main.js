@@ -58,14 +58,15 @@ var Controls = [];
 var Pumps = [];
 var Valves = [];
 var Sinks = [];
+var Sources = [];
 var Pipes = [];
 
 
 const rho = 1 // density of fluid, g/cm^3
 const K = 2e9; //  bulk modulus of fluid, Pa
-const timescale = 600; //how many frames are equivalent to 1 second?
+const timescale = 400; //how many frames are equivalent to 1 second?
 var physicsSteps = 100; //how much to subdivide each frame for finer (more accurate?) calculations. 
-var elementLength = 20; //mm 
+var elementLength = 40; //mm 
 
 const k = Math.pow(0.9981, (default_t/(timescale*physicsSteps))); 
 
@@ -86,21 +87,24 @@ var thisPipe = new Pipe(38, 800, 0, height/4, elementLength);
 var thatPipe = new Pipe(64, 800, 0, height/2, elementLength);
 var thisValve = new Valve(thisPipe.diam, 200, 0, 0.75*height, 0, elementLength);
 var thatValve = new Valve(thatPipe.diam, 200, 400, 0.75*height, 0, elementLength);
+var thisSource = new Source(64, elementLength, 0, 100, 100);
+thisSource.pressure = pAtmo;
+thisSource.densityFromPressure(); 
 
 var thisSink = new Sink(thisPipe.diam, elementLength, thisPipe.endX, thisPipe.posY - 64);
 var thatSink = new Sink(thatPipe.diam, elementLength, thatPipe.endX, thatPipe.posY - 64);
 	
-var	thisPump = new Pump(64, elementLength, 10, thisPipe.elements[0].posX - elementLength, height/2 - 64);
-	thisPump.pressure = pAtmo;
-	thisPump.densityFromPressure(); 
+var	thisPump = new Pump(64, 0, thisPipe.elements[0].posX - elementLength, height/2 - 64, elementLength);
+
 	
-	thisNetwork.install([thisPump, thisPipe, thatPipe, thisValve, thatValve, thisSink, thatSink]);
-	thisNetwork.connect([thisPump, thisValve.end1]);
-	thisNetwork.connect([thisPump, thatValve.end1]);
+	thisNetwork.install([thisPump, thisPipe, thatPipe, thisValve, thatValve, thisSink, thatSink, thisSource]);
+	thisNetwork.connect([thisPump.end2, thisValve.end1], true);
+	thisNetwork.connect([thisPump.end2, thatValve.end1], true);
 	thisNetwork.connect([thisValve.end2, thisPipe.end1]);
 	thisNetwork.connect([thatValve.end2, thatPipe.end1]);
-	thisNetwork.connect([thisPipe.end2, thisSink]);
-	thisNetwork.connect([thatPipe.end2, thatSink]);
+	thisNetwork.connect([thisPipe.end2, thisSink], true);
+	thisNetwork.connect([thatPipe.end2, thatSink], true);
+	thisNetwork.connect([thisSource, thisPump.end1], false);
 	
 
 function drawWorld(){   ///main animation loop

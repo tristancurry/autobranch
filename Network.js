@@ -14,8 +14,8 @@ Network.prototype = {
 		} 
 	},
 	
-	connect: function(comps){ //would be good to check if the components are already in the Network before hooking them up.
-		var intfc = new Interface(comps); //would also be good to check to see if they're already hooked up!
+	connect: function(comps, isOneWay){ //would be good to check if the components are already in the Network before hooking them up.
+		var intfc = new Interface(comps, isOneWay); //would also be good to check to see if they're already hooked up!
 		this.interfaces.push(intfc);
 		this.netInterfaces.push(intfc);
 		
