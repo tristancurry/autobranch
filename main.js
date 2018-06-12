@@ -1,3 +1,8 @@
+//window.onbeforeunload = function () {
+  //window.scrollTo(0, 0);
+//}
+
+	
 	var title = document.querySelector("#theTitle");
 	var canvas0 = document.querySelector("#canvas0");
 	var ctx0 = canvas0.getContext("2d");
@@ -97,7 +102,7 @@ var	thisPump = new Pump(64, elementLength, 10, thisPipe.elements[0].posX - eleme
 	thisNetwork.connect([thisPipe.end2, thisSink]);
 	thisNetwork.connect([thatPipe.end2, thatSink]);
 	
-	   
+
 function drawWorld(){   ///main animation loop
 	//console.log("=============")
 	ctx0.fillStyle = "rgba(100,0,100,1)";

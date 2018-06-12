@@ -18,16 +18,13 @@ var Pump = function(diam, length, power, posX, posY, id){
 	
 	this.divRep = document.createElement("div");
 	this.divRep.className = 'component';
-	this.style = this.divRep.style;
-	this.style.left = (viewport.pos.x + this.posX - 75/2) + "px";
-	this.style.top = (viewport.pos.y + this.posY - 75/2) + "px";
+	console.log(getComputedStyle(this.divRep));
+	this.divRep.style.transform = "translate3d(" + (this.posX - 0.5*75) + "px, " + (this.posY - 0.5*75) + "px, 0px)";
 	viewport.appendChild(this.divRep);
 	
 	this.infobox = document.createElement("div");
 	this.infobox.className = 'infobox';
-	this.style = this.infobox.style;
-	this.style.left = (viewport.pos.x  + this.posX) + "px";
-	this.style.top = (viewport.pos.y + this.posY) + "px";
+	this.infobox.style.transform = "translate3d(" + this.posX + "px, " + this.posY + "px, 0px)";
 	viewport.appendChild(this.infobox);
 	
 	
@@ -63,7 +60,9 @@ Pump.prototype.update = function(time_scale) {
 	//do this in a more general way by cycling through a list of info on the object, complete with the units associated with that info.
 	//e.g. this.displayInfo = [this.label, [this.pressure, "kPa"], [this.mass, "g"], [this.massFlow, "L/min"], ...]
 	//this would allow all components to share the same code for displaying the infobox
-		
+	//this.infobox.style.left = (viewport.pos.x) + "px";
+	//this.infobox.style.top = (-1*viewport.pos.y) + "px";
+	//this.infobox.style.transform = "translate3d(" + this.posX + "px, " + this.posY + "px, 0px)";
 }
 
 Pump.prototype.applySliderValue = function(val){

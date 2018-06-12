@@ -31,5 +31,6 @@ window.addEventListener("resize", updatePosition, false);
 function updatePosition() {
 	viewport.pos= getPosition(viewport);
 	console.log("new position = "+ viewport.pos.x +", "+ viewport.pos.y);
+	console.log("scrollTop = " + viewport.clientTop);
 }
 
