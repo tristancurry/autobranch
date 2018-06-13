@@ -1,15 +1,15 @@
 var Pump = function(diam, power, posX, posY, elementLength, id){//shall be 3 elements - inlet, midpump, outlet
-	Pipe.call(this, diam, 3*elementLength, posX, posY, elementLength);
+	Pipe.call(this, diam, 10*elementLength, posX, posY, elementLength);
 	this.power = power; //Js^-1
 	this.cavitating = false;
 	this.id = id;
 	if(id == null){this.id = "pump" + Pumps.length}
 	this.label = this.id;
-	
-	this.inlet = this.elements[0];
-	this.midPump = this.elements[1];
-	this.outlet = this.elements[2];
-	this.interfaces[1].isOneWay = true;
+	this.mid = Math.floor(this.elements.length/2);
+	this.inlet = this.elements[this.mid - 1];
+	this.midPump = this.elements[this.mid];
+	this.outlet = this.elements[this.mid + 1];
+	this.interfaces[this.mid].isOneWay = true;
 	this.midPump.isPump = true;
 	
 	//console.log(this.interfaces);
@@ -22,7 +22,7 @@ var Pump = function(diam, power, posX, posY, elementLength, id){//shall be 3 ele
 	
 	var controlPanel = document.getElementById("throttles");
 	controlPanel.innerHTML += '<label for="'+ this.id + 'throttle" >Throttle: '+ this.id + '</label>';
-	controlPanel.innerHTML += '<input type="range" id="' + this.id + 'throttle" class="comptrol" min = "0" max = "100000" step = "0.10" value="' + this.power + '" data-connectedto="'+ this.SN +'" >';
+	controlPanel.innerHTML += '<input type="range" id="' + this.id + 'throttle" class="comptrol" min = "0" max = "1000000" step = "0.10" value="' + this.power + '" data-connectedto="'+ this.SN +'" >';
 	controlPanel.innerHTML += '<span id="'+ this.id + 'throttleDisplay">' + this.power + '</span>';
 	
 	
@@ -51,21 +51,25 @@ Pump.prototype.colour = "rgba(100,100,100,1)";
 
 Pump.prototype.update = function(time_scale) {
 	
-
-			
-	var massOut = 0; //g
-
+	for(var i = 0, l = this.elements.length, n = 0; i < l; i++){
+		if(this.elements[i].pressure < 3200){
+			n++;
+		}
+	}
+	if(n > 0){this.cavitating = true; console.log("cavitating!")} else {this.cavitating = false;}	
 	
-	if(this.outlet.pressure - this.midPump.pressure < this.maxPressure && this.power > 0 && this.midPump.pressure > 0){
+
+
+	if(this.outlet.pressure - this.midPump.pressure < this.maxPressure && this.power > 0 && !this.cavitating){
 		
-		var midVel = this.interfaces[this.interfaces.length - 1].velos[0][1];
-		var outVel = this.interfaces[this.interfaces.length - 1].velos[1][0];
+		var midVel = this.interfaces[this.mid].velos[0][1];
+		var outVel = this.interfaces[this.mid].velos[1][0];
 		
 		
 				//console.log("before: " + midVel);
 
 		
-		/*if(this.outlet.pressure - this.midPump.pressure == 0){
+/*		if(this.outlet.pressure - this.midPump.pressure == 0){
 					midVel += (1e9/time_scale)*this.power/(this.midPump.area*(0.1));
 					outVel += (1e9/time_scale)*this.power/(this.midPump.area*(0.1));
 				} else {
@@ -73,8 +77,8 @@ Pump.prototype.update = function(time_scale) {
 					outVel += (1e6/time_scale)*this.power/(this.midPump.area*(this.outlet.pressure - this.midPump.pressure));
 				}
 	
-
 */
+
 	
 		if(midVel == 0){
 			midVel +=	(2*this.power/(this.outlet.mass*0.00001))/(time_scale);
@@ -93,8 +97,8 @@ Pump.prototype.update = function(time_scale) {
 	
 	
 			//console.log("after: " + midVel);
-			this.interfaces[this.interfaces.length - 1].velos[0][1] = midVel;
-			this.interfaces[this.interfaces.length - 1].velos[1][0] = outVel;
+			this.interfaces[this.mid].velos[0][1] = midVel;
+			this.interfaces[this.mid].velos[1][0] = outVel;
 		
 	} 
 	
