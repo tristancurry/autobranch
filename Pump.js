@@ -80,23 +80,28 @@ Pump.prototype.update = function(time_scale) {
 
 
 		
-		var midVel = this.interfaces[this.mid].velos[0][1];
-		var outVel = this.interfaces[this.mid].velos[1][0];
+		//var midVel = this.interfaces[this.mid].velos[0][1];
+		//var outVel = this.interfaces[this.mid].velos[1][0];
 		
 		
+    if(!this.cavitating){
+			this.outlet.massFlow  += (this.outlet.density*1e6/time_scale)*((this.efficiency*this.power/this.outlet.pressure));
+			this.midPump.massFlow -= (this.outlet.density*1e6/time_scale)*((this.efficiency*this.power/this.outlet.pressure));
+	}
+
 				//console.log("before: " + midVel);
 
-		
-/*		if(this.outlet.pressure - this.midPump.pressure == 0){
-					midVel += (1e9/time_scale)*this.power/(this.midPump.area*(0.1));
-					outVel += (1e9/time_scale)*this.power/(this.midPump.area*(0.1));
+	/*	
+		if(this.outlet.pressure - this.midPump.pressure == 0){
+					midVel += (1e9/time_scale)*this.power*this.efficiency/(this.midPump.area*(0.1));
+					outVel += (1e9/time_scale)*this.power*this.efficiency/(this.midPump.area*(0.1));
 				} else {
-					midVel += (1e6/time_scale)*this.power/(this.midPump.area*(this.outlet.pressure - this.midPump.pressure));
-					outVel += (1e6/time_scale)*this.power/(this.midPump.area*(this.outlet.pressure - this.midPump.pressure));
+					midVel += (1e10/time_scale)*this.power/(this.midPump.area*(this.outlet.pressure - this.midPump.pressure));
+					outVel += (1e10/time_scale)*this.power/(this.midPump.area*(this.outlet.pressure - this.midPump.pressure));
 				}
 	
 */
-
+/*
 	
 		if(midVel == 0){
 			midVel +=	(2*this.efficiency*this.power/(this.outlet.mass*0.00001))/(time_scale);
@@ -107,18 +112,19 @@ Pump.prototype.update = function(time_scale) {
 	
 		if(outVel == 0){
 			// outVel = this.efficiency*(1/time_scale);
-			outVel +=	(2*this.power/(this.outlet.mass*0.00001))/(time_scale);
+			//outVel +=	(2*this.efficiency*this.power/(this.outlet.mass*0.00001))/(time_scale);
 		} else {
-			outVel += (2*this.power/(this.outlet.mass*outVel/1000000))/(time_scale);
+			//outVel += (2**this.efficiency*this.power/(this.outlet.mass*outVel/1000000))/(time_scale);
 		}
 	
 
+*/
 		
 	
 	
 			//console.log("after: " + midVel);
-			this.interfaces[this.mid].velos[0][1] = midVel;
-			this.interfaces[this.mid].velos[1][0] = outVel;
+			//this.interfaces[this.mid].velos[0][1] = midVel;
+			//this.interfaces[this.mid].velos[1][0] = outVel;
 		
 
 	
