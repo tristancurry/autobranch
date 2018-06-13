@@ -104,8 +104,8 @@ var inletValve = new Valve(thisPump.diam, 80, 0, 0.85*height, 0, elementLength);
 	thisNetwork.connect([thisPump.end2, thatValve.end1], true);
 	thisNetwork.connect([thisValve.end2, thisPipe.end1]);
 	thisNetwork.connect([thatValve.end2, thatPipe.end1]);
-	thisNetwork.connect([thisPipe.end2, thisSink], true);
-	thisNetwork.connect([thatPipe.end2, thatSink], true);
+	thisNetwork.connect([thisPipe.end2, thisSink], false);
+	thisNetwork.connect([thatPipe.end2, thatSink], false);
 	thisNetwork.connect([thisSource, inletValve.end1], false);
 	thisNetwork.connect([inletValve.end2, thisPump.end1], false);
 

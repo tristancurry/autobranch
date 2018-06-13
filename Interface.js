@@ -38,7 +38,7 @@ Interface.prototype = {
 					
 					
 					
-					if(A.area == 0 || B.area == 0 || (deltaP < 0 && this.isOneWay)){
+					if(A.area == 0 || B.area == 0){
 						
 						this.velos[i][j] = 0;
 						this.velos[j][i] = 0;
@@ -47,7 +47,7 @@ Interface.prototype = {
 						
 					
 						
-					} else if((A.area > 0 && B.area > 0)){
+					} else {
 					
 						var workingArea = Math.min(A.area,B.area)/1e6;  //find size of interface between pipe elements, then convert to m^2
 						var F = 1000*(deltaP)*workingArea;  //find net force in direction of B, Newtons
@@ -67,6 +67,12 @@ Interface.prototype = {
 							var veloAtoB = k*this.velos[i][j] + aA;
 							var veloBfromA = k*this.velos[j][i] + aB;
 			
+							if(this.isOneWay){
+								if(veloAtoB < 0){veloAtoB = 0;}
+								if(veloBfromA < 0){veloBfromA = 0;}
+							}  
+			
+			
 							if(A.isSink){
 								A.massFlow -= (veloAtoB/time_scale)*(B.area/1000)*A.density;
 							} else {
@@ -78,10 +84,7 @@ Interface.prototype = {
 								B.massFlow += (veloBfromA/time_scale)*(B.area/1000)*B.density;
 							}
 	
-							if(this.isOneWay == true){
-								if(veloAtoB < 0){veloAtoB = 0;}
-								if(veloBfromA < 0){veloBfromA = 0;}
-							}
+						
 						
 						
 							this.velos[i][j] = veloAtoB;
