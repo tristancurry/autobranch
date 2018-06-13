@@ -83,10 +83,11 @@ const pAtmo = 1e5; //atmospheric pressure, Pa
 
 var thisNetwork = new Network();
 
-var thisPipe = new Pipe(38, 800, 0, height/4, elementLength);
+/*var thisPipe = new Pipe(38, 800, 0, height/4, elementLength);
 var thatPipe = new Pipe(64, 800, 0, height/2, elementLength);
 var thisValve = new Valve(thisPipe.diam, 200, 0, 0.75*height, 0, elementLength);
 var thatValve = new Valve(thatPipe.diam, 200, 400, 0.75*height, 0, elementLength);
+
 var thisSource = new Source(64, elementLength, 0, 100, 100);
 thisSource.pressure = pAtmo;
 thisSource.densityFromPressure(); 
@@ -95,16 +96,38 @@ var thisSink = new Sink(thisPipe.diam, elementLength, thisPipe.endX, thisPipe.po
 var thatSink = new Sink(thatPipe.diam, elementLength, thatPipe.endX, thatPipe.posY - 64);
 	
 var	thisPump = new Pump(64, 0, thisPipe.elements[0].posX - elementLength, height/2 - 64, elementLength);
+var inletValve = new Valve(thisPump.diam, 80, 0, 0.85*height, 0, elementLength);
 
 	
-	thisNetwork.install([thisPump, thisPipe, thatPipe, thisValve, thatValve, thisSink, thatSink, thisSource]);
+	thisNetwork.install([thisPump, thisPipe, thatPipe, thisValve, thatValve, thisSink, thatSink, thisSource, inletValve]);
 	thisNetwork.connect([thisPump.end2, thisValve.end1], true);
 	thisNetwork.connect([thisPump.end2, thatValve.end1], true);
 	thisNetwork.connect([thisValve.end2, thisPipe.end1]);
 	thisNetwork.connect([thatValve.end2, thatPipe.end1]);
 	thisNetwork.connect([thisPipe.end2, thisSink], true);
 	thisNetwork.connect([thatPipe.end2, thatSink], true);
-	thisNetwork.connect([thisSource, thisPump.end1], false);
+	thisNetwork.connect([thisSource, inletValve.end1], false);
+	thisNetwork.connect([inletValve.end2, thisPump.end1], false);
+*/
+
+var thisPipe = new Pipe(64, 100, 100, height/2, elementLength);
+var thatPipe = new Pipe(64, 100, thisPipe.endX, height/2, elementLength);
+var thisSource = new Source(64, elementLength, 0, 0, height/2);
+var thisValve = new Valve(thisPipe.diam, 200 , thisPipe.posX - 200, 1/2*height, 0, elementLength);
+var thatValve = new Valve(thisPipe.diam, 200, thatPipe.endX, height/2, 0, elementLength);
+var thisSink = new Sink(thatPipe.diam, elementLength, thatValve.endX, height/2);
+var bleedValve = new Valve(thisPipe.diam, 200 , thisPipe.posX, 0.75*height, 0, elementLength, "bleed");
+
+thisNetwork.install([thisSource, thisValve, thisPipe, thatPipe, thatValve, thisSink, bleedValve]);
+thisNetwork.connect([thisSource,thisValve.end1]);
+thisNetwork.connect([thisValve.end2, thisPipe.end1]);
+thisNetwork.connect([thatPipe.end1, thisPipe.end2], true);
+thisNetwork.connect([thatPipe.end2, thatValve.end1]);
+thisNetwork.connect([thatValve.end2, thisSink]);
+thisNetwork.connect([thisPipe.end2, bleedValve.end1])
+thisNetwork.connect([bleedValve.end2, thisSink]);
+
+	
 	
 
 function drawWorld(){   ///main animation loop

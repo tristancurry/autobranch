@@ -10,7 +10,11 @@ var Pump = function(diam, power, posX, posY, elementLength, id){//shall be 3 ele
 	this.midPump = this.elements[1];
 	this.outlet = this.elements[2];
 	this.interfaces[1].isOneWay = true;
+	this.midPump.isPump = true;
+	
 	//console.log(this.interfaces);
+	
+
 
 	Pumps.push(this); //add to the global list of Pumps, for auto-naming
 	Controls.push(this);
@@ -18,7 +22,7 @@ var Pump = function(diam, power, posX, posY, elementLength, id){//shall be 3 ele
 	
 	var controlPanel = document.getElementById("throttles");
 	controlPanel.innerHTML += '<label for="'+ this.id + 'throttle" >Throttle: '+ this.id + '</label>';
-	controlPanel.innerHTML += '<input type="range" id="' + this.id + 'throttle" class="comptrol" min = "0" max = "100" step = "0.10" value="' + this.power + '" data-connectedto="'+ this.SN +'" >';
+	controlPanel.innerHTML += '<input type="range" id="' + this.id + 'throttle" class="comptrol" min = "0" max = "100000" step = "0.10" value="' + this.power + '" data-connectedto="'+ this.SN +'" >';
 	controlPanel.innerHTML += '<span id="'+ this.id + 'throttleDisplay">' + this.power + '</span>';
 	
 	
@@ -48,40 +52,60 @@ Pump.prototype.colour = "rgba(100,100,100,1)";
 Pump.prototype.update = function(time_scale) {
 	
 
-	
 			
 	var massOut = 0; //g
-	if(this.midPump.pressure < 3200 || Math.abs(this.outlet.massFlow) > Math.abs(this.outlet.massFlow)){
-		this.cavitating = true;
-	} else {
-		this.cavitating = false;
-	};
+
+	
+	if(this.outlet.pressure - this.midPump.pressure < this.maxPressure && this.power > 0 && this.midPump.pressure > 0){
+		
+		var midVel = this.interfaces[this.interfaces.length - 1].velos[0][1];
+		var outVel = this.interfaces[this.interfaces.length - 1].velos[1][0];
+		
+		
+				//console.log("before: " + midVel);
+
+		
+		/*if(this.outlet.pressure - this.midPump.pressure == 0){
+					midVel += (1e9/time_scale)*this.power/(this.midPump.area*(0.1));
+					outVel += (1e9/time_scale)*this.power/(this.midPump.area*(0.1));
+				} else {
+					midVel += (1e6/time_scale)*this.power/(this.midPump.area*(this.outlet.pressure - this.midPump.pressure));
+					outVel += (1e6/time_scale)*this.power/(this.midPump.area*(this.outlet.pressure - this.midPump.pressure));
+				}
+	
+
+*/
+	
+		if(midVel == 0){
+			midVel +=	(2*this.power/(this.outlet.mass*0.00001))/(time_scale);
+		} else {
+			midVel += (2*this.power/(this.outlet.mass*midVel/1000))/(time_scale);
+		}
+	
+		if(outVel == 0){
+			outVel +=	(2*this.power/(this.outlet.mass*0.00001))/(time_scale);
+		} else {
+			outVel += (2*this.power/(this.outlet.mass*outVel/1000))/(time_scale);
+		}
+	
+
 		
 	
 	
+			//console.log("after: " + midVel);
+			this.interfaces[this.interfaces.length - 1].velos[0][1] = midVel;
+			this.interfaces[this.interfaces.length - 1].velos[1][0] = outVel;
+		
+	} 
+	
+	//console.log(this.interfaces[this.interfaces.length - 1].velos);
 	for(var i = 0, l = this.elements.length; i < l; i++){  //update the mass of each pipe element
 			this.elements[i].update(time_scale);
 	}
-	
-	if(this.outlet.pressure - this.midPump.pressure < this.maxPressure){
-		if(!this.cavitating){
-		massOut = (this.midPump.density*1e6/time_scale)*((this.power/(this.outlet.pressure)));
-		}
-		//console.log("before: midpump mass: " + this.midPump.mass + ", outlet mass: " + this.outlet.mass);
-		this.midPump.mass -= massOut;
-		this.outlet.mass += massOut;
-		//console.log("before: midpump mass: " + this.midPump.mass + ", outlet mass: " + this.outlet.mass);
 
-	} else {
-		this.outlet.pressure = this.maxPressure + this.midPump.pressure;
-		this.outlet.densityFromPressure();
-		this.midPump.massFlow = 0;
-	}
 	
-	/*this.colour = "hsla(200, 100%, " + 100*(this.pressure - 100000)/2900000 +"%, 1)" //pressure range between 2550000 and 0
-	this.outlet.massFlow = massOut; //for testing of pump output visually
-	this.outlet.velo = this.outlet.findVelo();
-	*/
+
+
 	this.infobox.innerHTML = '<div class="title">'+ this.label + '</div>throttle = ' + Math.round(this.power) + '%<br>pressure = ' + Math.round(this.outlet.pressure/1000) + 'kPa<br>mass = ' + Math.round(this.outlet.mass) + 'g<br>q = ' + Math.round(60*this.outlet.massFlow*timescale*physicsSteps) + 'L/min';
 
 	//do this in a more general way by cycling through a list of info on the object, complete with the units associated with that info.

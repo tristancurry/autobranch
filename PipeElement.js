@@ -68,10 +68,10 @@ PipeElement.prototype = {
 		var oldPressure = this.pressure;
 		this.pressure = K*(1 - (oldDensity/this.density)) + oldPressure;
 		if(this.pressure < 0){
-			this.pressure = 0.1
+			this.pressure = 0;
 			this.densityFromPressure()};
 		this.velo = this.findVelo();
-		this.colour = "hsla(200, 100%, " + 100*(this.pressure - 100000)/2900000 +"%, 1)" //pressure range between 2550000 and 0
+		this.colour = "hsla(200, 100%, " + 100*(this.pressure - 100000)/1900000 +"%, 1)" //pressure range between 2550000 and 0
 
 	},
 	

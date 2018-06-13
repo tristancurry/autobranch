@@ -33,8 +33,12 @@ Interface.prototype = {
 				for(var j = i + 1; j < l; j++){
 					var A = this.elements[i];
 					var B = this.elements[j];
+					var deltaP = A.pressure - B.pressure;
 					
-					if(A.area == 0 || B.area == 0){
+					
+					
+					
+					if(A.area == 0 || B.area == 0 || (deltaP < 0 && this.isOneWay)){
 						
 						this.velos[i][j] = 0;
 						this.velos[j][i] = 0;
@@ -43,52 +47,49 @@ Interface.prototype = {
 						
 					
 						
-					} else if(Math.abs(A.pressure - B.pressure) > 0 || (A.isPump || B.isPump) && (A.area > 0 && B.area > 0)){
+					} else if((A.area > 0 && B.area > 0)){
 					
 						var workingArea = Math.min(A.area,B.area)/1e6;  //find size of interface between pipe elements, then convert to m^2
-						var F = 1000*(A.pressure - B.pressure)*workingArea;  //find net force in direction of B, Newtons
+						var F = 1000*(deltaP)*workingArea;  //find net force in direction of B, Newtons
 						
-					
 						
-						if(A.mass > 0){
-							var aA = (F/A.mass)/time_scale; //resultant acceleration of fluid in ms^-2
-						} else {var aA = (F/B.mass)/time_scale;}
-						//} else {var aA = 0;}
-						if(B.mass > 0){
-							var aB = (F/B.mass)/time_scale; //resultant acceleration of fluid in ms^-2
-						} else { var aB = (F/A.mass)/time_scale; }
-						//} else {var aB = 0;}
-
-						//if(aA < 0 && this.isOneWay){
-						//	aA = 0;
-						//}
 						
-						if(aB < 0 && this.isOneWay){
-							aB = 0;  //acceleration can only happen from A into B if it's a one-way Inferface
-						}
+							if(A.mass > 0){
+								var aA = (F/A.mass)/time_scale; //resultant acceleration of fluid in ms^-2
+							} else {var aA = (F/B.mass)/time_scale;}
+							//} else {var aA = 0;}
+							if(B.mass > 0){
+								var aB = (F/B.mass)/time_scale; //resultant acceleration of fluid in ms^-2
+							} else { var aB = (F/A.mass)/time_scale; }
+							//} else {var aB = 0;}
 					
 				
-						var veloAtoB = k*this.velos[i][j] + aA;
-						var veloBfromA = k*this.velos[j][i] + aB;
+							var veloAtoB = k*this.velos[i][j] + aA;
+							var veloBfromA = k*this.velos[j][i] + aB;
 			
-						if(A.isSink){
-							A.massFlow -= (veloAtoB/time_scale)*(B.area/1000)*A.density;
-						} else {
-							A.massFlow -= (veloAtoB/time_scale)*(A.area/1000)*A.density;  //g of mass flow during time interval
-						}
-						if(B.isSink){
-							B.massFlow += (veloBfromA/time_scale)*(A.area/1000)*B.density;
-						} else {
-							B.massFlow += (veloBfromA/time_scale)*(B.area/1000)*B.density;
-						}
+							if(A.isSink){
+								A.massFlow -= (veloAtoB/time_scale)*(B.area/1000)*A.density;
+							} else {
+								A.massFlow -= (veloAtoB/time_scale)*(A.area/1000)*A.density;  //g of mass flow during time interval
+							}
+							if(B.isSink){
+								B.massFlow += (veloBfromA/time_scale)*(A.area/1000)*B.density;
+							} else {
+								B.massFlow += (veloBfromA/time_scale)*(B.area/1000)*B.density;
+							}
 	
-
-						this.velos[i][j] = veloAtoB;
-						this.velos[j][i] = veloBfromA;
+							if(this.isOneWay == true){
+								if(veloAtoB < 0){veloAtoB = 0;}
+								if(veloBfromA < 0){veloBfromA = 0;}
+							}
 						
-						A.peVelos.push(this.velos[i][j]);
-						B.peVelos.push(this.velos[j][i]);
-
+						
+							this.velos[i][j] = veloAtoB;
+							this.velos[j][i] = veloBfromA;
+						
+							A.peVelos.push(this.velos[i][j]);
+							B.peVelos.push(this.velos[j][i]);
+						
 					}
 
 				}

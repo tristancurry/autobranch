@@ -13,7 +13,7 @@ var Pipe = function(diam, length, posX, posY, elementLength, id) {
 	
 	for (var i = 0; i < N; i++){
 		var X;
-		if(i == 0){X = this.posX+ 100;} else {X = this.elements[i - 1].posX + this.elements[i - 1].size}
+		if(i == 0){X = this.posX;} else {X = this.elements[i - 1].posX + this.elements[i - 1].size}
 		var p = new PipeElement(this.diam, elementLength, X, this.posY); //create a pipe's worth of elements
 		p.pressure = pAtmo;
 		this.elements.push(p);
