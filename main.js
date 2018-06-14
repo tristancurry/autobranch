@@ -64,7 +64,7 @@ var Pipes = [];
 
 const rho = 1 // density of fluid, g/cm^3
 const K = 2e9; //  bulk modulus of fluid, Pa
-const timescale = 60; //how many frames are equivalent to 1 second?
+const timescale = 600; //how many frames are equivalent to 1 second?
 var physicsSteps = 100; //how much to subdivide each frame for finer (more accurate?) calculations. 
 var elementLength = 40; //mm 
 
