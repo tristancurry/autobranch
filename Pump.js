@@ -62,73 +62,40 @@ Pump.prototype.update = function(time_scale) {
 	if(n > 0){
 		this.cavitating = true; 
 		
-			if(this.efficiency > 0.01){
-				this.efficiency -= 0.01;
+			if(this.efficiency > 1000/time_scale){
+				this.efficiency -= 1000/time_scale;
 			} else {
 				this.efficiency = 0;
 			}
 		} else {
 			this.cavitating = false;
-			if(this.efficiency < 0.09){
-				this.efficiency += 0.01;
+			if(this.efficiency < 1 - 1000/time_scale){
+				this.efficiency += 1000/time_scale;
 			} else {
 				this.efficiency = 1;
 			}
 			
 		}	
 
+		//console.log("Eff = " + this.efficiency);
 
-
 		
-		//var midVel = this.interfaces[this.mid].velos[0][1];
-		//var outVel = this.interfaces[this.mid].velos[1][0];
+		var midVel = this.interfaces[this.mid].velos[0][1];
+		var outVel = this.interfaces[this.mid].velos[1][0];
 		
 		
-    if(!this.cavitating){
+    if(this.efficiency > 0 && this.power >0 && this.outlet.pressure - this.midPump.pressure < this.maxPressure){
 			this.outlet.massFlow  += (this.outlet.density*1e6/time_scale)*((this.efficiency*this.power/this.outlet.pressure));
 			this.midPump.massFlow -= (this.outlet.density*1e6/time_scale)*((this.efficiency*this.power/this.outlet.pressure));
-	}
+	} else if(this.cavitating){
+		
+			//this.midPump.massFlow += (0.1*this.outlet.density*1e6/time_scale)*((this.efficiency*this.power/this.outlet.pressure));
 
-				//console.log("before: " + midVel);
-
-	/*	
-		if(this.outlet.pressure - this.midPump.pressure == 0){
-					midVel += (1e9/time_scale)*this.power*this.efficiency/(this.midPump.area*(0.1));
-					outVel += (1e9/time_scale)*this.power*this.efficiency/(this.midPump.area*(0.1));
-				} else {
-					midVel += (1e10/time_scale)*this.power/(this.midPump.area*(this.outlet.pressure - this.midPump.pressure));
-					outVel += (1e10/time_scale)*this.power/(this.midPump.area*(this.outlet.pressure - this.midPump.pressure));
-				}
-	
-*/
-/*
-	
-		if(midVel == 0){
-			midVel +=	(2*this.efficiency*this.power/(this.outlet.mass*0.00001))/(time_scale);
-			//midVel = this.efficiency*(1/time_scale);
-		} else {
-			midVel += (2*this.efficiency*this.power/(this.outlet.mass*midVel/1000000))/(time_scale);
 		}
 	
-		if(outVel == 0){
-			// outVel = this.efficiency*(1/time_scale);
-			//outVel +=	(2*this.efficiency*this.power/(this.outlet.mass*0.00001))/(time_scale);
-		} else {
-			//outVel += (2**this.efficiency*this.power/(this.outlet.mass*outVel/1000000))/(time_scale);
-		}
-	
-
-*/
+		//this.interfaces[this.mid].velos[0][1] = midVel;
+		//this.interfaces[this.mid].velos[1][0] = outVel;
 		
-	
-	
-			//console.log("after: " + midVel);
-			//this.interfaces[this.mid].velos[0][1] = midVel;
-			//this.interfaces[this.mid].velos[1][0] = outVel;
-		
-
-	
-	//console.log(this.interfaces[this.interfaces.length - 1].velos);
 	for(var i = 0, l = this.elements.length; i < l; i++){  //update the mass of each pipe element
 			this.elements[i].update(time_scale);
 	}

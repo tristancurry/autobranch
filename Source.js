@@ -11,7 +11,7 @@ var Source = function(diam, length, power, posX, posY, id){
 	
 	var controlPanel = document.getElementById("throttles");
 	controlPanel.innerHTML += '<label for="'+ this.id + 'throttle" >Throttle: '+ this.id + '</label>';
-	controlPanel.innerHTML += '<input type="range" id="' + this.id + 'throttle" class="comptrol" min = "0" max = "10" step = "0.1" value="' + this.power + '" data-connectedto="'+ this.SN +'" >';
+	controlPanel.innerHTML += '<input type="range" id="' + this.id + 'throttle" class="comptrol" min = "0" max = "100" step = "0.1" value="' + this.power + '" data-connectedto="'+ this.SN +'" >';
 	controlPanel.innerHTML += '<span id="'+ this.id + 'throttleDisplay">' + this.power + '</span>';
 	
 	
@@ -35,7 +35,7 @@ var Source = function(diam, length, power, posX, posY, id){
 
 Source.prototype = Object.create(PipeElement.prototype);
 Source.prototype.isPump = true;
-Source.prototype.maxPressure = 6000000;
+Source.prototype.maxPressure = 500000;
 Source.prototype.colour = "rgba(100,100,100,1)";
 
 Source.prototype.update = function(time_scale) {

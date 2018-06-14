@@ -1,10 +1,16 @@
-var Pipe = function(diam, length, posX, posY, elementLength, id) {
+var Pipe = function(diam, length, posX, posY, elementLength, elastic, id) {
 	this.diam = diam; 		//mm
 	this.length = length; 	//mm
 	this.posX = posX;
 	this.posY = posY; //starting position of pipe
 	this.elements = [];
 	this.interfaces = [];
+	this.elastic = elastic;
+	if(elastic == true){
+		this.elastic = true;
+	} else {
+		this.elastic = false;
+	}
 	this.id = id;
 	if(id == null){this.id = "pipe" + Pipes.length}
 	this.label = this.id;
@@ -60,6 +66,10 @@ Pipe.prototype = {
 	update: function(time_scale){
 			for(var i = 0, l = this.elements.length; i < l; i++){  //update the mass of each pipe element
 			this.elements[i].update(time_scale);
+			if(this.elastic){
+				var newDiam =1 + 1.01*this.diam*(1 - Math.pow((1/101),this.elements[i].pressure/pAtmo));
+				this.elements[i].changeDiam(newDiam);
+			}
 		}
 	},
 	render: function(ctx){

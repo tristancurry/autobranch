@@ -70,18 +70,20 @@ Interface.prototype = {
 							if(this.isOneWay){
 								if(veloAtoB < 0){veloAtoB = 0;}
 								if(veloBfromA < 0){veloBfromA = 0;}
+								//if(veloAtoB < 0){veloAtoB = (1/time_scale)*Math.round(0.9*time_scale*veloAtoB);}
+								//if(veloBfromA < 0){veloBfromA = (1/time_scale)*Math.round(0.9*time_scale*veloBfromA);}
 							}  
 			
 			
 							if(A.isSink){
-								A.massFlow -= (veloAtoB/time_scale)*(B.area/1000)*A.density;
+								A.massFlow -= (10*veloAtoB/time_scale)*(B.area/1000)*A.density; //10*v to put in cms^-1, area/1000 to put into cm^2, as density ia g/cm^3
 							} else {
-								A.massFlow -= (veloAtoB/time_scale)*(A.area/1000)*A.density;  //g of mass flow during time interval
+								A.massFlow -= (10*veloAtoB/time_scale)*(A.area/1000)*A.density;  //g of mass flow during time interval
 							}
 							if(B.isSink){
-								B.massFlow += (veloBfromA/time_scale)*(A.area/1000)*B.density;
+								B.massFlow += (10*veloBfromA/time_scale)*(A.area/1000)*B.density;
 							} else {
-								B.massFlow += (veloBfromA/time_scale)*(B.area/1000)*B.density;
+								B.massFlow += (10*veloBfromA/time_scale)*(B.area/1000)*B.density;
 							}
 	
 						

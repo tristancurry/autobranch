@@ -64,7 +64,7 @@ var Pipes = [];
 
 const rho = 1 // density of fluid, g/cm^3
 const K = 2e9; //  bulk modulus of fluid, Pa
-const timescale = 400; //how many frames are equivalent to 1 second?
+const timescale = 600; //how many frames are equivalent to 1 second?
 var physicsSteps = 100; //how much to subdivide each frame for finer (more accurate?) calculations. 
 var elementLength = 40; //mm 
 
@@ -83,7 +83,7 @@ const pAtmo = 1e5; //atmospheric pressure, Pa
 
 var thisNetwork = new Network();
 
-var thisPipe = new Pipe(38, 800, 100, height/4, elementLength);
+var thisPipe = new Pipe(38, 800, 100, height/4, elementLength, true);
 var thatPipe = new Pipe(64, 800, 100, height/2, elementLength);
 var thisValve = new Valve(thisPipe.diam, 200, 100, 0.75*height, 0, elementLength);
 var thatValve = new Valve(thatPipe.diam, 200, 500, 0.75*height, 0, elementLength);
