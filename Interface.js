@@ -76,14 +76,14 @@ Interface.prototype = {
 			
 			
 							if(A.isSink){
-								A.massFlow -= (10*veloAtoB/time_scale)*(B.area/1000)*A.density; //10*v to put in cms^-1, area/1000 to put into cm^2, as density ia g/cm^3
+								A.massFlow -= (veloAtoB/time_scale)*(B.area/1000)*A.density; //10*v to put in cms^-1, area/1000 to put into cm^2, as density ia g/cm^3
 							} else {
-								A.massFlow -= (10*veloAtoB/time_scale)*(A.area/1000)*A.density;  //g of mass flow during time interval
+								A.massFlow -= (veloAtoB/time_scale)*(A.area/1000)*A.density;  //g of mass flow during time interval
 							}
 							if(B.isSink){
-								B.massFlow += (10*veloBfromA/time_scale)*(A.area/1000)*B.density;
+								B.massFlow += (veloBfromA/time_scale)*(A.area/1000)*B.density;
 							} else {
-								B.massFlow += (10*veloBfromA/time_scale)*(B.area/1000)*B.density;
+								B.massFlow += (veloBfromA/time_scale)*(B.area/1000)*B.density;
 							}
 	
 						
