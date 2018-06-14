@@ -11,6 +11,7 @@ var PipeElement = function(diam, length, posX, posY) {
 	this.peVelos = [];
 	this.connectedInterfaces = [];
 	this.velo = 0;
+	this.voluFlow = 0;
 
     return this;
 };
@@ -72,6 +73,7 @@ PipeElement.prototype = {
 			this.densityFromPressure();
 		}
 		this.velo = this.findVelo();
+		this.voluFlow = this.velo*60*(this.area)/1000;
 		this.colour = "hsla(200, 100%, " + 100*(this.pressure - 100000)/1900000 +"%, 1)" //pressure range between 2550000 and 0
 
 	},

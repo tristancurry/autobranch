@@ -83,29 +83,32 @@ const pAtmo = 1e5; //atmospheric pressure, Pa
 
 var thisNetwork = new Network();
 
-var thisPipe = new Pipe(38, 800, 100, height/4, elementLength, true);
-var thatPipe = new Pipe(64, 800, 100, height/2, elementLength);
-var thisValve = new Valve(thisPipe.diam, 200, 100, 0.75*height, 0, elementLength);
-var thatValve = new Valve(thatPipe.diam, 200, 500, 0.75*height, 0, elementLength);
 
-var thisSource = new Source(64, elementLength, 0, 100, 100);
+//var thatPipe = new Pipe(64, 800, 100, height/2, elementLength);
+
+//var thatValve = new Valve(thatPipe.diam, 200, 500, 0.75*height, 0, elementLength);
+
+var thisSource = new Source(64, elementLength, 0, elementLength, height/2);
 thisSource.pressure = pAtmo;
 thisSource.densityFromPressure(); 
 
-var thisSink = new Sink(thisPipe.diam, elementLength, thisPipe.endX, thisPipe.posY - 64);
-var thatSink = new Sink(thatPipe.diam, elementLength, thatPipe.endX, thatPipe.posY - 64);
-	
-var	thisPump = new Pump(64, 0, thisPipe.elements[0].posX - elementLength, height/2 - 64, elementLength);
-var inletValve = new Valve(thisPump.diam, 80, 0, 0.85*height, 0, elementLength);
 
+//var thatSink = new Sink(thatPipe.diam, elementLength, thatPipe.endX, thatPipe.posY - 64);
 	
-	thisNetwork.install([thisPump, thisPipe, thatPipe, thisValve, thatValve, thisSink, thatSink, thisSource, inletValve]);
-	thisNetwork.connect([thisPump.end2, thisValve.end1], true);
-	thisNetwork.connect([thisPump.end2, thatValve.end1], true);
+
+var inletValve = new Valve(64, 80, thisSource.posX + thisSource.length, 0.5*height, 0, elementLength);
+var	thisPump = new Pump(64, 0, inletValve.posX + inletValve.length, height/2, elementLength);
+var thisValve = new Valve(38, 100, thisPump.posX + thisPump.length, 0.5*height, 0, elementLength);
+var thisPipe = new Pipe(38, 300, thisValve.endX, height/2, elementLength, true);
+var thisSink = new Sink(thisPipe.diam, elementLength, thisPipe.endX, thisPipe.posY - 64);
+	
+	thisNetwork.install([thisPump, thisPipe,thisValve, thisSink, thisSource, inletValve]);
+	thisNetwork.connect([thisPump.end2, thisValve.end1], false);
+	//thisNetwork.connect([thisPump.end2, thatValve.end1], false);
 	thisNetwork.connect([thisValve.end2, thisPipe.end1]);
-	thisNetwork.connect([thatValve.end2, thatPipe.end1]);
+	//thisNetwork.connect([thatValve.end2, thatPipe.end1]);
 	thisNetwork.connect([thisPipe.end2, thisSink], false);
-	thisNetwork.connect([thatPipe.end2, thatSink], false);
+	//thisNetwork.connect([thatPipe.end2, thatSink], false);
 	thisNetwork.connect([thisSource, inletValve.end1], true);
 	thisNetwork.connect([inletValve.end2, thisPump.end1], false);
 

@@ -61,8 +61,9 @@ Source.prototype.update = function(time_scale) {
 	this.colour = "hsla(200, 100%, " + 100*(this.pressure - 100000)/2900000 +"%, 1)" //pressure range between 2550000 and 0
 	this.massFlow = massOut; //for testing of Source output visually
 	this.velo = this.findVelo();
+	this.voluFlow = this.velo*60*(this.area)/1000;
 	
-	this.infobox.innerHTML = '<div class="title">'+ this.label + '</div>throttle = ' + Math.round(this.power) + '%<br>pressure = ' + Math.round(this.pressure/1000) + 'kPa<br>mass = ' + Math.round(this.mass) + 'g<br>q = ' + Math.round(60*this.massFlow*timescale*physicsSteps) + 'L/min';
+	this.infobox.innerHTML = '<div class="title">'+ this.label + '</div>throttle = ' + Math.round(this.power) + '%<br>pressure = ' + Math.round(this.pressure/1000) + 'kPa<br>mass = ' + Math.round(this.mass) + 'g<br>q = ' + Math.round(this.voluFlow) + 'L/min';
 	//do this in a more general way by cycling through a list of info on the object, complete with the units associated with that info.
 	//e.g. this.displayInfo = [this.label, [this.pressure, "kPa"], [this.mass, "g"], [this.massFlow, "L/min"], ...]
 	//this would allow all components to share the same code for displaying the infobox

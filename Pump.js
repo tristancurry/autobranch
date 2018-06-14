@@ -75,37 +75,33 @@ Pump.prototype.update = function(time_scale) {
 				this.efficiency = 1;
 			}
 			
-		}	
-
-		//console.log("Eff = " + this.efficiency);
+		}
 
 		
-		var midVel = this.interfaces[this.mid].velos[0][1];
-		var outVel = this.interfaces[this.mid].velos[1][0];
+	//var midVel = this.interfaces[this.mid].velos[0][1];
+	//var outVel = this.interfaces[this.mid].velos[1][0];
 		
 		
     if(this.efficiency > 0 && this.power >0 && this.outlet.pressure - this.midPump.pressure < this.maxPressure){
 			this.outlet.massFlow  += (this.outlet.density*1e6/time_scale)*((this.efficiency*this.power/this.outlet.pressure));
 			this.midPump.massFlow -= (this.outlet.density*1e6/time_scale)*((this.efficiency*this.power/this.outlet.pressure));
-	} else if(this.cavitating){
-		
-			//this.midPump.massFlow += (0.1*this.outlet.density*1e6/time_scale)*((this.efficiency*this.power/this.outlet.pressure));
 
-		}
+	}
 	
-		//this.interfaces[this.mid].velos[0][1] = midVel;
-		//this.interfaces[this.mid].velos[1][0] = outVel;
+	//this.interfaces[this.mid].velos[0][1] = midVel;
+	//this.interfaces[this.mid].velos[1][0] = outVel;
 		
 	for(var i = 0, l = this.elements.length; i < l; i++){  //update the mass of each pipe element
 			this.elements[i].update(time_scale);
 	}
+	
+	if(this.power > 0){ //this hacky fix means that the volumetric flows will display properly - for some reason, the flow velocity is halved around this interface when the pump is running...
+		this.midPump.voluFlow = 2*this.midPump.voluFlow;
+		this.outlet.voluFlow = 2*this.outlet.voluFlow;
+}
 
-	//if(this.outlet.pressure - this.midPump.pressure > this.maxPressure){
-	//	this.outlet.pressure = this.midPump.pressure + this.maxPressure;
-	//}
 
-
-	this.infobox.innerHTML = '<div class="title">'+ this.label + '</div>throttle = ' + Math.round(this.power) + '%<br>pressure = ' + Math.round(this.outlet.pressure/1000) + 'kPa<br>mass = ' + Math.round(this.outlet.mass) + 'g<br>q = ' + Math.round(60*this.outlet.massFlow*timescale*physicsSteps) + 'L/min';
+	this.infobox.innerHTML = '<div class="title">'+ this.label + '</div>throttle = ' + Math.round(this.power) + '%<br>pressure = ' + Math.round(this.outlet.pressure/1000) + 'kPa<br>mass = ' + Math.round(this.outlet.mass) + 'g<br>q = ' + Math.round(this.outlet.voluFlow) + 'L/min';
 
 	//do this in a more general way by cycling through a list of info on the object, complete with the units associated with that info.
 	//e.g. this.displayInfo = [this.label, [this.pressure, "kPa"], [this.mass, "g"], [this.massFlow, "L/min"], ...]
