@@ -100,7 +100,7 @@ thisSource.densityFromPressure();
 var inletValve = new Valve(64, 200, thisSource.posX + thisSource.length, 0.5*height, 0, elementLength);
 var	thisPump = new Pump(64, 0, inletValve.posX + inletValve.length, height/2, elementLength);
 var thisValve = new Valve(38, 200, thisPump.posX + thisPump.length, 0.5*height, 0, elementLength);
-var thisPipe = new Pipe(38, 200, thisValve.endX, 0.5*height, elementLength, 0, 0);
+var thisPipe = new Pipe(38, 500, thisValve.endX, 0.5*height, elementLength, 0, 200);
 var thisSink = new Sink(thisPipe.diam, elementLength, thisPipe.endX, thisPipe.posY);
 	
 	thisNetwork.install([thisPump, thisPipe,thisValve, thisSink, thisSource, inletValve]);

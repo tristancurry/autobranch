@@ -24,12 +24,18 @@ var Pipe = function(diam, length, posX, posY, elementLength, angStart, angEnd, i
 	
 	this.deltaAng = (this.angEnd - this.angStart);
 	
+		this.rot = this.deltaAng*Math.PI/180;
+		this.deltaRot = this.rot/(N - 1);
+		if(this.deltaAng != 0){
+		this.radius = N*(this.elementLength)/this.rot;
+	}
+	
 	
 	
 	for (var i = 0; i < N; i++){
 		//var X;
 		//if(i == 0){X = this.posX;} else {X = this.elements[i - 1].posX + this.elements[i - 1].size}
-		var p = new PipeElement(this.diam, elementLength, 0, this.posY); //create a pipe's worth of elements
+		var p = new PipeElement(this.diam, elementLength, 0, 0); //create a pipe's worth of elements
 		p.pressure = pAtmo;
 		this.elements.push(p);
 	}
@@ -92,19 +98,15 @@ Pipe.prototype = {
 	},
 	render: function(ctx){
 		ctx.save();
-		ctx.translate(this.posX,0);
-		var rot = this.deltaAng*Math.PI/180;
-		var deltaRot = rot/this.elements.length;
-		if(this.deltaAng != 0){
-		var radius = this.elementLength*this.elements.length/rot;
-	}
-			//console.log("rot= " + rot + ", radius = " + radius);
+		ctx.translate(this.posX,this.posY);
+		ctx.rotate(-1*this.angStart*Math.PI/180);
+
 		for(var i = 0, l = this.elements.length; i < l; i++){
 			ctx.save();
 			if(this.deltaAng != 0){
-				ctx.translate(0,-1*radius);
-				ctx.rotate(-1*i*deltaRot);
-				ctx.translate(0, 1*radius)
+				ctx.translate(0,-1*this.radius);
+				ctx.rotate(-i*this.deltaRot);
+				ctx.translate(0, this.radius);
 			} else {
 				ctx.translate(i*this.elementLength,0);
 			}
@@ -116,6 +118,10 @@ Pipe.prototype = {
 	
 	updateEndX: function(){
 		this.endX = this.posX + this.elements.length*elementLength;
+		//if(this.deltaAng != 0){
+		//	this.endX = this.posX + this.radius*Math.cos(-1*this.endAngle*Math.PI/180);
+		//	this.endY = this.posY + this.radius*Math.sin(-1*this.endAngle*Math.PI/180);
+		//}
 	},
 	
 	updateDiam: function(newDiam,elms){
