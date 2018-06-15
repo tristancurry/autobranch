@@ -60,6 +60,7 @@ var Valves = [];
 var Sinks = [];
 var Sources = [];
 var Pipes = [];
+var Tanks = [];
 
 
 const rho = 1 // density of fluid, g/cm^3
@@ -84,54 +85,36 @@ const pAtmo = 1e5; //atmospheric pressure, Pa
 var thisNetwork = new Network();
 
 
-//var thatPipe = new Pipe(64, 800, 100, height/2, elementLength);
-
-//var thatValve = new Valve(thatPipe.diam, 200, 500, 0.75*height, 0, elementLength);
-
-
-
-
-//var thatSink = new Sink(thatPipe.diam, elementLength, thatPipe.endX, thatPipe.posY - 64);
 var thisSource = new Source(64, elementLength, 0, elementLength, height/2);
 thisSource.pressure = pAtmo;
 thisSource.densityFromPressure(); 	
-//var inletPipe = new Pipe(64, 300, thisSource.posX + thisSource.length, 0.5*height, elementLength, true);
+
 
 var inletValve = new Valve(64, 200, thisSource.posX + thisSource.length, 0.5*height, 0, elementLength);
 var	thisPump = new Pump(64, 0, inletValve.posX + inletValve.length, height/2, elementLength);
 var thisValve = new Valve(38, 200, thisPump.posX + thisPump.length, 0.5*height, 0, elementLength);
 var thisPipe = new Pipe(38, 500, thisValve.endX, 0.5*height, elementLength, 0, 200);
 var thisSink = new Sink(thisPipe.diam, elementLength, thisPipe.endX, thisPipe.posY);
+var thisTank = new Tank(64, 30, 200, 0.80*height, elementLength, "TankyTankingtons");
+var tankToPump1 = new Valve(64, 200, thisTank.posX + thisTank.length, thisTank.posY, 0, elementLength, "Tank to Pump1");
+var tankToPump2 = new Valve(64, 100, 600, thisTank.posY, 0, elementLength, "Tank to Pump2");
+var tankToPump3 = new Valve(64, 100, 800, thisTank.posY, 0, elementLength, "Tank to Pump3");
+
+var tankSink = new Sink(38, elementLength, thisTank.end1.posX - elementLength, thisTank.posY);
+
 	
-	thisNetwork.install([thisPump, thisPipe,thisValve, thisSink, thisSource, inletValve]);
+	thisNetwork.install([thisPump, thisPipe,thisValve, thisSink, thisSource, inletValve, thisTank, tankToPump1, tankToPump2, tankToPump3, tankSink]);
 	thisNetwork.connect([thisPump.end2, thisValve.end1], false);
-	//thisNetwork.connect([thisPump.end2, thatValve.end1], false);
 	thisNetwork.connect([thisValve.end2, thisPipe.end1]);
-	//thisNetwork.connect([thatValve.end2, thatPipe.end1]);
 	thisNetwork.connect([thisPipe.end2, thisSink], false);
-	//thisNetwork.connect([thatPipe.end2, thatSink], false);
 	thisNetwork.connect([thisSource, inletValve.end1], true);
 	thisNetwork.connect([inletValve.end2, thisPump.end1], false);
+	thisNetwork.connect([thisTank.end2, tankToPump1.end1],false);
+	thisNetwork.connect([tankToPump1.end2, thisPump.midPump],false);
+	thisNetwork.connect([tankSink, thisTank.end1], false);
 
 
-/*
-var thisPipe = new Pipe(64, 100, 100, height/2, elementLength);
-var thatPipe = new Pipe(64, 100, thisPipe.endX, height/2, elementLength);
-var thisSource = new Source(64, elementLength, 0, 0, height/2);
-var thisValve = new Valve(thisPipe.diam, 200 , thisPipe.posX - 200, 1/2*height, 0, elementLength);
-var thatValve = new Valve(thisPipe.diam, 200, thatPipe.endX, height/2, 0, elementLength);
-var thisSink = new Sink(thatPipe.diam, elementLength, thatValve.endX, height/2);
-var bleedValve = new Valve(thisPipe.diam, 200 , thisPipe.posX, 0.75*height, 0, elementLength, "bleed");
 
-thisNetwork.install([thisSource, thisValve, thisPipe, thatPipe, thatValve, thisSink, bleedValve]);
-thisNetwork.connect([thisSource,thisValve.end1]);
-thisNetwork.connect([thisValve.end2, thisPipe.end1]);
-thisNetwork.connect([thatPipe.end1, thisPipe.end2], true);
-thisNetwork.connect([thatPipe.end2, thatValve.end1]);
-thisNetwork.connect([thatValve.end2, thisSink]);
-thisNetwork.connect([thisPipe.end2, bleedValve.end1])
-thisNetwork.connect([bleedValve.end2, thisSink]);
-*/
 	
 	
 
@@ -141,6 +124,8 @@ function drawWorld(){   ///main animation loop
 	ctx0.fillRect(0,0,width,height);
 	
 	for(var j = 0; j < physicsSteps; j++){
+		tankToPump2.applySliderValue(tankToPump1.setting);
+		tankToPump3.applySliderValue(1 - tankToPump1.setting);
 		thisNetwork.update(timescale*physicsSteps);	
 	}
 	
