@@ -70,6 +70,16 @@ Source.prototype.update = function(time_scale) {
 
 }
 
+
+Source.prototype.findVelo = function(){
+	var avg = 0;
+	for(var i = 0, l = this.peVelos.length; i < l; i++){
+		avg += this.peVelos[i]/l;
+	}
+	return avg;
+		
+}
+
 Source.prototype.applySliderValue = function(val){
 	this.power = val;
 	document.getElementById(this.id + "throttleDisplay").innerHTML = this.power;

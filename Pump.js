@@ -1,5 +1,5 @@
 var Pump = function(diam, power, posX, posY, elementLength, id){
-	Pipe.call(this, diam, 10*elementLength, posX, posY, elementLength);
+	Pipe.call(this, diam, 7*elementLength, posX, posY, elementLength);
 	this.power = power; //Js^-1
 	this.efficiency = 1;
 	this.cavitating = false;

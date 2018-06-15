@@ -88,19 +88,20 @@ var thisNetwork = new Network();
 
 //var thatValve = new Valve(thatPipe.diam, 200, 500, 0.75*height, 0, elementLength);
 
-var thisSource = new Source(64, elementLength, 0, elementLength, height/2);
-thisSource.pressure = pAtmo;
-thisSource.densityFromPressure(); 
+
 
 
 //var thatSink = new Sink(thatPipe.diam, elementLength, thatPipe.endX, thatPipe.posY - 64);
-	
+var thisSource = new Source(64, elementLength, 0, elementLength, height/2);
+thisSource.pressure = pAtmo;
+thisSource.densityFromPressure(); 	
+//var inletPipe = new Pipe(64, 300, thisSource.posX + thisSource.length, 0.5*height, elementLength, true);
 
-var inletValve = new Valve(64, 80, thisSource.posX + thisSource.length, 0.5*height, 0, elementLength);
+var inletValve = new Valve(64, 200, thisSource.posX + thisSource.length, 0.5*height, 0, elementLength);
 var	thisPump = new Pump(64, 0, inletValve.posX + inletValve.length, height/2, elementLength);
-var thisValve = new Valve(38, 100, thisPump.posX + thisPump.length, 0.5*height, 0, elementLength);
-var thisPipe = new Pipe(38, 300, thisValve.endX, height/2, elementLength, true);
-var thisSink = new Sink(thisPipe.diam, elementLength, thisPipe.endX, thisPipe.posY - 64);
+var thisValve = new Valve(38, 200, thisPump.posX + thisPump.length, 0.5*height, 0, elementLength);
+var thisPipe = new Pipe(38, 200, thisValve.endX, 0.5*height, elementLength, 0, 0);
+var thisSink = new Sink(thisPipe.diam, elementLength, thisPipe.endX, thisPipe.posY);
 	
 	thisNetwork.install([thisPump, thisPipe,thisValve, thisSink, thisSource, inletValve]);
 	thisNetwork.connect([thisPump.end2, thisValve.end1], false);
