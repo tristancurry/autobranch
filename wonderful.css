@@ -1,0 +1,111 @@
+//this CSS is terrible and I feel bad about it
+canvas {
+    border: 0px #CCC solid;
+}
+
+input[type="checkbox"]
+{
+  /* Double-sized Checkboxes */
+  -ms-transform: scale(2); /* IE */
+  -moz-transform: scale(2); /* FF */
+  -webkit-transform: scale(2); /* Safari and Chrome */
+  -o-transform: scale(2); /* Opera */
+  padding: 10px;
+}
+
+#viewport
+{
+ width: 1024px;
+ height: 480px;
+ position: relative;
+}
+
+#controls
+{
+  font-size: 110%;
+  display: inline;
+  padding:5px;
+  padding-top: 0px;
+}
+
+label
+{
+ padding: 15px;
+ padding-right: 2px;
+}
+
+button
+{
+ margin: 5px;
+ margin-left:10px;
+}
+
+div
+{
+margin: 0;
+padding: 0;
+border: 0;
+outline: 0;
+top: 0%;
+left:0%
+}
+
+
+h2
+{
+ padding:0px;
+ margin:0px;
+}
+
+.component{
+	position: absolute;
+	width:75px;
+	height:75px;
+	border-radius:37.5px;
+	//text-align: center;
+	//line-height: 75px;
+	//font-family: Arial, Helvetica, sans-serif;
+	font-size: 90%;
+	background-image: url('images/ph_comp.png');
+	background-size: 75px	75px;
+	transition: transform .2s ease-out, filter .2s ease-out ;	
+}
+
+.component:hover{
+	filter: invert(100%);
+	transition: transform .2s ease-in, filter .2s ease-in ;
+
+	}
+
+.component:hover .infobox{
+}
+
+.infobox {
+	position: absolute;
+	border-radius:5px;
+	box-shadow:3px 3px 10px;
+	background: white;
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 60%;
+	width: 100px;
+	padding-bottom: 3px;
+	transition: scale 0.3s ease;
+	
+	
+}
+
+.title {
+	border-style:solid;
+	border-width:1px;
+	border-color:inherit;
+	border-top-left-radius:inherit;
+	border-top-right-radius:inherit;
+	font-family:inherit;
+	font-size: 150%;
+	font-style: italic;
+	font-weight: bold;
+	background:inherit;
+	filter:invert(80%);
+	
+}
+
