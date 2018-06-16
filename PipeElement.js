@@ -74,7 +74,7 @@ PipeElement.prototype = {
 		}
 		this.velo = this.findVelo();
 		this.voluFlow = this.velo*60*(this.area)/1000;
-		this.colour = "hsla(200, 100%, " + 100*(this.pressure - 100000)/1900000 +"%, 1)" //pressure range between 2550000 and 0
+		this.colour = "hsla(200, 100%, " + 100*(this.pressure - 100000)/1400000 +"%, 1)" //pressure range between 2550000 and 0
 
 	},
 	
@@ -101,6 +101,7 @@ PipeElement.prototype = {
 		ctx.fill();
 		ctx.restore();
 		ctx.font="9px Arial";
+		ctx.fillStyle = "rgb(255,255,255)";
 		ctx.fillText(this.label, this.posX - 0.5*this.size, this.posY - 120);
 		ctx.fillText("p: " + Math.round(this.pressure/1000) + "kPa", this.posX - 0.5*this.size, this.posY - 100);
 		ctx.fillText("mass: " + Math.round(this.mass)+ "g", this.posX - 0.5*this.size, this.posY - 80);

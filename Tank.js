@@ -2,14 +2,14 @@
 
 
 var Tank = function(diam, capacity, posX, posY, elementLength, id){
-	Pipe.call(this, diam, 2*elementLength, posX, posY, elementLength);
+	Pipe.call(this, diam, 3*elementLength, posX, posY, elementLength);
 	
 	this.capacity = capacity;
 	this.id = id;
 	if(id == null){this.id = "tank" + Tanks.length}
-	
-	this.tank = this.elements[0];
-	this.outlet = this.elements[1];
+	this.inlet = this.elements[0]
+	this.tank = this.elements[1];
+	this.outlet = this.elements[2];
 	
 	this.tank.changeDiam(4*this.tank.diam);
 	var stretch = this.capacity*1e6/this.tank.volume;
@@ -18,6 +18,7 @@ var Tank = function(diam, capacity, posX, posY, elementLength, id){
 	this.tank.posX += 0.5*this.tank.size;
 	this.tank.size = 4*this.tank.size;
 	this.tank.posX -= 0.5*this.tank.size;
+	this.inlet.posX = this.tank.posX - this.inlet.size;
 	
 	this.tank.changeDiam(this.tank.diam);
 	
@@ -30,11 +31,11 @@ Tank.constructor = Tank;
 Tank.prototype.update = function(time_scale){
 	Pipe.prototype.update.call(this, time_scale);
 	
-for(var i = 0, l = this.elements.length; i < l; i++){
-	this.elements[i].pressure = pAtmo;
-}
+//for(var i = 0, l = this.elements.length; i < l; i++){
+	//this.elements[i].pressure = pAtmo;
+//}
 	
-	var LperTimeUnit = this.outlet.voluFlow/(60*time_scale);
+	var LperTimeUnit = (-1*this.inlet.voluFlow + this.outlet.voluFlow)/(60*time_scale);
 	var fracOfCurrentCapacity = LperTimeUnit/this.capacity;
 	this.capacity = (1 - fracOfCurrentCapacity)*this.capacity;
 	//console.log(this.capacity + " Litres ");

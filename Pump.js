@@ -7,9 +7,9 @@ var Pump = function(diam, power, posX, posY, elementLength, id){
 	if(id == null){this.id = "pump" + Pumps.length}
 	this.label = this.id;
 	this.mid = Math.floor(this.elements.length/2);
-	this.inlet = this.elements[this.mid - 1];
+	this.inlet = this.elements[0];
 	this.midPump = this.elements[this.mid];
-	this.outlet = this.elements[this.mid + 1];
+	this.outlet = this.elements[this.elements.length - 1];
 	//this.interfaces[this.mid -1].isOneWay = true;
 	this.interfaces[this.mid].isOneWay = true;
 	
@@ -32,16 +32,13 @@ var Pump = function(diam, power, posX, posY, elementLength, id){
 	
 	this.divRep = document.createElement("div");
 	this.divRep.className = 'component';
-	this.style = this.divRep.style;
-	this.style.left = (viewport.pos.x + this.posX - 75/2) + "px";
-	this.style.top = (viewport.pos.y + this.posY - 75/2) + "px";
+	console.log(getComputedStyle(this.divRep));
+	this.divRep.style.transform = "translate3d(" + (this.posX + this.mid*this.elementLength - 0.5*75) + "px, " + (this.posY - 0.5*75) + "px, 0px)";//this breaks the transform on the hover - need to put the component's divRep within a surrounding div, which does the positioning.
 	viewport.appendChild(this.divRep);
 	
 	this.infobox = document.createElement("div");
 	this.infobox.className = 'infobox';
-	this.style = this.infobox.style;
-	this.style.left = (viewport.pos.x  + this.posX) + "px";
-	this.style.top = (viewport.pos.y + this.posY) + "px";
+	this.infobox.style.transform = "translate3d(" + (this.posX + this.mid*this.elementLength) + "px, " + this.posY + "px, 0px)";
 	viewport.appendChild(this.infobox);
 
 
@@ -78,18 +75,12 @@ Pump.prototype.update = function(time_scale) {
 		}
 
 		
-	//var midVel = this.interfaces[this.mid].velos[0][1];
-	//var outVel = this.interfaces[this.mid].velos[1][0];
-		
-		
     if(this.efficiency > 0 && this.power >0 && this.outlet.pressure - this.midPump.pressure < this.maxPressure){
 			this.outlet.massFlow  += (this.outlet.density*1e6/time_scale)*((this.efficiency*this.power/this.outlet.pressure));
 			this.midPump.massFlow -= (this.outlet.density*1e6/time_scale)*((this.efficiency*this.power/this.outlet.pressure));
 
 	}
 	
-	//this.interfaces[this.mid].velos[0][1] = midVel;
-	//this.interfaces[this.mid].velos[1][0] = outVel;
 		
 	for(var i = 0, l = this.elements.length; i < l; i++){  //update the mass of each pipe element
 			this.elements[i].update(time_scale);

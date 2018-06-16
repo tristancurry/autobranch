@@ -33,5 +33,18 @@ Valve.prototype.applySliderValue = function(val){
 	this.diam = this.oDiam*this.setting;
 	this.updateDiam(this.diam, this.elements);
 	
+Valve.prototype.render = function(ctx){
+	Pipe.prototype.render.call(this, ctx);
+	ctx.strokeStyle = "rgb(255,255,255)";
+	ctx.lineWidth = "2";
+	ctx.fillStyle = "rgba(255,255,255,0)";
+	ctx.beginPath();
+	ctx.save();
+	ctx.translate(this.posX - 0.5*this.elementLength, this.posY - 0.5*this.oDiam);
+	ctx.rect(0,0,this.elements.length*this.elementLength,this.oDiam);
+	ctx.stroke();
+	ctx.restore();
+}
+	
 }
 Valve.constructor = Valve;

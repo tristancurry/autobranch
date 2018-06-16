@@ -16,7 +16,7 @@ input[type="checkbox"]
 #viewport
 {
  width: 1024px;
- height: 800px;
+ height: 480px;
  position: relative;
 }
 
@@ -72,7 +72,6 @@ h2
 }
 
 .component:hover{
-	transform: scale(3);
 	filter: invert(100%);
 	transition: transform .2s ease-in, filter .2s ease-in ;
 

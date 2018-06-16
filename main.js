@@ -67,7 +67,7 @@ const rho = 1 // density of fluid, g/cm^3
 const K = 2e9; //  bulk modulus of fluid, Pa
 const timescale = 600; //how many frames are equivalent to 1 second?
 var physicsSteps = 100; //how much to subdivide each frame for finer (more accurate?) calculations. 
-var elementLength = 40; //mm 
+var elementLength = 45; //mm 
 
 const k = Math.pow(0.9981, (default_t/(timescale*physicsSteps))); 
 
@@ -90,28 +90,30 @@ thisSource.pressure = pAtmo;
 thisSource.densityFromPressure(); 	
 
 
-var inletValve = new Valve(64, 200, thisSource.posX + thisSource.length, 0.5*height, 0, elementLength);
-var	thisPump = new Pump(64, 0, inletValve.posX + inletValve.length, height/2, elementLength);
-var thisValve = new Valve(38, 200, thisPump.posX + thisPump.length, 0.5*height, 0, elementLength);
-var thisPipe = new Pipe(38, 500, thisValve.endX, 0.5*height, elementLength, 0, 200);
+var inletValve = new Valve(64, 100, thisSource.posX + thisSource.length, 0.5*height, 0, elementLength, "Inlet Valve");
+var	thisPump = new Pump(64, 0, inletValve.endX, height/2, elementLength);
+var thisValve = new Valve(38, 100, thisPump.posX + thisPump.length, 0.5*height, 0, elementLength, "Outlet Valve");
+var thisPipe = new Pipe(38, 300, thisValve.endX, 0.5*height, elementLength);
 var thisSink = new Sink(thisPipe.diam, elementLength, thisPipe.endX, thisPipe.posY);
-var thisTank = new Tank(64, 30, 200, 0.80*height, elementLength, "TankyTankingtons");
-var tankToPump1 = new Valve(64, 200, thisTank.posX + thisTank.length, thisTank.posY, 0, elementLength, "Tank to Pump1");
-var tankToPump2 = new Valve(64, 100, 600, thisTank.posY, 0, elementLength, "Tank to Pump2");
-var tankToPump3 = new Valve(64, 100, 800, thisTank.posY, 0, elementLength, "Tank to Pump3");
-
-var tankSink = new Sink(38, elementLength, thisTank.end1.posX - elementLength, thisTank.posY);
+//var thisTank = new Tank(64, 30, 200, 0.80*height, elementLength, "TankyTankingtons");
+//var tankToPump1 = new Valve(64, 200, thisTank.posX + thisTank.length, thisTank.posY, 0, elementLength, "Tank to Pump1");
+//var tankToPump2 = new Valve(64, 100, 600, thisTank.posY, 0, elementLength, "Tank to Pump2");
+//var tankToPump3 = new Valve(64, 100, 800, thisTank.posY, 0, elementLength, "Tank to Pump3");
+//var tankSink = new Sink(38, elementLength, thisTank.end1.posX - elementLength, thisTank.posY);
 
 	
-	thisNetwork.install([thisPump, thisPipe,thisValve, thisSink, thisSource, inletValve, thisTank, tankToPump1, tankToPump2, tankToPump3, tankSink]);
+	thisNetwork.install([thisPump, thisPipe,thisValve, thisSink, thisSource, inletValve]);
 	thisNetwork.connect([thisPump.end2, thisValve.end1], false);
 	thisNetwork.connect([thisValve.end2, thisPipe.end1]);
 	thisNetwork.connect([thisPipe.end2, thisSink], false);
 	thisNetwork.connect([thisSource, inletValve.end1], true);
-	thisNetwork.connect([inletValve.end2, thisPump.end1], false);
-	thisNetwork.connect([thisTank.end2, tankToPump1.end1],false);
-	thisNetwork.connect([tankToPump1.end2, thisPump.midPump],false);
-	thisNetwork.connect([tankSink, thisTank.end1], false);
+	//thisNetwork.connect([inletValve.end2, tankToPump3.end1], false);
+	//thisNetwork.connect([inletValve.end2, tankToPump2.end1], false);
+	//thisNetwork.connect([thisTank.end2, tankToPump1.end1],false);
+	//thisNetwork.connect([tankToPump1.end2, thisPump.midPump],false);
+	//thisNetwork.connect([tankToPump2.end2, thisTank.end1],false);
+	thisNetwork.connect([inletValve.end2, thisPump.inlet],false);
+	//thisNetwork.connect([tankSink, thisTank.end1], false);
 
 
 
@@ -124,8 +126,8 @@ function drawWorld(){   ///main animation loop
 	ctx0.fillRect(0,0,width,height);
 	
 	for(var j = 0; j < physicsSteps; j++){
-		tankToPump2.applySliderValue(tankToPump1.setting);
-		tankToPump3.applySliderValue(1 - tankToPump1.setting);
+		//tankToPump2.applySliderValue(tankToPump1.setting);
+		//tankToPump3.applySliderValue(1 - tankToPump1.setting);
 		thisNetwork.update(timescale*physicsSteps);	
 	}
 	

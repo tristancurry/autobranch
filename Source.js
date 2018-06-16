@@ -18,7 +18,6 @@ var Source = function(diam, length, power, posX, posY, id){
 	
 	this.divRep = document.createElement("div");
 	this.divRep.className = 'component';
-	//this.divRep.innerHTML = this.id; 
 	console.log(getComputedStyle(this.divRep));
 	this.divRep.style.transform = "translate3d(" + (this.posX - 0.5*75) + "px, " + (this.posY - 0.5*75) + "px, 0px)";//this breaks the transform on the hover - need to put the component's divRep within a surrounding div, which does the positioning.
 	viewport.appendChild(this.divRep);
