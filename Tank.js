@@ -5,22 +5,25 @@ var Tank = function(diam, capacity, posX, posY, elementLength, id){
 	Pipe.call(this, diam, 3*elementLength, posX, posY, elementLength);
 	
 	this.capacity = capacity;
+	this.maxCapacity = capacity;
 	this.id = id;
 	if(id == null){this.id = "tank" + Tanks.length}
 	this.inlet = this.elements[0]
 	this.tank = this.elements[1];
 	this.outlet = this.elements[2];
+	this.tankMass = this.tank.mass;
+	this.interfaces[1] = new Interface([this.outlet, this.tank]);
 	
-	this.tank.changeDiam(4*this.tank.diam);
-	var stretch = this.capacity*1e6/this.tank.volume;
+	//this.tank.changeDiam(4*this.tank.diam);
+	//var stretch = this.capacity*1e6/this.tank.volume;
 	//console.log(stretch);
-	this.tank.length = this.tank.length*stretch;
-	this.tank.posX += 0.5*this.tank.size;
-	this.tank.size = 4*this.tank.size;
-	this.tank.posX -= 0.5*this.tank.size;
-	this.inlet.posX = this.tank.posX - this.inlet.size;
+	//this.tank.length = this.tank.length*stretch;
+	//this.tank.posX += 0.5*this.tank.size;
+	//this.tank.size = 4*this.tank.size;
+	//this.tank.posX -= 0.5*this.tank.size;
+	//this.inlet.posX = this.tank.posX - this.inlet.size;
 	
-	this.tank.changeDiam(this.tank.diam);
+	//this.tank.changeDiam(this.tank.diam);
 	
 	
 }
@@ -38,13 +41,18 @@ Tank.prototype.update = function(time_scale){
 	var LperTimeUnit = (-1*this.inlet.voluFlow + this.outlet.voluFlow)/(60*time_scale);
 	var fracOfCurrentCapacity = LperTimeUnit/this.capacity;
 	this.capacity = (1 - fracOfCurrentCapacity)*this.capacity;
-	//console.log(this.capacity + " Litres ");
-	this.tank.length = (1 - fracOfCurrentCapacity)*this.tank.length;
-	this.tank.posX += 0.5*this.tank.size;
-	this.tank.size = (1 - fracOfCurrentCapacity)*this.tank.size;
-	this.tank.posX -= 0.5*this.tank.size; 
-	this.tank.changeDiam(this.tank.diam);
-	//console.log(this.tank.mass + "g, " + this.tank.volume + "mm^3, " + this.tank.pressure + "Pa ");
+	if(this.capacity < 1){
+		this.interfaces[1].isOneWay = true;
+		//do thing for running out
+	} else if (this.capacity > this.maxCapacity){
+		this.capacity = this.maxCapacity;
+	} else {
+		this.interfaces[1].isOneWay = false;
+	}
+	this.tank.mass = tankMass;
+	this.tank.pressure = pAtmo;
+	this.tank.densityFromPressure();
+
 	
 	
 	
