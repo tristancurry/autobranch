@@ -95,17 +95,27 @@ var	thisPump = new Pump(64, 0, inletValve.endX, height/2, elementLength);
 var thisValve = new Valve(38, 100, thisPump.posX + thisPump.length, 0.5*height, 0, elementLength, "Outlet Valve");
 var thisPipe = new Pipe(38, 300, thisValve.endX, 0.5*height, elementLength);
 var thisSink = new Sink(thisPipe.diam, elementLength, thisPipe.endX, thisPipe.posY);
+var thisTank = new Tank(64, 300, 400, 0.95*height, elementLength, "tankytank");
+
+var TtP1 = new Valve(64, 100, thisTank.endX, thisTank.posY, 1, elementLength, "Tank to Pump");
+var TtP2 = new Valve(64, 100, thisTank.posX - 100, thisTank.posY, 1, elementLength, "T2");
+var TtP3 = new Valve(64, 100,width - elementLength, height - 64, 0, elementLength, "T3");
 	
-	thisNetwork.install([thisPump, thisPipe,thisValve, thisSink, thisSource, inletValve]);
+	thisNetwork.install([thisPump, thisPipe,thisValve, thisSink, thisSource, inletValve, thisTank, TtP1, TtP2, TtP3]);
 	thisNetwork.connect([thisPump.end2, thisValve.end1], false);
 	thisNetwork.connect([thisValve.end2, thisPipe.end1]);
 	thisNetwork.connect([thisPipe.end2, thisSink], false);
 	thisNetwork.connect([thisSource, inletValve.end1], true);
 
-	thisNetwork.connect([inletValve.end2, thisPump.inlet],false);
-
-
-
+	//thisNetwork.connect([inletValve.end2, thisPump.inlet],false);
+	
+	thisNetwork.connect([thisTank.end2, TtP1.end1]);
+	thisNetwork.connect([TtP1.end2, thisPump.midPump]);
+	thisNetwork.connect([inletValve.end2, TtP2.end1]);
+	thisNetwork.connect([TtP2.end2, thisTank.inlet]);
+	thisNetwork.connect([inletValve.end2, TtP3.end1]);
+	thisNetwork.connect([TtP3.end2, thisPump.inlet]);
+	
 
 	
 	
@@ -114,6 +124,10 @@ function drawWorld(){   ///main animation loop
 	//console.log("=============")
 	ctx0.fillStyle = "rgba(100,0,100,1)";
 	ctx0.fillRect(0,0,width,height);
+	
+	TtP2.applySliderValue(TtP1.setting);
+	TtP3.applySliderValue(1 - TtP1.setting);
+	
 	
 	for(var j = 0; j < physicsSteps; j++){
 		thisNetwork.update(timescale*physicsSteps);	

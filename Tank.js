@@ -1,4 +1,4 @@
-//a simplified model of a tank. It's basically an element whose volume reduces as mass flows out, to a limit, and increases to a limit when mass flows in.
+//a simplified model of a tank. It's basically an element that maintains atmospheric pressure and mass until it is empty.
 
 
 var Tank = function(diam, capacity, posX, posY, elementLength, id){
@@ -14,17 +14,6 @@ var Tank = function(diam, capacity, posX, posY, elementLength, id){
 	this.tankMass = this.tank.mass;
 	this.interfaces[1] = new Interface([this.outlet, this.tank]);
 	
-	//this.tank.changeDiam(4*this.tank.diam);
-	//var stretch = this.capacity*1e6/this.tank.volume;
-	//console.log(stretch);
-	//this.tank.length = this.tank.length*stretch;
-	//this.tank.posX += 0.5*this.tank.size;
-	//this.tank.size = 4*this.tank.size;
-	//this.tank.posX -= 0.5*this.tank.size;
-	//this.inlet.posX = this.tank.posX - this.inlet.size;
-	
-	//this.tank.changeDiam(this.tank.diam);
-	
 	
 }
 
@@ -33,10 +22,6 @@ Tank.constructor = Tank;
 
 Tank.prototype.update = function(time_scale){
 	Pipe.prototype.update.call(this, time_scale);
-	
-//for(var i = 0, l = this.elements.length; i < l; i++){
-	//this.elements[i].pressure = pAtmo;
-//}
 	
 	var LperTimeUnit = (-1*this.inlet.voluFlow + this.outlet.voluFlow)/(60*time_scale);
 	var fracOfCurrentCapacity = LperTimeUnit/this.capacity;
@@ -49,13 +34,20 @@ Tank.prototype.update = function(time_scale){
 	} else {
 		this.interfaces[1].isOneWay = false;
 	}
-	this.tank.mass = tankMass;
-	this.tank.pressure = pAtmo;
-	this.tank.densityFromPressure();
+	for(var i = 0, l = this.elements.length; i < l; i++){
+	this.elements[i].mass = this.tankMass;
+	this.elements[i].pressure = pAtmo;
+	this.elements[i].densityFromPressure();
+		
+	}
+	
+	
+}
 
-	
-	
-	
+Tank.prototype.render = function(ctx){
+	Pipe.prototype.render.call(this, ctx);
+	ctx.fillStyle = "rgb(255,255,255)";
+	ctx.fillText(this.capacity, this.posX, this.posY - 120);
 }
 
 /*
