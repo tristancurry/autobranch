@@ -24,7 +24,7 @@ var Pump = function(diam, power, posX, posY, elementLength, id){
 	this.SN = Controls.length - 1;
 	
 	var controlPanel = document.getElementById("throttles");
-	controlPanel.innerHTML += '<label for="'+ this.id + 'throttle" >Throttle: '+ this.id + '</label>';
+	controlPanel.innerHTML += '<label for="'+ this.id + 'throttle" class="comptrol">Throttle: '+ this.id + '</label>';
 	controlPanel.innerHTML += '<input type="range" id="' + this.id + 'throttle" class="comptrol" min = "0" max = "100" step = "0.10" value="' + this.power + '" data-connectedto="'+ this.SN +'" >';
 	controlPanel.innerHTML += '<span id="'+ this.id + 'throttleDisplay">' + this.power + '</span>';
 	
