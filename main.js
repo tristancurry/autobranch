@@ -61,6 +61,7 @@ var Sinks = [];
 var Sources = [];
 var Pipes = [];
 var Tanks = [];
+var PCUs = [];
 
 
 const rho = 1 // density of fluid, g/cm^3
@@ -69,7 +70,7 @@ const timescale = 600; //how many frames are equivalent to 1 second?
 var physicsSteps = 100; //how much to subdivide each frame for finer (more accurate?) calculations. 
 var elementLength = 45; //mm 
 
-const k = Math.pow(0.9981, (default_t/(timescale*physicsSteps))); 
+const k = Math.pow(0.995, (default_t/(timescale*physicsSteps))); 
 
 while(timescale*physicsSteps*elementLength < 160000){ //Do not let timescale*physicsSteps*elementLength < 60000, oscillations become too nasty!
 	physicsSteps *=2;
@@ -92,19 +93,22 @@ thisSource.densityFromPressure();
 
 var inletValve = new Valve(64, 100, thisSource.posX + thisSource.length, 0.5*height, 0, elementLength, "Inlet Valve");
 var	thisPump = new Pump(64, 0, inletValve.endX, height/2, elementLength);
-var thisValve = new Valve(38, 100, thisPump.posX + thisPump.length, 0.5*height, 0, elementLength, "Outlet Valve");
-var thisPipe = new Pipe(38, 300, thisValve.endX, 0.5*height, elementLength);
-var thisSink = new Sink(thisPipe.diam, elementLength, thisPipe.endX, thisPipe.posY);
+var thisValve = new Valve(64, 100, thisPump.posX + thisPump.length, 0.5*height, 0, elementLength, "Outlet Valve");
+var thisPipe = new Pipe(64, 200, thisValve.endX, 0.5*height, elementLength);
 var thisTank = new Tank(64, 50, 400, 0.95*height, elementLength, "tankytank");
+var thisPCU = new PCU(thisPipe.diam, 200, 700000, 40, 500, thisPipe.endX, thisPipe.posY, elementLength);
+var thisSink = new Sink(thisPipe.diam, elementLength, thisPCU.endX, thisPipe.posY);
 
 var TtP1 = new Valve(64, 100, thisTank.endX, thisTank.posY, 1, elementLength, "Tank to Pump");
 var TtP2 = new Valve(64, 100, thisTank.posX - 100, thisTank.posY, 1, elementLength, "T2");
 var TtP3 = new Valve(64, 100,width - elementLength, height - 64, 0, elementLength, "T3");
 	
-	thisNetwork.install([thisPump, thisPipe,thisValve, thisSink, thisSource, inletValve, thisTank, TtP1, TtP2, TtP3]);
+	thisNetwork.install([thisPump, thisPipe,thisValve, thisSink, thisSource, inletValve, thisTank, TtP1, TtP2, TtP3, thisPCU]);
 	thisNetwork.connect([thisPump.end2, thisValve.end1], false);
 	thisNetwork.connect([thisValve.end2, thisPipe.end1]);
-	thisNetwork.connect([thisPipe.end2, thisSink], false);
+	thisNetwork.connect([thisPipe.end2, thisPCU.end1], false);
+	thisNetwork.connect([thisPCU.end2, thisSink], false);
+	
 	thisNetwork.connect([thisSource, inletValve.end1], true);
 
 	//thisNetwork.connect([inletValve.end2, thisPump.inlet],false);
@@ -143,8 +147,8 @@ function drawWorld(){   ///main animation loop
 		elm.densityFromPressure();
 	}
 
-	TtP2.setting = TtP1.setting;
-	TtP2.diam = TtP2.oDiam*TtP2.setting;
+	TtP2.setting = TtP1.setting;		//all of this stuff here is just to set a couple of valves based on another valve's position.
+	TtP2.diam = TtP2.oDiam*TtP2.setting;//need to create a 'compound valve' object with a few 'pre-connects' to make this more flexible.
 	TtP2.updateDiam(TtP2.diam, TtP2.elements);
 	TtP3.setting = 1 - TtP1.setting;
 	TtP3.diam = TtP3.oDiam*TtP3.setting;
