@@ -95,7 +95,7 @@ var	thisPump = new Pump(64, 0, inletValve.endX, height/2, elementLength);
 var thisValve = new Valve(38, 100, thisPump.posX + thisPump.length, 0.5*height, 0, elementLength, "Outlet Valve");
 var thisPipe = new Pipe(38, 300, thisValve.endX, 0.5*height, elementLength);
 var thisSink = new Sink(thisPipe.diam, elementLength, thisPipe.endX, thisPipe.posY);
-var thisTank = new Tank(64, 300, 400, 0.95*height, elementLength, "tankytank");
+var thisTank = new Tank(64, 50, 400, 0.95*height, elementLength, "tankytank");
 
 var TtP1 = new Valve(64, 100, thisTank.endX, thisTank.posY, 1, elementLength, "Tank to Pump");
 var TtP2 = new Valve(64, 100, thisTank.posX - 100, thisTank.posY, 1, elementLength, "T2");
@@ -109,7 +109,7 @@ var TtP3 = new Valve(64, 100,width - elementLength, height - 64, 0, elementLengt
 
 	//thisNetwork.connect([inletValve.end2, thisPump.inlet],false);
 	
-	thisNetwork.connect([thisTank.end2, TtP1.end1]);
+	thisNetwork.connect([thisTank.outlet, TtP1.end1]);
 	thisNetwork.connect([TtP1.end2, thisPump.midPump]);
 	thisNetwork.connect([inletValve.end2, TtP2.end1]);
 	thisNetwork.connect([TtP2.end2, thisTank.inlet]);
