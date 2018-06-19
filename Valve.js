@@ -18,7 +18,7 @@ var Valve = function(diam, length, posX, posY, setting, elementLength, id){
 	this.SN = Controls.length - 1;
 	
 	var controlPanel = document.getElementById("valves");
-	controlPanel.innerHTML += '<label for="'+ this.id + 'control">Setting: '+ this.id + '</label>';
+	controlPanel.innerHTML += '<label for="'+ this.id + 'control" id="' + this.id + 'label">Setting: '+ this.id + '</label>';
 	controlPanel.innerHTML += '<input type="range" id="' + this.id + 'control" class="comptrol" min = "0" max = "1" step = "0.01" value="' + this.setting + '" data-connectedto="' + this.SN + '">';
 	controlPanel.innerHTML += '<span id="'+ this.id + 'controlDisplay">' + this.setting*100 + '%</span>';
 	
@@ -35,7 +35,7 @@ Valve.prototype.applySliderValue = function(val){
 	
 Valve.prototype.render = function(ctx){
 	Pipe.prototype.render.call(this, ctx);
-	ctx.strokeStyle = "rgb(255,255,255)";
+	ctx.strokeStyle = "rgb(255,0,0)";
 	ctx.lineWidth = "2";
 	ctx.fillStyle = "rgba(255,255,255,0)";
 	ctx.beginPath();

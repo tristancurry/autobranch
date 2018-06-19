@@ -116,7 +116,19 @@ var TtP3 = new Valve(64, 100,width - elementLength, height - 64, 0, elementLengt
 	thisNetwork.connect([inletValve.end2, TtP3.end1]);
 	thisNetwork.connect([TtP3.end2, thisPump.inlet]);
 	
-
+	var TtP2Slider = document.getElementById("T2control");
+	var TtP2Label = document.getElementById("T2label");
+	var TtP2Display = document.getElementById("T2controlDisplay");
+	var TtP3Slider = document.getElementById("T3control");
+	var TtP3Label = document.getElementById("T3label");
+	var TtP3Display = document.getElementById("T3controlDisplay");
+	TtP2Slider.parentNode.removeChild(TtP2Slider);
+	TtP2Label.parentNode.removeChild(TtP2Label);
+	TtP2Display.parentNode.removeChild(TtP2Display);
+	TtP3Slider.parentNode.removeChild(TtP3Slider);
+	TtP3Label.parentNode.removeChild(TtP3Label);
+	TtP3Display.parentNode.removeChild(TtP3Display);
+	
 	
 	
 
@@ -125,8 +137,18 @@ function drawWorld(){   ///main animation loop
 	ctx0.fillStyle = "rgba(100,0,100,1)";
 	ctx0.fillRect(0,0,width,height);
 	
-	TtP2.applySliderValue(TtP1.setting);
-	TtP3.applySliderValue(1 - TtP1.setting);
+	for(var i = 0, l = TtP1.elements.length; i < l; i++){
+		var elm = TtP1.elements[i];
+		elm.pressure = pAtmo;
+		elm.densityFromPressure();
+	}
+
+	TtP2.setting = TtP1.setting;
+	TtP2.diam = TtP2.oDiam*TtP2.setting;
+	TtP2.updateDiam(TtP2.diam, TtP2.elements);
+	TtP3.setting = 1 - TtP1.setting;
+	TtP3.diam = TtP3.oDiam*TtP3.setting;
+	TtP3.updateDiam(TtP3.diam, TtP3.elements);
 	
 	
 	for(var j = 0; j < physicsSteps; j++){
