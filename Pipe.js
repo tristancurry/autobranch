@@ -108,7 +108,7 @@ Pipe.prototype = {
 				ctx.rotate(-i*this.deltaRot);
 				ctx.translate(0, this.radius);
 			} else {
-				ctx.translate(i*this.elementLength,0);
+				ctx.translate(i*this.elementLength/displayScale,0);
 			}
 			this.elements[i].render(ctx);
 			ctx.restore();

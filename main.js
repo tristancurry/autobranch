@@ -65,10 +65,12 @@ var PCUs = [];
 
 
 const rho = 1 // density of fluid, g/cm^3
+const g = 9.8 // ms^-2
 const K = 2e9; //  bulk modulus of fluid, Pa
+const displayScale = 10; //how many millimeters per pixel?
 const timescale = 600; //how many frames are equivalent to 1 second?
-var physicsSteps = 100; //how much to subdivide each frame for finer (more accurate?) calculations. 
-var elementLength = 45; //mm 
+var physicsSteps = 10; //how much to subdivide each frame for finer (more accurate?) calculations. 
+var elementLength = 200; //mm 
 
 const k = Math.pow(0.995, (default_t/(timescale*physicsSteps))); 
 
@@ -86,7 +88,7 @@ const pAtmo = 1e5; //atmospheric pressure, Pa
 var thisNetwork = new Network();
 
 
-var thisSource = new Source(64, elementLength, 0, elementLength, height/2);
+/*var thisSource = new Source(64, elementLength, 0, elementLength, height/2);
 thisSource.pressure = pAtmo;
 thisSource.densityFromPressure(); 	
 
@@ -133,14 +135,23 @@ var TtP3 = new Valve(64, 100,width - elementLength, height - 64, 0, elementLengt
 	TtP3Label.parentNode.removeChild(TtP3Label);
 	TtP3Display.parentNode.removeChild(TtP3Display);
 	
-	
-	
+*/	
+
+thisPipe = new Pipe(64, 8000, 100, height/2, elementLength);
+for(var i = 0, l = thisPipe.elements.length; i < l; i++){
+	var elm = thisPipe.elements[i];
+	elm.posZ = 1*i*elm.diam;
+	console.log(elm.posZ);
+}
+
+thisNetwork.install([thisPipe]);
+var ctr = 0;
 
 function drawWorld(){   ///main animation loop
 	//console.log("=============")
 	ctx0.fillStyle = "rgba(100,0,100,1)";
 	ctx0.fillRect(0,0,width,height);
-	
+/*	
 	for(var i = 0, l = TtP1.elements.length; i < l; i++){
 		var elm = TtP1.elements[i];
 		elm.pressure = pAtmo;
@@ -153,7 +164,7 @@ function drawWorld(){   ///main animation loop
 	TtP3.setting = 1 - TtP1.setting;
 	TtP3.diam = TtP3.oDiam*TtP3.setting;
 	TtP3.updateDiam(TtP3.diam, TtP3.elements);
-	
+*/	
 	
 	for(var j = 0; j < physicsSteps; j++){
 		thisNetwork.update(timescale*physicsSteps);	
@@ -162,6 +173,11 @@ function drawWorld(){   ///main animation loop
 	ctx1.clearRect(0,0,width,height);
 	thisNetwork.render(ctx1);
 	ctx0.drawImage(canvas1,0,0);
+	//if(ctr == 100){
+	//	console.log(thisPipe.end1.pressure);
+	//	ctr = 0;
+	//}
+	//ctr++;
 	requestAnimationFrame(drawWorld);
 }
 console.log("All good!");

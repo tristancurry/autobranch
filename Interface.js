@@ -34,7 +34,18 @@ Interface.prototype = {
 					var A = this.elements[i];
 					var B = this.elements[j];
 					var deltaP = A.pressure - B.pressure;
-					
+					//adjustment for relative heights...
+					var weight = 0;
+					var deltaZ = A.posZ - B.posZ;
+					if(deltaZ < 0){
+						//force is based on B's mass and diam
+						if(deltaZ < -1*B.diam){deltaZ = -1*B.diam}
+						weight = B.mass*g*Math.sin(0.5*Math.PI*(deltaZ/B.diam));
+					} else if(deltaZ > 0){
+						if(deltaZ > A.diam){deltaZ = A.diam}
+						//force is based on A's mass and diam
+						weight = A.mass*g*Math.sin(0.5*Math.PI*(deltaZ/A.diam));
+					}
 					
 					
 					
@@ -51,7 +62,10 @@ Interface.prototype = {
 					
 						var workingArea = Math.min(A.area,B.area)/1e6;  //find size of interface between pipe elements, then convert to m^2
 						var F = 1000*(deltaP)*workingArea;  //find net force in direction of B, Newtons
-						
+						//console.log("deltaP = " + deltaP);
+						//console.log("F before = " + F);
+						F += weight;
+						//console.log("F after = " + F);
 						
 						
 							if(A.mass > 0){

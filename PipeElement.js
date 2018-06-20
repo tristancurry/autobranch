@@ -1,13 +1,16 @@
-var PipeElement = function(diam, length, posX, posY) {
+var PipeElement = function(diam, length, posX, posY, posZ) {
     this.diam = diam;
 	this.length = length; //mm
 	this.posX = posX;
 	this.posY = posY;
-	
+	this.posZ = posZ;    //mm
+	if(posZ == null){
+		this.posZ = 0;
+	}
 	this.area = (Math.PI*diam*diam*0.25);
 	this.volume = this.area*this.length; //mm^3
 	this.mass = this.volume*this.density/1000; //cross-sectional area * length * density in g/mm^3
-	this.size = this.length;
+	this.size = this.length/displayScale;
 	this.peVelos = [];
 	this.connectedInterfaces = [];
 	this.velo = 0;
@@ -74,7 +77,7 @@ PipeElement.prototype = {
 		}
 		this.velo = this.findVelo();
 		this.voluFlow = this.velo*60*(this.area)/1000;
-		this.colour = "hsla(200, 100%, " + 100*(this.pressure - 100000)/1400000 +"%, 1)" //pressure range between 2550000 and 0
+		this.colour = "hsla(200, 100%, " + 100*(this.pressure - 100000)/40000 +"%, 1)" //pressure range between 2550000 and 0
 
 	},
 	
