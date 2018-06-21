@@ -144,7 +144,15 @@ for(var i = 0, l = thisPipe.elements.length; i < l; i++){
 	console.log(elm.posZ);
 }
 
-thisNetwork.install([thisPipe]);
+thisSink = new Sink(64, elementLength, 100, 0.75*height);
+
+var thisValve = new Valve(64, 2*elementLength, thisSink.posX + elementLength/displayScale, 0.75*height, 0, elementLength, "Outlet Valve");
+
+
+thisNetwork.install([thisPipe, thisSink, thisValve]);
+thisNetwork.connect([thisPipe.end1, thisValve.end2]);
+thisNetwork.connect([thisValve.end1, thisSink]);
+
 var ctr = 0;
 
 function drawWorld(){   ///main animation loop

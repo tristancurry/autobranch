@@ -30,7 +30,7 @@ var Pipe = function(diam, length, posX, posY, elementLength, angStart, angEnd, i
 		this.radius = N*(this.elementLength)/this.rot;
 	}
 	
-	
+	this.length = N*this.elementLength;
 	
 	for (var i = 0; i < N; i++){
 		//var X;

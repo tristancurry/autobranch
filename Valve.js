@@ -40,8 +40,8 @@ Valve.prototype.render = function(ctx){
 	ctx.fillStyle = "rgba(255,255,255,0)";
 	ctx.beginPath();
 	ctx.save();
-	ctx.translate(this.posX - 0.5*this.elementLength, this.posY - 0.5*this.oDiam);
-	ctx.rect(0,0,this.elements.length*this.elementLength,this.oDiam);
+	ctx.translate(this.posX - 0.25*this.length/displayScale, this.posY - 0.5*this.oDiam);
+	ctx.rect(0,0,this.elements.length*this.elementLength/displayScale,this.oDiam);
 	ctx.stroke();
 	ctx.restore();
 }
