@@ -68,11 +68,11 @@ const rho = 1 // density of fluid, g/cm^3
 const g = 9.8 // ms^-2
 const K = 2e9; //  bulk modulus of fluid, Pa
 const displayScale = 1; //how many millimeters per pixel?
-const timescale = 60; //how many frames are equivalent to 1 second?
+const timescale = 600; //how many frames are equivalent to 1 second?
 var physicsSteps = 100; //how much to subdivide each frame for finer (more accurate?) calculations. 
 var elementLength = 40; //mm 
 
-const k = Math.pow(0.995, (default_t/(timescale*physicsSteps))); 
+const k = Math.pow(0.9999, (default_t/(timescale*physicsSteps))); 
 
 while(timescale*physicsSteps*elementLength < 160000){ //Do not let timescale*physicsSteps*elementLength < 60000, oscillations become too nasty!
 	physicsSteps *=2;
@@ -140,28 +140,28 @@ var TtP3 = new Valve(64, 100,width - elementLength, height - 64, 0, elementLengt
 thisPipe = new Pipe(64, elementLength*5, 100, height/2, elementLength);
 for(var i = 0, l = thisPipe.elements.length; i < l; i++){
 	var elm = thisPipe.elements[i];
-	elm.posZ = 1*i*elm.diam;
-	console.log(elm.posZ);
+	elm.posZ = i*elm.diam;
 }
 
 thisSink = new Sink(64, elementLength, 100, 0.75*height);
+
+thisSink.airContent = 1;
 airHole = new Sink(64, elementLength, width - 100, 0.75*height);
+airHole.posZ = thisPipe.end2.posZ;
 airHole.airContent = 1;
 
 var thisValve = new Valve(64, 2*elementLength, thisSink.posX + 3*elementLength/displayScale, 0.75*height, 0, elementLength, "Outlet Valve");
-for(var i = 0, l = thisValve.elements.length; i < l; i++){
-	var elm = thisValve.elements[i];
-	elm.posZ = i*thisValve.oDiam - l*thisValve.oDiam;
-	console.log(elm.posZ);
-}
+thisValve.elements[1].posZ = thisPipe.end1.posZ;
+thisValve.elements[0].posZ = thisPipe.end1.posZ;
+thisSink.posZ = thisPipe.end1.posZ;
+
 
 thisNetwork.install([thisPipe, thisSink, thisValve, airHole]);
-thisNetwork.connect([thisPipe.end1, thisValve.end2]);
-thisNetwork.connect([thisValve.end1, thisSink]);
-thisNetwork.connect([airHole,thisPipe.end2],true);
+thisNetwork.connect([thisValve.end2, thisPipe.end1]);
+thisNetwork.connect([thisSink, thisValve.end1]);
+thisNetwork.connect([thisPipe.end2, airHole]);
 
-console.log(thisPipe.end1.isBorderedByAir);
-console.log(thisPipe.end1.airContent);
+
 
 var ctr = 0;
 

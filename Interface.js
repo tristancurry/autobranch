@@ -33,8 +33,8 @@ Interface.prototype = {
 				for(var j = i + 1; j < l; j++){
 					var A = this.elements[i];
 					var B = this.elements[j];
-					if(A.airContent >= 1 && B.airContent < 1){B.isBorderedByAir = true;}
-					if(B.airContent >= 1 && A.airContent < 1){A.isBorderedByAir = true;}
+					if(A.airContent == 1 && B.airContent < 1){B.isBorderedByAir = true;}
+					if(B.airContent == 1 && A.airContent < 1){A.isBorderedByAir = true;}
 					
 					var deltaP = A.pressure - B.pressure;
 					//adjustment for relative heights...
@@ -89,7 +89,17 @@ Interface.prototype = {
 								if(veloBfromA < 0){veloBfromA = 0;}
 								//if(veloAtoB < 0){veloAtoB = (1/time_scale)*Math.round(0.9*time_scale*veloAtoB);}
 								//if(veloBfromA < 0){veloBfromA = (1/time_scale)*Math.round(0.9*time_scale*veloBfromA);}
-							}  
+							} 
+
+							if(A.airContent == 1 && veloAtoB > 0){
+								veloAtoB = 0;
+								veloBfromA = 0;
+							}
+							
+							if(B.airContent == 1 && veloBfromA < 0){
+								veloAtoB = 0;
+								veloBfromA = 0;
+							}
 			
 			
 							if(A.isSink){

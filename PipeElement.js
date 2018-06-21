@@ -70,9 +70,11 @@ PipeElement.prototype = {
 
 
 		if(this.isBorderedByAir && this.mass < this.oMass){
-			if(this.mass < 0){
+			if(this.mass <= 0){
 				this.mass = 0;
-				this.velo = 0;}
+				this.airContent = 1;
+				//this.isSink = true;
+			}
 			this.airContent = 1 - this.mass/this.oMass;
 		} else {
 			var oldDensity = this.density;
