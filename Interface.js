@@ -83,6 +83,10 @@ Interface.prototype = {
 				
 							var veloAtoB = k*this.velos[i][j] + aA;
 							var veloBfromA = k*this.velos[j][i] + aB;
+							
+							if(Math.abs(veloAtoB) > 300){veloAtoB = 300*Math.sign(veloAtoB);}
+							if(Math.abs(veloBfromA) > 300){veloBfromA = 300*Math.sign(veloBfromA);}
+							
 			
 							if(this.isOneWay){
 								if(veloAtoB < 0){veloAtoB = 0;}
@@ -118,9 +122,11 @@ Interface.prototype = {
 						
 							this.velos[i][j] = veloAtoB;
 							this.velos[j][i] = veloBfromA;
+							
+							var dirn = Math.sign(B.posX - A.posX);   //positive if going to the right, negative if going to the left
 						
-							A.peVelos.push(this.velos[i][j]);
-							B.peVelos.push(this.velos[j][i]);
+							A.peVelos.push(dirn*this.velos[i][j]);
+							B.peVelos.push(dirn*this.velos[j][i]);
 						
 					}
 

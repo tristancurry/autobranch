@@ -68,11 +68,11 @@ const rho = 1 // density of fluid, g/cm^3
 const g = 9.8 // ms^-2
 const K = 2e9; //  bulk modulus of fluid, Pa
 const displayScale = 1; //how many millimeters per pixel?
-const timescale = 600; //how many frames are equivalent to 1 second?
+const timescale = 60; //how many frames are equivalent to 1 second?
 var physicsSteps = 100; //how much to subdivide each frame for finer (more accurate?) calculations. 
-var elementLength = 40; //mm 
+var elementLength = 50; //mm 
 
-const k = Math.pow(0.9999, (default_t/(timescale*physicsSteps))); 
+const k = Math.pow(0.9981, (default_t/(timescale*physicsSteps))); 
 
 while(timescale*physicsSteps*elementLength < 160000){ //Do not let timescale*physicsSteps*elementLength < 60000, oscillations become too nasty!
 	physicsSteps *=2;
@@ -137,7 +137,7 @@ var TtP3 = new Valve(64, 100,width - elementLength, height - 64, 0, elementLengt
 	
 */	
 
-thisPipe = new Pipe(64, elementLength*5, 100, height/2, elementLength);
+thisPipe = new Pipe(64, 10*elementLength, 100, height/2, elementLength);
 for(var i = 0, l = thisPipe.elements.length; i < l; i++){
 	var elm = thisPipe.elements[i];
 	elm.posZ = i*elm.diam;
@@ -147,19 +147,19 @@ thisSink = new Sink(64, elementLength, 100, 0.75*height);
 
 thisSink.airContent = 1;
 airHole = new Sink(64, elementLength, width - 100, 0.75*height);
-airHole.posZ = thisPipe.end2.posZ;
+airHole.posZ = thisPipe.end2.posZ + airHole.diam;
 airHole.airContent = 1;
 
 var thisValve = new Valve(64, 2*elementLength, thisSink.posX + 3*elementLength/displayScale, 0.75*height, 0, elementLength, "Outlet Valve");
-thisValve.elements[1].posZ = thisPipe.end1.posZ;
-thisValve.elements[0].posZ = thisPipe.end1.posZ;
-thisSink.posZ = thisPipe.end1.posZ;
+thisValve.elements[1].posZ = thisPipe.end1.posZ - thisValve.oDiam;
+thisValve.elements[0].posZ = thisPipe.end1.posZ - 2*thisValve.oDiam;
+thisSink.posZ = thisPipe.end1.posZ - 2*thisValve.oDiam;
 
 
 thisNetwork.install([thisPipe, thisSink, thisValve, airHole]);
 thisNetwork.connect([thisValve.end2, thisPipe.end1]);
 thisNetwork.connect([thisSink, thisValve.end1]);
-thisNetwork.connect([thisPipe.end2, airHole]);
+thisNetwork.connect([airHole, thisPipe.end2]);
 
 
 
@@ -191,12 +191,12 @@ function drawWorld(){   ///main animation loop
 	ctx1.clearRect(0,0,width,height);
 	thisNetwork.render(ctx1);
 	ctx0.drawImage(canvas1,0,0);
-	if(ctr == 100){
+	/*if(ctr == 100){
 		console.log(thisPipe.end2.airContent);
 		console.log(thisPipe.end2.isBorderedByAir);
 		ctr = 0;
 	}
-	ctr++;
+	ctr++;*/
 	requestAnimationFrame(drawWorld);
 }
 console.log("All good!");

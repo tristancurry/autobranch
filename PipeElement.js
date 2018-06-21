@@ -73,9 +73,12 @@ PipeElement.prototype = {
 			if(this.mass <= 0){
 				this.mass = 0;
 				this.airContent = 1;
-				//this.isSink = true;
+				this.isSink = true;
 			}
 			this.airContent = 1 - this.mass/this.oMass;
+			this.volume = (1 - this.airContent)*this.volume;
+			
+			
 		} else {
 			var oldDensity = this.density;
 			if(this.mass !=0){this.density = this.mass/(this.volume/1000)};
@@ -98,6 +101,7 @@ PipeElement.prototype = {
 			avg += this.peVelos[i]/l;
 		}
 		return avg;
+		
 			
 	},
 
@@ -125,7 +129,6 @@ PipeElement.prototype = {
 		ctx.fillText("p: " + Math.round(this.pressure/1000) + "kPa", this.posX - 0.5*this.size, this.posY - 100);
 		ctx.fillText("mass: " + Math.round(this.mass)+ "g", this.posX - 0.5*this.size, this.posY - 80);
 		ctx.fillText("q: " + Math.round(this.voluFlow)+ "L/m", this.posX - 0.5*this.size, this.posY - 60);
-		//ctx.fillText("q: " + Math.round(60*this.massFlow*timescale*physicsSteps)+ "L/m", this.posX - 0.5*this.size, this.posY - 60);
 		ctx.fillText("v: " + this.velo.toFixed(2) + "m/s", this.posX - 0.5*this.size, this.posY - 40);
 
 
