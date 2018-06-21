@@ -33,6 +33,9 @@ Interface.prototype = {
 				for(var j = i + 1; j < l; j++){
 					var A = this.elements[i];
 					var B = this.elements[j];
+					if(A.airContent >= 1 && B.airContent < 1){B.isBorderedByAir = true;}
+					if(B.airContent >= 1 && A.airContent < 1){A.isBorderedByAir = true;}
+					
 					var deltaP = A.pressure - B.pressure;
 					//adjustment for relative heights...
 					var weight = 0;
@@ -90,14 +93,14 @@ Interface.prototype = {
 			
 			
 							if(A.isSink){
-								A.massFlow -= (veloAtoB/time_scale)*(B.area/1000)*A.density; //10*v to put in cms^-1, area/1000 to put into cm^2, as density ia g/cm^3
+								A.massFlow -= (10*veloAtoB/time_scale)*(B.area/1000)*A.density; //10*v to put in cms^-1, area/1000 to put into cm^2, as density ia g/cm^3
 							} else {
-								A.massFlow -= (veloAtoB/time_scale)*(A.area/1000)*A.density;  //g of mass flow during time interval
+								A.massFlow -= (10*veloAtoB/time_scale)*(A.area/1000)*A.density;  //g of mass flow during time interval
 							}
 							if(B.isSink){
-								B.massFlow += (veloBfromA/time_scale)*(A.area/1000)*B.density;
+								B.massFlow += (10*veloBfromA/time_scale)*(A.area/1000)*B.density;
 							} else {
-								B.massFlow += (veloBfromA/time_scale)*(B.area/1000)*B.density;
+								B.massFlow += (10*veloBfromA/time_scale)*(B.area/1000)*B.density;
 							}
 	
 						

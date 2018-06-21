@@ -10,6 +10,7 @@ var PipeElement = function(diam, length, posX, posY, posZ) {
 	this.area = (Math.PI*diam*diam*0.25);
 	this.volume = this.area*this.length; //mm^3
 	this.mass = this.volume*this.density/1000; //cross-sectional area * length * density in g/mm^3
+	this.oMass = this.mass;
 	this.size = this.length/displayScale;
 	this.peVelos = [];
 	this.connectedInterfaces = [];
@@ -28,12 +29,13 @@ PipeElement.prototype = {
 	area: 1, //mm^2
 	volume: 1, //cm^3
 	mass: 1, //g
-	pressure: 0, //gauge pressure, Pa
+	pressure: 0, // pressure, Pa
 	density: 1, //g/cm^3
 	massFlow: 0, //g, positive is IN
 	isPump: false,
 	isSink: false,
-	
+	isBorderedByAir: false,
+	airContent: 0,
 	//RENDERING VARIABLES
 	posX: 0,
 	posY: 0,
@@ -66,14 +68,21 @@ PipeElement.prototype = {
 	update: function() {
 		this.mass = this.mass + this.massFlow;
 
-		if(this.mass < 0){this.mass = 1;}
-		var oldDensity = this.density;
-		if(this.mass !=0){this.density = this.mass/(this.volume/1000)};
-		var oldPressure = this.pressure;
-		this.pressure = K*(1 - (oldDensity/this.density)) + oldPressure;
-		if(this.pressure < 0){
-			this.pressure = 0;
-			this.densityFromPressure();
+
+		if(this.isBorderedByAir && this.mass < this.oMass){
+			if(this.mass < 0){
+				this.mass = 0;
+				this.velo = 0;}
+			this.airContent = 1 - this.mass/this.oMass;
+		} else {
+			var oldDensity = this.density;
+			if(this.mass !=0){this.density = this.mass/(this.volume/1000)};
+			var oldPressure = this.pressure;
+			this.pressure = K*(1 - (oldDensity/this.density)) + oldPressure;
+			if(this.pressure < 0){
+				this.pressure = 0;
+				this.densityFromPressure();
+			}
 		}
 		this.velo = this.findVelo();
 		this.voluFlow = this.velo*60*(this.area)/1000;
@@ -101,7 +110,12 @@ PipeElement.prototype = {
 		ctx.save();
 		ctx.translate(this.posX - 0.5*this.size, this.posY - 0.5*this.diam);
 		ctx.rect(0,0, this.size, this.diam);
-		ctx.fill();
+				ctx.fill();
+		ctx.fillStyle = "rgba(255,50,50," + 100*this.airContent + "%)";
+		ctx.rect(0,0, this.size, this.diam);
+				ctx.fill();
+		ctx.fillStyle = this.colour;
+
 		ctx.restore();
 		ctx.font="9px Arial";
 		ctx.fillStyle = "rgb(255,255,255)";

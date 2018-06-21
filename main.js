@@ -49,7 +49,7 @@ var viewportH = viewport.clientHeight;
 viewport.pos = getPosition(viewport);
 
 const default_velo = 0.00129; //ms^-1
-const default_length = 100; //mm
+const default_length = 20; //mm
 const default_diam = 64; //mm
 const default_area = Math.PI*Math.pow(default_diam,2); //mm^2
 const default_t = 60000; // 'frames' per second
@@ -67,10 +67,10 @@ var PCUs = [];
 const rho = 1 // density of fluid, g/cm^3
 const g = 9.8 // ms^-2
 const K = 2e9; //  bulk modulus of fluid, Pa
-const displayScale = 10; //how many millimeters per pixel?
-const timescale = 600; //how many frames are equivalent to 1 second?
-var physicsSteps = 10; //how much to subdivide each frame for finer (more accurate?) calculations. 
-var elementLength = 200; //mm 
+const displayScale = 1; //how many millimeters per pixel?
+const timescale = 60; //how many frames are equivalent to 1 second?
+var physicsSteps = 100; //how much to subdivide each frame for finer (more accurate?) calculations. 
+var elementLength = 40; //mm 
 
 const k = Math.pow(0.995, (default_t/(timescale*physicsSteps))); 
 
@@ -137,7 +137,7 @@ var TtP3 = new Valve(64, 100,width - elementLength, height - 64, 0, elementLengt
 	
 */	
 
-thisPipe = new Pipe(64, 8000, 100, height/2, elementLength);
+thisPipe = new Pipe(64, elementLength*2, 100, height/2, elementLength);
 for(var i = 0, l = thisPipe.elements.length; i < l; i++){
 	var elm = thisPipe.elements[i];
 	elm.posZ = 1*i*elm.diam;
@@ -145,13 +145,23 @@ for(var i = 0, l = thisPipe.elements.length; i < l; i++){
 }
 
 thisSink = new Sink(64, elementLength, 100, 0.75*height);
+airHole = new Sink(64, elementLength, width - 100, 0.75*height);
+airHole.airContent = 1;
 
-var thisValve = new Valve(64, 2*elementLength, thisSink.posX + elementLength/displayScale, 0.75*height, 0, elementLength, "Outlet Valve");
+var thisValve = new Valve(64, 2*elementLength, thisSink.posX + 3*elementLength/displayScale, 0.75*height, 0, elementLength, "Outlet Valve");
+for(var i = 0, l = thisValve.elements.length; i < l; i++){
+	var elm = thisValve.elements[i];
+	elm.posZ = i*thisValve.oDiam - l*thisValve.oDiam;
+	console.log(elm.posZ);
+}
 
-
-thisNetwork.install([thisPipe, thisSink, thisValve]);
+thisNetwork.install([thisPipe, thisSink, thisValve, airHole]);
 thisNetwork.connect([thisPipe.end1, thisValve.end2]);
 thisNetwork.connect([thisValve.end1, thisSink]);
+thisNetwork.connect([airHole,thisPipe.end2],true);
+
+console.log(thisPipe.end1.isBorderedByAir);
+console.log(thisPipe.end1.airContent);
 
 var ctr = 0;
 
@@ -181,11 +191,12 @@ function drawWorld(){   ///main animation loop
 	ctx1.clearRect(0,0,width,height);
 	thisNetwork.render(ctx1);
 	ctx0.drawImage(canvas1,0,0);
-	//if(ctr == 100){
-	//	console.log(thisPipe.end1.pressure);
-	//	ctr = 0;
-	//}
-	//ctr++;
+	if(ctr == 100){
+		console.log(thisPipe.end2.airContent);
+		console.log(thisPipe.end2.isBorderedByAir);
+		ctr = 0;
+	}
+	ctr++;
 	requestAnimationFrame(drawWorld);
 }
 console.log("All good!");
