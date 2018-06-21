@@ -137,7 +137,7 @@ var TtP3 = new Valve(64, 100,width - elementLength, height - 64, 0, elementLengt
 	
 */	
 
-thisPipe = new Pipe(64, elementLength*2, 100, height/2, elementLength);
+thisPipe = new Pipe(64, elementLength*5, 100, height/2, elementLength);
 for(var i = 0, l = thisPipe.elements.length; i < l; i++){
 	var elm = thisPipe.elements[i];
 	elm.posZ = 1*i*elm.diam;
