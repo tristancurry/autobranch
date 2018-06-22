@@ -88,10 +88,10 @@ Interface.prototype = {
 							
 			
 							if(this.isOneWay){
-								//if(veloAtoB < 0){veloAtoB = 0;}
-								//if(veloBfromA < 0){veloBfromA = 0;}
-								if(veloAtoB < 0){veloAtoB = (1/time_scale)*Math.round(0.9*time_scale*veloAtoB);}
-								if(veloBfromA < 0){veloBfromA = (1/time_scale)*Math.round(0.9*time_scale*veloBfromA);}
+								if(veloAtoB < 0){veloAtoB = 0;}
+								if(veloBfromA < 0){veloBfromA = 0;}
+								//if(veloAtoB < 0){veloAtoB = 0.01*veloAtoB;}
+								//if(veloBfromA < 0){veloBfromA = 0.01*veloBfromA;}
 							} 
 
 							if(A.airContent == 1 && veloAtoB > 0){

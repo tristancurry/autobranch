@@ -76,7 +76,7 @@ Pump.prototype.update = function(time_scale) {
 
 		
     if(this.efficiency > 0 && this.power >0 && this.outlet.pressure - this.midPump.pressure < this.maxPressure){
-			this.outlet.massFlow  += (this.midPump.density*1e6/time_scale)*((this.efficiency*this.power/this.outlet.pressure));
+			this.outlet.massFlow  += (this.outlet.density*1e6/time_scale)*((this.efficiency*this.power/this.outlet.pressure));
 			this.midPump.massFlow -= (this.midPump.density*1e6/time_scale)*((this.efficiency*this.power/this.outlet.pressure));
 
 	}
