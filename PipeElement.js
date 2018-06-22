@@ -34,8 +34,6 @@ PipeElement.prototype = {
 	massFlow: 0, //g, positive is IN
 	isPump: false,
 	isSink: false,
-	isBorderedByAir: false,
-	airContent: 0,
 	//RENDERING VARIABLES
 	posX: 0,
 	posY: 0,
@@ -91,7 +89,7 @@ PipeElement.prototype = {
 		}
 		this.velo = this.findVelo();
 		this.voluFlow = this.velo*60*(this.area)/1000;
-		this.colour = "hsla(200, 100%, " + 100*(this.pressure - 100000)/40000 +"%, 1)" //pressure range between 2550000 and 0
+		this.colour = "hsla(200, 100%, " + 100*(this.pressure - 100000)/1900000 +"%, 1)" //pressure range between 2550000 and 0
 
 	},
 	

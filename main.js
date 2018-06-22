@@ -72,7 +72,7 @@ const timescale = 60; //how many frames are equivalent to 1 second?
 var physicsSteps = 100; //how much to subdivide each frame for finer (more accurate?) calculations. 
 var elementLength = 50; //mm 
 
-const k = Math.pow(0.9981, (default_t/(timescale*physicsSteps))); 
+const k = Math.pow(0.995, (default_t/(timescale*physicsSteps))); 
 
 while(timescale*physicsSteps*elementLength < 160000){ //Do not let timescale*physicsSteps*elementLength < 60000, oscillations become too nasty!
 	physicsSteps *=2;
@@ -88,7 +88,7 @@ const pAtmo = 1e5; //atmospheric pressure, Pa
 var thisNetwork = new Network();
 
 
-/*var thisSource = new Source(64, elementLength, 0, elementLength, height/2);
+var thisSource = new Source(64, elementLength, 0, elementLength, height/2);
 thisSource.pressure = pAtmo;
 thisSource.densityFromPressure(); 	
 
@@ -97,13 +97,18 @@ var inletValve = new Valve(64, 100, thisSource.posX + thisSource.length, 0.5*hei
 var	thisPump = new Pump(64, 0, inletValve.endX, height/2, elementLength);
 var thisValve = new Valve(64, 100, thisPump.posX + thisPump.length, 0.5*height, 0, elementLength, "Outlet Valve");
 var thisPipe = new Pipe(64, 200, thisValve.endX, 0.5*height, elementLength);
-var thisTank = new Tank(64, 50, 400, 0.95*height, elementLength, "tankytank");
+var thisTank = new Tank(150, 50, 400, 0.95*height, elementLength, "tankytank");
 var thisPCU = new PCU(thisPipe.diam, 200, 700000, 40, 500, thisPipe.endX, thisPipe.posY, elementLength);
 var thisSink = new Sink(thisPipe.diam, elementLength, thisPCU.endX, thisPipe.posY);
 
 var TtP1 = new Valve(64, 100, thisTank.endX, thisTank.posY, 1, elementLength, "Tank to Pump");
 var TtP2 = new Valve(64, 100, thisTank.posX - 100, thisTank.posY, 1, elementLength, "T2");
 var TtP3 = new Valve(64, 100,width - elementLength, height - 64, 0, elementLength, "T3");
+
+for(var i = 0, l = thisTank.elements.length; i < l; i++){
+	elm = thisTank.elements[i];
+	elm.posZ = l*elm.length - i*elm.length;
+}
 	
 	thisNetwork.install([thisPump, thisPipe,thisValve, thisSink, thisSource, inletValve, thisTank, TtP1, TtP2, TtP3, thisPCU]);
 	thisNetwork.connect([thisPump.end2, thisValve.end1], false);
@@ -113,7 +118,6 @@ var TtP3 = new Valve(64, 100,width - elementLength, height - 64, 0, elementLengt
 	
 	thisNetwork.connect([thisSource, inletValve.end1], true);
 
-	//thisNetwork.connect([inletValve.end2, thisPump.inlet],false);
 	
 	thisNetwork.connect([thisTank.outlet, TtP1.end1]);
 	thisNetwork.connect([TtP1.end2, thisPump.midPump]);
@@ -135,31 +139,9 @@ var TtP3 = new Valve(64, 100,width - elementLength, height - 64, 0, elementLengt
 	TtP3Label.parentNode.removeChild(TtP3Label);
 	TtP3Display.parentNode.removeChild(TtP3Display);
 	
-*/	
-
-thisPipe = new Pipe(64, 10*elementLength, 100, height/2, elementLength);
-for(var i = 0, l = thisPipe.elements.length; i < l; i++){
-	var elm = thisPipe.elements[i];
-	elm.posZ = i*elm.diam;
-}
-
-thisSink = new Sink(64, elementLength, 100, 0.75*height);
-
-thisSink.airContent = 1;
-airHole = new Sink(64, elementLength, width - 100, 0.75*height);
-airHole.posZ = thisPipe.end2.posZ + airHole.diam;
-airHole.airContent = 1;
-
-var thisValve = new Valve(64, 2*elementLength, thisSink.posX + 3*elementLength/displayScale, 0.75*height, 0, elementLength, "Outlet Valve");
-thisValve.elements[1].posZ = thisPipe.end1.posZ - thisValve.oDiam;
-thisValve.elements[0].posZ = thisPipe.end1.posZ - 2*thisValve.oDiam;
-thisSink.posZ = thisPipe.end1.posZ - 2*thisValve.oDiam;
 
 
-thisNetwork.install([thisPipe, thisSink, thisValve, airHole]);
-thisNetwork.connect([thisValve.end2, thisPipe.end1]);
-thisNetwork.connect([thisSink, thisValve.end1]);
-thisNetwork.connect([airHole, thisPipe.end2]);
+
 
 
 
@@ -169,7 +151,7 @@ function drawWorld(){   ///main animation loop
 	//console.log("=============")
 	ctx0.fillStyle = "rgba(100,0,100,1)";
 	ctx0.fillRect(0,0,width,height);
-/*	
+	
 	for(var i = 0, l = TtP1.elements.length; i < l; i++){
 		var elm = TtP1.elements[i];
 		elm.pressure = pAtmo;
@@ -182,7 +164,7 @@ function drawWorld(){   ///main animation loop
 	TtP3.setting = 1 - TtP1.setting;
 	TtP3.diam = TtP3.oDiam*TtP3.setting;
 	TtP3.updateDiam(TtP3.diam, TtP3.elements);
-*/	
+	
 	
 	for(var j = 0; j < physicsSteps; j++){
 		thisNetwork.update(timescale*physicsSteps);	
@@ -192,8 +174,7 @@ function drawWorld(){   ///main animation loop
 	thisNetwork.render(ctx1);
 	ctx0.drawImage(canvas1,0,0);
 	/*if(ctr == 100){
-		console.log(thisPipe.end2.airContent);
-		console.log(thisPipe.end2.isBorderedByAir);
+
 		ctr = 0;
 	}
 	ctr++;*/

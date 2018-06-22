@@ -33,21 +33,20 @@ Interface.prototype = {
 				for(var j = i + 1; j < l; j++){
 					var A = this.elements[i];
 					var B = this.elements[j];
-					if(A.airContent == 1 && B.airContent < 1){B.isBorderedByAir = true;}
-					if(B.airContent == 1 && A.airContent < 1){A.isBorderedByAir = true;}
+
 					
 					var deltaP = A.pressure - B.pressure;
 					//adjustment for relative heights...
 					var weight = 0;
 					var deltaZ = A.posZ - B.posZ;
 					if(deltaZ < 0){
-						//force is based on B's mass and diam
-						if(deltaZ < -1*B.diam){deltaZ = -1*B.diam}
-						weight = B.mass*g*Math.sin(0.5*Math.PI*(deltaZ/B.diam));
+						//force is based on B's mass and length
+						if(deltaZ < -1*B.length){deltaZ = -1*B.length}
+						weight = B.mass*g*Math.sin(0.5*Math.PI*(deltaZ/B.length));
 					} else if(deltaZ > 0){
-						if(deltaZ > A.diam){deltaZ = A.diam}
-						//force is based on A's mass and diam
-						weight = A.mass*g*Math.sin(0.5*Math.PI*(deltaZ/A.diam));
+						if(deltaZ > A.length){deltaZ = A.length}
+						//force is based on A's mass and length
+						weight = A.mass*g*Math.sin(0.5*Math.PI*(deltaZ/A.length));
 					}
 					
 					
@@ -89,10 +88,10 @@ Interface.prototype = {
 							
 			
 							if(this.isOneWay){
-								if(veloAtoB < 0){veloAtoB = 0;}
-								if(veloBfromA < 0){veloBfromA = 0;}
-								//if(veloAtoB < 0){veloAtoB = (1/time_scale)*Math.round(0.9*time_scale*veloAtoB);}
-								//if(veloBfromA < 0){veloBfromA = (1/time_scale)*Math.round(0.9*time_scale*veloBfromA);}
+								//if(veloAtoB < 0){veloAtoB = 0;}
+								//if(veloBfromA < 0){veloBfromA = 0;}
+								if(veloAtoB < 0){veloAtoB = (1/time_scale)*Math.round(0.9*time_scale*veloAtoB);}
+								if(veloBfromA < 0){veloBfromA = (1/time_scale)*Math.round(0.9*time_scale*veloBfromA);}
 							} 
 
 							if(A.airContent == 1 && veloAtoB > 0){
@@ -107,14 +106,14 @@ Interface.prototype = {
 			
 			
 							if(A.isSink){
-								A.massFlow -= (10*veloAtoB/time_scale)*(B.area/1000)*A.density; //10*v to put in cms^-1, area/1000 to put into cm^2, as density ia g/cm^3
+								A.massFlow -= (veloAtoB/time_scale)*(B.area/1000)*A.density; //10*v to put in cms^-1, area/1000 to put into cm^2, as density ia g/cm^3
 							} else {
-								A.massFlow -= (10*veloAtoB/time_scale)*(A.area/1000)*A.density;  //g of mass flow during time interval
+								A.massFlow -= (veloAtoB/time_scale)*(A.area/1000)*A.density;  //g of mass flow during time interval
 							}
 							if(B.isSink){
-								B.massFlow += (10*veloBfromA/time_scale)*(A.area/1000)*B.density;
+								B.massFlow += (veloBfromA/time_scale)*(A.area/1000)*B.density;
 							} else {
-								B.massFlow += (10*veloBfromA/time_scale)*(B.area/1000)*B.density;
+								B.massFlow += (veloBfromA/time_scale)*(B.area/1000)*B.density;
 							}
 	
 						
@@ -123,10 +122,9 @@ Interface.prototype = {
 							this.velos[i][j] = veloAtoB;
 							this.velos[j][i] = veloBfromA;
 							
-							var dirn = Math.sign(B.posX - A.posX);   //positive if going to the right, negative if going to the left
 						
-							A.peVelos.push(dirn*this.velos[i][j]);
-							B.peVelos.push(dirn*this.velos[j][i]);
+							A.peVelos.push(this.velos[i][j]);
+							B.peVelos.push(this.velos[j][i]);
 						
 					}
 

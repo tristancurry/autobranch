@@ -10,6 +10,8 @@ var Tank = function(diam, capacity, posX, posY, elementLength, id){
 	if(id == null){this.id = "tank" + Tanks.length}
 	this.inlet = this.elements[0]
 	this.tank = this.elements[1];
+	this.tank.length = 5*elementLength;
+	this.tank.changeDiam(400);
 	this.outlet = this.elements[2];
 	this.tankMass = this.tank.mass;
 	this.interfaces[1] = new Interface([this.outlet, this.tank]);
@@ -47,7 +49,7 @@ Tank.prototype.update = function(time_scale){
 Tank.prototype.render = function(ctx){
 	Pipe.prototype.render.call(this, ctx);
 	ctx.fillStyle = "rgb(255,255,255)";
-	ctx.fillText(this.capacity, this.posX, this.posY - 120);
+	ctx.fillText(Math.round(100*this.capacity)/100, this.posX, this.posY - 120);
 }
 
 /*
