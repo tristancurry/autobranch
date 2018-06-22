@@ -25,10 +25,10 @@ PCU.prototype.update = function(time_scale){
 	if(deltaP != this.targetPressure){
 		
 		if(deltaP > this.targetPressure && this.diam < this.oDiam ){
-			this.diam += this.diam/time_scale;
+			this.diam += 0.1*this.diam/time_scale;
 	
 		} else if (deltaP < this.targetPressure && this.diam > 15){
-			this.diam -= this.diam/time_scale;	
+			this.diam -= 0.1*this.diam/time_scale;	
 		}
 			for(var i = 0, l = this.elements.length; i < l; i++){
 			this.elements[i].changeDiam(this.diam);

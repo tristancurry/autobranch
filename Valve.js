@@ -27,11 +27,14 @@ var Valve = function(diam, length, posX, posY, setting, elementLength, id){
 }
 
 Valve.prototype = Object.create(Pipe.prototype);
+
+
 Valve.prototype.applySliderValue = function(val){
 	this.setting = val;
 	document.getElementById(this.id + "controlDisplay").innerHTML = Math.round(val*100) + "%";
 	this.diam = this.oDiam*this.setting;
 	this.updateDiam(this.diam, this.elements);
+}
 	
 Valve.prototype.render = function(ctx){
 	Pipe.prototype.render.call(this, ctx);
@@ -40,11 +43,10 @@ Valve.prototype.render = function(ctx){
 	ctx.fillStyle = "rgba(255,255,255,0)";
 	ctx.beginPath();
 	ctx.save();
-	ctx.translate(this.posX - 0.5*this.elementLength, this.posY - 0.5*this.oDiam);
-	ctx.rect(0,0,this.elements.length*this.elementLength,this.oDiam);
+	ctx.translate(this.posX - 0.25*this.length/displayScale, this.posY - 0.5*this.oDiam);
+	ctx.rect(0,0,this.elements.length*this.elementLength/displayScale,this.oDiam);
 	ctx.stroke();
 	ctx.restore();
 }
 	
-}
 Valve.constructor = Valve;

@@ -33,8 +33,21 @@ Interface.prototype = {
 				for(var j = i + 1; j < l; j++){
 					var A = this.elements[i];
 					var B = this.elements[j];
-					var deltaP = A.pressure - B.pressure;
+
 					
+					var deltaP = A.pressure - B.pressure;
+					//adjustment for relative heights...
+					var weight = 0;
+					var deltaZ = A.posZ - B.posZ;
+					if(deltaZ < 0){
+						//force is based on B's mass and length
+						if(deltaZ < -1*B.length){deltaZ = -1*B.length}
+						weight = B.mass*g*Math.sin(0.5*Math.PI*(deltaZ/B.length));
+					} else if(deltaZ > 0){
+						if(deltaZ > A.length){deltaZ = A.length}
+						//force is based on A's mass and length
+						weight = A.mass*g*Math.sin(0.5*Math.PI*(deltaZ/A.length));
+					}
 					
 					
 					
@@ -51,7 +64,10 @@ Interface.prototype = {
 					
 						var workingArea = Math.min(A.area,B.area)/1e6;  //find size of interface between pipe elements, then convert to m^2
 						var F = 1000*(deltaP)*workingArea;  //find net force in direction of B, Newtons
-						
+						//console.log("deltaP = " + deltaP);
+						//console.log("F before = " + F);
+						F += weight;
+						//console.log("F after = " + F);
 						
 						
 							if(A.mass > 0){
@@ -66,13 +82,27 @@ Interface.prototype = {
 				
 							var veloAtoB = k*this.velos[i][j] + aA;
 							var veloBfromA = k*this.velos[j][i] + aB;
+							
+							if(Math.abs(veloAtoB) > 300){veloAtoB = 300*Math.sign(veloAtoB);}
+							if(Math.abs(veloBfromA) > 300){veloBfromA = 300*Math.sign(veloBfromA);}
+							
 			
 							if(this.isOneWay){
-								if(veloAtoB < 0){veloAtoB = 0;}
-								if(veloBfromA < 0){veloBfromA = 0;}
-								//if(veloAtoB < 0){veloAtoB = (1/time_scale)*Math.round(0.9*time_scale*veloAtoB);}
-								//if(veloBfromA < 0){veloBfromA = (1/time_scale)*Math.round(0.9*time_scale*veloBfromA);}
-							}  
+								//if(veloAtoB < 0){veloAtoB = 0;}
+								//if(veloBfromA < 0){veloBfromA = 0;}
+								if(veloAtoB < 0){veloAtoB = (1/time_scale)*Math.round(0.9*time_scale*veloAtoB);}
+								if(veloBfromA < 0){veloBfromA = (1/time_scale)*Math.round(0.9*time_scale*veloBfromA);}
+							} 
+
+							if(A.airContent == 1 && veloAtoB > 0){
+								veloAtoB = 0;
+								veloBfromA = 0;
+							}
+							
+							if(B.airContent == 1 && veloBfromA < 0){
+								veloAtoB = 0;
+								veloBfromA = 0;
+							}
 			
 			
 							if(A.isSink){
@@ -91,6 +121,7 @@ Interface.prototype = {
 						
 							this.velos[i][j] = veloAtoB;
 							this.velos[j][i] = veloBfromA;
+							
 						
 							A.peVelos.push(this.velos[i][j]);
 							B.peVelos.push(this.velos[j][i]);

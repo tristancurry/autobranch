@@ -49,7 +49,7 @@ var viewportH = viewport.clientHeight;
 viewport.pos = getPosition(viewport);
 
 const default_velo = 0.00129; //ms^-1
-const default_length = 100; //mm
+const default_length = 20; //mm
 const default_diam = 64; //mm
 const default_area = Math.PI*Math.pow(default_diam,2); //mm^2
 const default_t = 60000; // 'frames' per second
@@ -65,10 +65,12 @@ var PCUs = [];
 
 
 const rho = 1 // density of fluid, g/cm^3
+const g = 9.8 // ms^-2
 const K = 2e9; //  bulk modulus of fluid, Pa
-const timescale = 600; //how many frames are equivalent to 1 second?
+const displayScale = 1; //how many millimeters per pixel?
+const timescale = 60; //how many frames are equivalent to 1 second?
 var physicsSteps = 100; //how much to subdivide each frame for finer (more accurate?) calculations. 
-var elementLength = 45; //mm 
+var elementLength = 50; //mm 
 
 const k = Math.pow(0.995, (default_t/(timescale*physicsSteps))); 
 
@@ -95,13 +97,18 @@ var inletValve = new Valve(64, 100, thisSource.posX + thisSource.length, 0.5*hei
 var	thisPump = new Pump(64, 0, inletValve.endX, height/2, elementLength);
 var thisValve = new Valve(64, 100, thisPump.posX + thisPump.length, 0.5*height, 0, elementLength, "Outlet Valve");
 var thisPipe = new Pipe(64, 200, thisValve.endX, 0.5*height, elementLength);
-var thisTank = new Tank(64, 50, 400, 0.95*height, elementLength, "tankytank");
+var thisTank = new Tank(150, 50, 400, 0.95*height, elementLength, "tankytank");
 var thisPCU = new PCU(thisPipe.diam, 200, 700000, 40, 500, thisPipe.endX, thisPipe.posY, elementLength);
 var thisSink = new Sink(thisPipe.diam, elementLength, thisPCU.endX, thisPipe.posY);
 
 var TtP1 = new Valve(64, 100, thisTank.endX, thisTank.posY, 1, elementLength, "Tank to Pump");
 var TtP2 = new Valve(64, 100, thisTank.posX - 100, thisTank.posY, 1, elementLength, "T2");
 var TtP3 = new Valve(64, 100,width - elementLength, height - 64, 0, elementLength, "T3");
+
+for(var i = 0, l = thisTank.elements.length; i < l; i++){
+	elm = thisTank.elements[i];
+	elm.posZ = l*elm.length - i*elm.length;
+}
 	
 	thisNetwork.install([thisPump, thisPipe,thisValve, thisSink, thisSource, inletValve, thisTank, TtP1, TtP2, TtP3, thisPCU]);
 	thisNetwork.connect([thisPump.end2, thisValve.end1], false);
@@ -111,7 +118,6 @@ var TtP3 = new Valve(64, 100,width - elementLength, height - 64, 0, elementLengt
 	
 	thisNetwork.connect([thisSource, inletValve.end1], true);
 
-	//thisNetwork.connect([inletValve.end2, thisPump.inlet],false);
 	
 	thisNetwork.connect([thisTank.outlet, TtP1.end1]);
 	thisNetwork.connect([TtP1.end2, thisPump.midPump]);
@@ -133,8 +139,13 @@ var TtP3 = new Valve(64, 100,width - elementLength, height - 64, 0, elementLengt
 	TtP3Label.parentNode.removeChild(TtP3Label);
 	TtP3Display.parentNode.removeChild(TtP3Display);
 	
-	
-	
+
+
+
+
+
+
+var ctr = 0;
 
 function drawWorld(){   ///main animation loop
 	//console.log("=============")
@@ -162,6 +173,11 @@ function drawWorld(){   ///main animation loop
 	ctx1.clearRect(0,0,width,height);
 	thisNetwork.render(ctx1);
 	ctx0.drawImage(canvas1,0,0);
+	/*if(ctr == 100){
+
+		ctr = 0;
+	}
+	ctr++;*/
 	requestAnimationFrame(drawWorld);
 }
 console.log("All good!");
