@@ -59,25 +59,39 @@ Pump.prototype.update = function(time_scale) {
 	if(n > 0){
 		this.cavitating = true; 
 		
-			if(this.efficiency > 1000/time_scale){
-				this.efficiency -= 1000/time_scale;
-			} else {
-				this.efficiency = 0;
-			}
+		if(this.efficiency > 1000/time_scale){
+			this.efficiency -= 1000/time_scale;
 		} else {
-			this.cavitating = false;
+			this.efficiency = 0;
+		}
+	} else {
+		if(this.efficiency > 0.1){
+			this.cavitating = false; //this is an attempt to prevent rapid flip-flopping in and out of cavitation.
+		}
+			//this.cavitating = false;
 			if(this.efficiency < 1 - 1000/time_scale){
 				this.efficiency += 1000/time_scale;
+
 			} else {
 				this.efficiency = 1;
 			}
 			
 		}
+	
+		var midVelo = this.interfaces[this.mid].velos[0][1];
+		var outVelo = this.interfaces[this.mid].velos[1][0];
 
 		
     if(this.efficiency > 0 && this.power >0 && this.outlet.pressure - this.midPump.pressure < this.maxPressure){
-			this.outlet.massFlow  += (this.outlet.density*1e6/time_scale)*((this.efficiency*this.power/this.outlet.pressure));
-			this.midPump.massFlow -= (this.midPump.density*1e6/time_scale)*((this.efficiency*this.power/this.outlet.pressure));
+			//this.outlet.massFlow  += (this.outlet.density*1e6/time_scale)*((this.efficiency*this.power/this.outlet.pressure));
+			//this.midPump.massFlow -= (this.midPump.density*1e6/time_scale)*((this.efficiency*this.power/this.outlet.pressure));
+			//outVelo  += (5*this.power/(this.outlet.mass*(outVelo + 0.0001)))/time_scale;
+			//this.interfaces[this.mid].velos[1][0] = outVelo;
+			//this.midPump.massFlow -= (outVelo/time_scale)*(this.outlet.area/1000)*this.outlet.density;
+			this.outlet.mass += this.power/time_scale;
+			this.midPump.mass -= this.power/time_scale;
+			
+			
 
 	}
 	

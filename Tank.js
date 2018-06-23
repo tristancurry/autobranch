@@ -37,9 +37,9 @@ Tank.prototype.update = function(time_scale){
 		this.interfaces[1].isOneWay = false;
 	}
 	for(var i = 0, l = this.elements.length; i < l; i++){
-	this.elements[i].mass = this.tankMass;
-	this.elements[i].pressure = pAtmo;
-	this.elements[i].densityFromPressure();
+	this.elements[1].mass = this.tankMass;
+	this.elements[1].pressure = pAtmo;
+	this.elements[1].densityFromPressure();
 		
 	}
 	
