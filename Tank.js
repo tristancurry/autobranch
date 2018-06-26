@@ -10,13 +10,14 @@ var Tank = function(diam, capacity, posX, posY, elementLength, id){
 	if(id == null){this.id = "tank" + Tanks.length}
 	this.inlet = this.elements[0]
 	this.tank = this.elements[1];
-	this.tank.length = 5*elementLength;
-	this.tank.changeDiam(400);
+	this.tank.diam = 3*this.diam;
+	this.tank.changeDiam(this.tank.diam);
+	this.tank.length = this.maxCapacity*1000*1000/this.tank.area;
+	this.tank.changeDiam(this.tank.diam);
 	this.outlet = this.elements[2];
 	this.tankMass = this.tank.mass;
 	this.interfaces[1] = new Interface([this.outlet, this.tank]);
-	
-	
+console.log(this.tank.length);
 }
 
 Tank.prototype = Object.create(Pipe.prototype);
@@ -28,6 +29,8 @@ Tank.prototype.update = function(time_scale){
 	var LperTimeUnit = (-1*this.inlet.voluFlow + this.outlet.voluFlow)/(60*time_scale);
 	var fracOfCurrentCapacity = LperTimeUnit/this.capacity;
 	this.capacity = (1 - fracOfCurrentCapacity)*this.capacity;
+
+	
 	if(this.capacity < 1){
 		this.interfaces[1].isOneWay = true;
 		//do thing for running out
@@ -35,13 +38,16 @@ Tank.prototype.update = function(time_scale){
 		this.capacity = this.maxCapacity;
 	} else {
 		this.interfaces[1].isOneWay = false;
-	}
-	for(var i = 0, l = this.elements.length; i < l; i++){
-	this.elements[1].mass = this.tankMass;
-	this.elements[1].pressure = pAtmo;
-	this.elements[1].densityFromPressure();
+			this.length = (1 - fracOfCurrentCapacity)*this.length;
+	this.tank.changeDiam(this.tank.diam);
+		for(var i = 0, l = this.elements.length; i < l; i++){
+			this.elements[1].mass = this.tankMass;
+			this.elements[1].pressure = pAtmo;
+			this.elements[1].densityFromPressure();
 		
+		}
 	}
+
 	
 	
 }

@@ -97,7 +97,7 @@ var inletValve = new Valve(64, 100, thisSource.posX + thisSource.length, 0.5*hei
 var	thisPump = new Pump(64, 0, inletValve.endX, height/2, elementLength);
 var thisValve = new Valve(64, 100, thisPump.posX + thisPump.length, 0.5*height, 0, elementLength, "Outlet Valve");
 var thisPipe = new Pipe(64, 200, thisValve.endX, 0.5*height, elementLength);
-var thisTank = new Tank(150, 10, 400, 0.95*height, elementLength, "tankytank");
+var thisTank = new Tank(150, 100, 400, 0.95*height, elementLength, "tankytank");
 var thisPCU = new PCU(thisPipe.diam, 200, 700000, 40, 500, thisPipe.endX, thisPipe.posY, elementLength);
 var thisSink = new Sink(thisPipe.diam, elementLength, thisPCU.endX, thisPipe.posY);
 
