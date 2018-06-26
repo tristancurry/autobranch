@@ -82,14 +82,14 @@ Pump.prototype.update = function(time_scale) {
 		var outVelo = this.interfaces[this.mid].velos[1][0];
 
 		
-    if(this.efficiency > 0 && this.power >0 && this.outlet.pressure - this.midPump.pressure < this.maxPressure){
-			//this.outlet.massFlow  += (this.outlet.density*1e6/time_scale)*((this.efficiency*this.power/this.outlet.pressure));
-			//this.midPump.massFlow -= (this.midPump.density*1e6/time_scale)*((this.efficiency*this.power/this.outlet.pressure));
+    if(this.efficiency > 0 && this.power >0 && this.outlet.pressure - this.midPump.pressure < this.maxPressure && this.outlet.pressure >= this.midPump.pressure){
+			this.outlet.massFlow  += (this.outlet.density*1e6/time_scale)*((this.efficiency*this.power/(this.outlet.pressure - this.midPump.pressure + 1000000)));
+			this.midPump.massFlow -= (this.midPump.density*1e6/time_scale)*((this.efficiency*this.power/(this.outlet.pressure - this.midPump.pressure + 1000000)));
 			//outVelo  += (5*this.power/(this.outlet.mass*(outVelo + 0.0001)))/time_scale;
 			//this.interfaces[this.mid].velos[1][0] = outVelo;
 			//this.midPump.massFlow -= (outVelo/time_scale)*(this.outlet.area/1000)*this.outlet.density;
-			this.outlet.mass += this.power/time_scale;
-			this.midPump.mass -= this.power/time_scale;
+			//this.outlet.mass += (this.efficiency*this.power/(this.outlet.pressure))/time_scale;
+			//this.midPump.mass -= (this.efficiency*this.power/(this.outlet.pressure))/time_scale;
 			
 			
 
