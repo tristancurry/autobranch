@@ -40,7 +40,6 @@ Source.prototype.colour = "rgba(100,100,100,1)";
 Source.prototype.update = function(time_scale) {
 	var massOut = this.massFlow;
 		
-	if(this.pressure <= this.maxPressure){
 		if(this.pressure < 0){this.pressure = 0.1};
 		this.massFlow = this.massFlow + (this.density*1e6/time_scale)*((this.power/this.pressure));
 	
@@ -53,7 +52,7 @@ Source.prototype.update = function(time_scale) {
 		var oldPressure = this.pressure;
 		this.pressure = K*(1 - (oldDensity/this.density)) + oldPressure;
 
-	} else {
+	if (this.pressure > this.maxPressure) {
 		this.pressure = this.maxPressure;
 		this.densityFromPressure();
 	}

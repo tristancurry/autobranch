@@ -9,11 +9,10 @@ var Pump = function(diam, power, posX, posY, elementLength, id){
 	this.mid = Math.floor(this.elements.length/2);
 	this.inlet = this.elements[0];
 	this.midPump = this.elements[this.mid];
-	this.outlet = this.elements[this.elements.length - 1];
-	//this.interfaces[this.mid -1].isOneWay = true;
+	this.outlet = this.elements[this.mid + 1];
 	this.interfaces[this.mid].isOneWay = true;
 	
-	this.midPump.isPump = true;
+	//this.midPump.isPump = true;
 	
 	//console.log(this.interfaces);
 	
@@ -59,18 +58,18 @@ Pump.prototype.update = function(time_scale) {
 	if(n > 0){
 		this.cavitating = true; 
 		
-		if(this.efficiency > 1000/time_scale){
-			this.efficiency -= 1000/time_scale;
+		if(this.efficiency > 10/time_scale){
+			this.efficiency -= 10/time_scale;
 		} else {
 			this.efficiency = 0;
 		}
 	} else {
-		if(this.efficiency > 0.1){
+		if(this.efficiency > 1){
 			this.cavitating = false; //this is an attempt to prevent rapid flip-flopping in and out of cavitation.
 		}
 			//this.cavitating = false;
-			if(this.efficiency < 1 - 1000/time_scale){
-				this.efficiency += 1000/time_scale;
+			if(this.efficiency < 1 - 1/time_scale){
+				this.efficiency += 1/time_scale;
 
 			} else {
 				this.efficiency = 1;
@@ -82,9 +81,9 @@ Pump.prototype.update = function(time_scale) {
 		var outVelo = this.interfaces[this.mid].velos[1][0];
 
 		
-    if(this.efficiency > 0 && this.power >0 && this.outlet.pressure - this.midPump.pressure < this.maxPressure && this.outlet.pressure >= this.midPump.pressure){
+    if(this.efficiency > 0 && this.power > 0 && this.outlet.pressure - this.midPump.pressure < this.maxPressure){
 			this.outlet.massFlow  += (this.outlet.density*1e6/time_scale)*((this.efficiency*this.power/(this.outlet.pressure - this.midPump.pressure + 1000000)));
-			this.midPump.massFlow -= (this.midPump.density*1e6/time_scale)*((this.efficiency*this.power/(this.outlet.pressure - this.midPump.pressure + 1000000)));
+			this.midPump.massFlow -= (this.outlet.density*1e6/time_scale)*((this.efficiency*this.power/(this.outlet.pressure - this.midPump.pressure + 1000000)));
 			//outVelo  += (5*this.power/(this.outlet.mass*(outVelo + 0.0001)))/time_scale;
 			//this.interfaces[this.mid].velos[1][0] = outVelo;
 			//this.midPump.massFlow -= (outVelo/time_scale)*(this.outlet.area/1000)*this.outlet.density;
@@ -101,9 +100,9 @@ Pump.prototype.update = function(time_scale) {
 	}
 	
 	if(this.power > 0){ //this hacky fix means that the volumetric flows will display properly - for some reason, the flow velocity is halved around this interface when the pump is running...
-		this.midPump.voluFlow = 2*this.midPump.voluFlow;
-		this.outlet.voluFlow = 2*this.outlet.voluFlow;
-}
+		//this.midPump.voluFlow = 2*this.midPump.voluFlow;
+		//this.outlet.voluFlow = 2*this.outlet.voluFlow;
+	}
 
 
 	this.infobox.innerHTML = '<div class="title">'+ this.label + '</div>throttle = ' + Math.round(this.power) + '%<br>pressure = ' + Math.round(this.outlet.pressure/1000) + 'kPa<br>mass = ' + Math.round(this.outlet.mass) + 'g<br>q = ' + Math.round(this.end2.voluFlow) + 'L/min';

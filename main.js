@@ -90,16 +90,22 @@ var thisNetwork = new Network();
 
 var thisSource = new Source(64, elementLength, 0, elementLength, height/2);
 thisSource.pressure = pAtmo;
-thisSource.densityFromPressure(); 	
+thisSource.densityFromPressure();
+thisSource.maxPressure = 500000;
 
 
 var inletValve = new Valve(64, 100, thisSource.posX + thisSource.length, 0.5*height, 0, elementLength, "Inlet Valve");
 var	thisPump = new Pump(64, 0, inletValve.endX, height/2, elementLength);
 var thisValve = new Valve(64, 100, thisPump.posX + thisPump.length, 0.5*height, 0, elementLength, "Outlet Valve");
 var thisPipe = new Pipe(64, 200, thisValve.endX, 0.5*height, elementLength);
-var thisTank = new Tank(150, 100, 400, 0.95*height, elementLength, "tankytank");
+var thisTank = new Tank(150, 1000, 400, 0.95*height, elementLength, "tankytank");
 var thisPCU = new PCU(thisPipe.diam, 200, 700000, 40, 500, thisPipe.endX, thisPipe.posY, elementLength);
-var thisSink = new Sink(thisPipe.diam, elementLength, thisPCU.endX, thisPipe.posY);
+var thisSink = new Sink(thisPipe.diam, elementLength, thisPipe.endX, thisPipe.posY);
+//var thisLiam = new Liam(3 years old, 120cm tall, funny);
+//var anakin = new Anakin(7 years old, 150cm tall, serious);
+//var DarthMaul = new Darth(46 years old, 183cm tall, stripey);
+//var DarthVader = new Darth(53 years old, 200cm tall, serious);
+
 
 var TtP1 = new Valve(64, 100, thisTank.endX, thisTank.posY, 1, elementLength, "Tank to Pump");
 var TtP2 = new Valve(64, 100, thisTank.posX - 100, thisTank.posY, 1, elementLength, "T2");
@@ -107,24 +113,22 @@ var TtP3 = new Valve(64, 100,width - elementLength, height - 64, 0, elementLengt
 
 for(var i = 0, l = thisTank.elements.length; i < l; i++){
 	elm = thisTank.elements[i];
-	elm.posZ = l*elm.length - i*elm.length;
+	elm.posZ = 0*(l*elm.length - i*elm.length);
 }
 	
-	thisNetwork.install([thisPump, thisPipe,thisValve, thisSink, thisSource, inletValve, thisTank, TtP1, TtP2, TtP3, thisPCU]);
+	thisNetwork.install([thisPump, thisPipe,thisValve, thisSink, thisSource, inletValve]);
 	thisNetwork.connect([thisPump.end2, thisValve.end1], false);
 	thisNetwork.connect([thisValve.end2, thisPipe.end1]);
-	thisNetwork.connect([thisPipe.end2, thisPCU.end1], false);
-	thisNetwork.connect([thisPCU.end2, thisSink], false);
+	thisNetwork.connect([thisPipe.end2, thisSink], false);
 	
-	thisNetwork.connect([thisSource, inletValve.end1], true);
+	thisNetwork.connect([thisSource, inletValve.end1]);
 
 	
-	thisNetwork.connect([thisTank.outlet, TtP1.end1]);
-	thisNetwork.connect([TtP1.end2, thisPump.midPump]);
-	thisNetwork.connect([inletValve.end2, TtP2.end1]);
-	thisNetwork.connect([TtP2.end2, thisTank.inlet]);
-	thisNetwork.connect([inletValve.end2, TtP3.end1]);
-	thisNetwork.connect([TtP3.end2, thisPump.inlet]);
+	//thisNetwork.connect([thisTank.outlet, TtP1.end1]);
+	//thisNetwork.connect([TtP1.end2, thisPump.midPump]);
+	thisNetwork.connect([inletValve.end2, thisPump.inlet]);
+	//thisNetwork.connect([TtP2.end2, thisTank.inlet], true);
+	//thisNetwork.connect([TtP3.end2, thisPump.inlet]);
 	
 	var TtP2Slider = document.getElementById("T2control");
 	var TtP2Label = document.getElementById("T2label");

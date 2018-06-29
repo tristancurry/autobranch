@@ -126,8 +126,9 @@ PipeElement.prototype = {
 		ctx.fillText(this.label, this.posX - 0.5*this.size, this.posY - 120);
 		ctx.fillText("p: " + Math.round(this.pressure/1000) + "kPa", this.posX - 0.5*this.size, this.posY - 100);
 		ctx.fillText("mass: " + Math.round(this.mass)+ "g", this.posX - 0.5*this.size, this.posY - 80);
-		ctx.fillText("q: " + Math.round(this.voluFlow)+ "L/m", this.posX - 0.5*this.size, this.posY - 60);
-		ctx.fillText("v: " + this.velo.toFixed(2) + "m/s", this.posX - 0.5*this.size, this.posY - 40);
+		//ctx.fillText("q: " + Math.round(this.voluFlow)+ "L/m", this.posX - 0.5*this.size, this.posY - 60);
+		//ctx.fillText("q: " + Math.round(this.massFlow*timescale*physicsSteps*60/(1000*this.density))+ "L/m", this.posX - 0.5*this.size, this.posY - 60);
+		//ctx.fillText("v: " + this.velo.toFixed(2) + "m/s", this.posX - 0.5*this.size, this.posY - 40);
 
 
 	}
