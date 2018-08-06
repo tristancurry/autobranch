@@ -61,10 +61,9 @@ Source.prototype.update = function(time_scale) {
 	this.velo = this.findVelo();
 	this.voluFlow = this.velo*60*(this.area)/1000;
 	
-	this.infobox.innerHTML = '<div class="title">'+ this.label + '</div>throttle = ' + Math.round(this.power) + '%<br>pressure = ' + Math.round(this.pressure/1000) + 'kPa<br>mass = ' + Math.round(this.mass) + 'g<br>q = ' + Math.round(this.voluFlow) + 'L/min';
-	//do this in a more general way by cycling through a list of info on the object, complete with the units associated with that info.
-	//e.g. this.displayInfo = [this.label, [this.pressure, "kPa"], [this.mass, "g"], [this.massFlow, "L/min"], ...]
-	//this would allow all components to share the same code for displaying the infobox
+	this.displayInfo = [this.label, ["throttle", Math.round(this.power), "%"], ["pressure", Math.round(this.pressure/1000), "kPa"], ["q", Math.round(this.voluFlow), "L/min"]]; 
+
+	this.infobox.innerHTML = composeInfoBoxHTML(this.displayInfo);
 
 }
 

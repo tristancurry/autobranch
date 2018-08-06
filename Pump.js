@@ -106,25 +106,7 @@ Pump.prototype.update = function(time_scale) {
 	}
 		this.displayInfo = [this.label, ["throttle", Math.round(this.power), "%"], ["pressure", Math.round(this.outlet.pressure/1000), "kPa"], ["q", Math.round(this.end2.voluFlow), "L/min"]]; 
 
-
-
-	var innards = "";
-	for(var i = 0, l = this.displayInfo.length; i < l; i++){ //compose the HTML for the infobox
-		if(i == 0){
-			innards = '<div class="title">' + this.displayInfo[i] + '</div>';
-		} else {
-			for(var j = 0; j < 3; j++){
-				innards += this.displayInfo[i][j];
-				if(j == 0){
-					innards += ' = ';
-				}
-			}
-			if(i < l - 1){
-				innards += '<br>';
-			}
-		}
-	}
-	this.infobox.innerHTML = innards;
+	this.infobox.innerHTML = composeInfoBoxHTML(this.displayInfo);
 
 		
 }

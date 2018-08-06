@@ -22,7 +22,16 @@ var Valve = function(diam, length, posX, posY, setting, elementLength, id){
 	controlPanel.innerHTML += '<input type="range" id="' + this.id + 'control" class="comptrol" min = "0" max = "1" step = "0.01" value="' + this.setting + '" data-connectedto="' + this.SN + '">';
 	controlPanel.innerHTML += '<span id="'+ this.id + 'controlDisplay">' + this.setting*100 + '%</span>';
 	
-
+	this.divRep = document.createElement("div");
+	this.divRep.className = 'component';
+	console.log(getComputedStyle(this.divRep));
+	this.divRep.style.transform = "translate3d(" + (this.posX - 0.5*75) + "px, " + (this.posY - 0.5*75) + "px, 0px)";//this breaks the transform on the hover - need to put the component's divRep within a surrounding div, which does the positioning.
+	viewport.appendChild(this.divRep);
+	
+	this.infobox = document.createElement("div");
+	this.infobox.className = 'infobox';
+	this.infobox.style.transform = "translate3d(" + this.posX + "px, " + this.posY + "px, 0px)";
+	viewport.appendChild(this.infobox);
 	
 }
 
@@ -47,6 +56,12 @@ Valve.prototype.render = function(ctx){
 	ctx.rect(0,0,this.elements.length*this.elementLength/displayScale,this.oDiam);
 	ctx.stroke();
 	ctx.restore();
+}
+
+Valve.prototype.update = function(time_scale){
+	Pipe.prototype.update.call(this, time_scale);
+	this.displayInfo = [this.label, ["setting", Math.round(100*this.setting), "%"], ["pressure", Math.round(this.end2.pressure/1000), "kPa"], ["q", Math.round(this.end2.voluFlow), "L/min"]]; 
+	this.infobox.innerHTML = composeInfoBoxHTML(this.displayInfo);
 }
 	
 Valve.constructor = Valve;
