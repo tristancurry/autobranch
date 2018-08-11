@@ -19,3 +19,6 @@ Sink.prototype.update = function() {
 		
 	}
 Sink.constructor = Sink;
+
+//make Sink and Source inherit from Pipe, rather than PipeElement
+//This will simplify the handling of everything in the network, and allow for common usage of HTML-related functions
