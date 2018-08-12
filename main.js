@@ -27,11 +27,11 @@
 	canvas3.height = height;
 	var ctx3 = canvas3.getContext("2d");
 	
-	var controlPanel = document.getElementById("controls");
-	controlPanel.addEventListener("input", doThing, false);
-	
 	var today = new Date();
 	document.getElementById("status").innerHTML = today;
+	
+	var controlPanel = document.getElementById("controls");
+	controlPanel.addEventListener("input", doThing, false);
 	
 	function doThing(e){									// this is basically a way to use the same event listener for multiple sliders produced via js
 		if (e.target !== e.currentTarget) {
