@@ -32,6 +32,8 @@ function updatePosition() {
 	viewport.pos= getPosition(viewport);
 }
 
+
+//this one may well end up being part of the 'Pipe' methods
 function composeInfoBoxHTML(di){
 var innards = "";
 	for(var i = 0, l = di.length; i < l; i++){ //compose the HTML for the infobox
