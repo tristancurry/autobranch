@@ -19,6 +19,14 @@ canvas {
   padding-top: 0px;
 }
 
+#componentry
+{
+ width: 100%;
+ height: 100%;
+ position: absolute;
+ 
+}
+
 label
 {
  padding: 15px;
@@ -56,6 +64,7 @@ h2
 	position: absolute;
 	width:75px;
 	height:75px;
+	z-index: 1;
 	border-radius:37.5px;
 	//text-align: center;
 	//line-height: 75px;
@@ -66,17 +75,18 @@ h2
 	transition: transform .2s ease-out, filter .2s ease-out ;	
 }
 
-.component:hover{
+.component:hover, .componentActive{
 	filter: invert(100%);
 	transition: transform .2s ease-in, filter .2s ease-in ;
 
 	}
 
-.component:hover .infobox{
-}
+
 
 .infobox {
+display:none;
 	position: absolute;
+	z-index: 2;
 	border-radius:5px;
 	box-shadow:3px 3px 10px;
 	background: white;

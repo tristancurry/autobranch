@@ -41,6 +41,22 @@
 		}
 		e.stopPropagation();
 	}
+	
+	var componentry = document.getElementById("componentry");
+	componentry.addEventListener("click", doInfoBoxThings, false);
+	
+
+	function doInfoBoxThings(e){		
+		if (e.target !== e.currentTarget) {
+		 e.target.classList.toggle("componentActive");
+		 var inputSN = e.target.dataset.connectedto;
+		 var inputObject = Components[inputSN];
+		 var iB = inputObject.infobox;
+			if(iB.style.display !== "block"){iB.style.display = "block";}
+			else{iB.style.display = "none";}
+		}
+		e.stopPropagation();
+	}
 
 
 var viewport = document.getElementById("viewport");
@@ -54,6 +70,7 @@ const default_diam = 64; //mm
 const default_area = Math.PI*Math.pow(default_diam,2); //mm^2
 const default_t = 60000; // 'frames' per second
 
+var Components = []; //global list of components
 var Controls = [];
 var Pumps = [];
 var Valves = [];

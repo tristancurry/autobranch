@@ -6,21 +6,23 @@ var Source = function(diam, length, power, posX, posY, id){
 	this.label = this.id;
 
 	Sources.push(this); //add to the global list of Sources, for auto-naming
+	Components.push(this);
+	this.ComponentSN = Components.length - 1;
 	Controls.push(this);
-	this.SN = Controls.length - 1;
+	this.ControlSN = Controls.length - 1;
 	
 	var controlPanel = document.getElementById("throttles");
 	controlPanel.innerHTML += '<label for="'+ this.id + 'throttle" >Throttle: '+ this.id + '</label>';
-	controlPanel.innerHTML += '<input type="range" id="' + this.id + 'throttle" class="comptrol" min = "0" max = "100" step = "0.1" value="' + this.power + '" data-connectedto="'+ this.SN +'" >';
+	controlPanel.innerHTML += '<input type="range" id="' + this.id + 'throttle" class="comptrol" min = "0" max = "100" step = "0.1" value="' + this.power + '" data-connectedto="'+ this.ControlSN +'" >';
 	controlPanel.innerHTML += '<span id="'+ this.id + 'throttleDisplay">' + this.power + '</span>';
 	
 	
 	
 	this.divRep = document.createElement("div");
 	this.divRep.className = 'component';
-	console.log(getComputedStyle(this.divRep));
+	this.divRep.dataset.connectedto = this.ComponentSN;
 	this.divRep.style.transform = "translate3d(" + (this.posX - 0.5*75) + "px, " + (this.posY - 0.5*75) + "px, 0px)";//this breaks the transform on the hover - need to put the component's divRep within a surrounding div, which does the positioning.
-	viewport.appendChild(this.divRep);
+	componentry.appendChild(this.divRep);
 	
 	this.infobox = document.createElement("div");
 	this.infobox.className = 'infobox';
