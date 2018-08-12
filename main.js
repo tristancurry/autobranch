@@ -31,9 +31,9 @@
 	document.getElementById("status").innerHTML = today;
 	
 	var controlPanel = document.getElementById("controls");
-	controlPanel.addEventListener("input", doThing, false);
+	controlPanel.addEventListener("input", doSlideryThings, false);
 	
-	function doThing(e){									// this is basically a way to use the same event listener for multiple sliders produced via js
+	function doSlideryThings(e){									// this is basically a way to use the same event listener for multiple sliders produced via js
 		if (e.target !== e.currentTarget) {
 			var inputSN = e.target.dataset.connectedto;
 			var inputObject = Controls[inputSN];

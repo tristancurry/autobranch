@@ -48,22 +48,39 @@
 			padding-bottom: 3px;
 			transition: scale 0.3s ease;
 		}
+		
 	</style>
 </head>
 
 <body>
 
-<div id="viewport">
-<div class ="component"></div>
-<div class = "infobox">
-	<p>Here is a litany of things to appear within an information box.
-	</p>
-</div>
+<div id= "viewport">
+	<div id=  "componentry">
+		<div class = "component"></div>
+		<div class = "infobox" id = "theOne">
+			<p>Here is a litany of things to appear within an information box.</p>
+		</div>
+	</div>
+			
 
 </div>
 
 <script>
-//insert JS here
+	var componentry = document.getElementById("componentry");
+	componentry.addEventListener("click", doInfoBoxThings, false);
+	
+	function doInfoBoxThings(e){									// this is basically a way to use the same event listener for multiple sliders produced via js
+		if (e.target !== e.currentTarget) {
+		console.log("clicked yo");
+		var iB = document.getElementById("theOne");
+			if(iB.style.display === "none"){iB.style.display = "block"; e.target}
+			else{iB.style.display = "none";}
+			//var inputSN = e.target.dataset.connectedto;
+			//var inputObject = Controls[inputSN];
+			//inputObject.applySliderValue(e.target.value);
+		}
+		e.stopPropagation();
+	}
 </script>
 
 
