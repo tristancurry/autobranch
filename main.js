@@ -33,7 +33,7 @@
 	var today = new Date();
 	document.getElementById("status").innerHTML = today;
 	
-	function doThing(e){
+	function doThing(e){									// this is basically a way to use the same event listener for multiple sliders produced via js
 		if (e.target !== e.currentTarget) {
 			var inputSN = e.target.dataset.connectedto;
 			var inputObject = Controls[inputSN];
