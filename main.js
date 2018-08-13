@@ -124,9 +124,9 @@ var thisSink = new Sink(thisPipe.diam, elementLength, thisPipe.endX, thisPipe.po
 //var DarthVader = new Darth(53 years old, 200cm tall, serious);
 
 
-var TtP1 = new Valve(64, 100, thisTank.endX, thisTank.posY, 1, elementLength, "Tank to Pump");
-var TtP2 = new Valve(64, 100, thisTank.posX - 100, thisTank.posY, 1, elementLength, "T2");
-var TtP3 = new Valve(64, 100,width - elementLength, height - 64, 0, elementLength, "T3");
+//var TtP1 = new Valve(64, 100, thisTank.endX, thisTank.posY, 1, elementLength, "Tank to Pump");
+//var TtP2 = new Valve(64, 100, thisTank.posX - 100, thisTank.posY, 1, elementLength, "T2");
+//var TtP3 = new Valve(64, 100,width - elementLength, height - 64, 0, elementLength, "T3");
 
 for(var i = 0, l = thisTank.elements.length; i < l; i++){
 	elm = thisTank.elements[i];
