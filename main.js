@@ -147,7 +147,7 @@ for(var i = 0, l = thisTank.elements.length; i < l; i++){
 	//thisNetwork.connect([TtP2.end2, thisTank.inlet], true);
 	//thisNetwork.connect([TtP3.end2, thisPump.inlet]);
 	
-	var TtP2Slider = document.getElementById("T2control");
+/*var TtP2Slider = document.getElementById("T2control");
 	var TtP2Label = document.getElementById("T2label");
 	var TtP2Display = document.getElementById("T2controlDisplay");
 	var TtP3Slider = document.getElementById("T3control");
@@ -159,7 +159,7 @@ for(var i = 0, l = thisTank.elements.length; i < l; i++){
 	TtP3Slider.parentNode.removeChild(TtP3Slider);
 	TtP3Label.parentNode.removeChild(TtP3Label);
 	TtP3Display.parentNode.removeChild(TtP3Display);
-	
+	*/
 
 
 
@@ -173,7 +173,7 @@ function drawWorld(){   ///main animation loop
 	ctx0.fillStyle = "rgba(100,0,100,1)";
 	ctx0.fillRect(0,0,width,height);
 	
-	for(var i = 0, l = TtP1.elements.length; i < l; i++){
+	/*for(var i = 0, l = TtP1.elements.length; i < l; i++){
 		var elm = TtP1.elements[i];
 		elm.pressure = pAtmo;
 		elm.densityFromPressure();
@@ -185,7 +185,7 @@ function drawWorld(){   ///main animation loop
 	TtP3.setting = 1 - TtP1.setting;
 	TtP3.diam = TtP3.oDiam*TtP3.setting;
 	TtP3.updateDiam(TtP3.diam, TtP3.elements);
-	
+*/	
 	
 	for(var j = 0; j < physicsSteps; j++){
 		thisNetwork.update(timescale*physicsSteps);	
