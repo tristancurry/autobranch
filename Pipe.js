@@ -1,4 +1,4 @@
-var Pipe = function(diam, length, posX, posY, elementLength, angStart, angEnd, id) {
+var Pipe = function(diam, length, posX, posY, elementLength, id) {
 	this.diam = diam; 		//mm
 	this.length = length; 	//mm
 	this.posX = posX;
@@ -16,21 +16,9 @@ var Pipe = function(diam, length, posX, posY, elementLength, angStart, angEnd, i
 	if(id == null){this.id = "pipe" + Pipes.length}
 	this.label = this.id;
 	
-	if(angStart == null){this.angStart = 0} else {this.angStart = angStart};
-	if(angEnd == null){this.angEnd = 0} else {this.angEnd = angEnd};
-	
-	
 	var N = Math.round(length/(this.elementLength));
 	
-	this.deltaAng = (this.angEnd - this.angStart);
-	
-		this.rot = this.deltaAng*Math.PI/180;
-		this.deltaRot = this.rot/(N - 1);
-		if(this.deltaAng != 0){
-		this.radius = N*(this.elementLength)/this.rot;
-	}
-	
-	
+	this.length = N*this.elementLength;
 	
 	for (var i = 0; i < N; i++){
 		//var X;
@@ -46,15 +34,12 @@ var Pipe = function(diam, length, posX, posY, elementLength, angStart, angEnd, i
 		this.interfaces.push(f);
 	}
 	
-	this.end1 = this.elements[0];
+	this.end1 = this.elements[0];	//every Pipe has two open ends - handy to define these for later connection
 	this.end2 = this.elements[N-1];
-	
 	
 	this.updateEndX();
 	
 	return this;
-	
-	
 };
 
 Pipe.prototype = {
@@ -99,17 +84,10 @@ Pipe.prototype = {
 	render: function(ctx){
 		ctx.save();
 		ctx.translate(this.posX,this.posY);
-		ctx.rotate(-1*this.angStart*Math.PI/180);
 
 		for(var i = 0, l = this.elements.length; i < l; i++){
 			ctx.save();
-			if(this.deltaAng != 0){
-				ctx.translate(0,-1*this.radius);
-				ctx.rotate(-i*this.deltaRot);
-				ctx.translate(0, this.radius);
-			} else {
-				ctx.translate(i*this.elementLength,0);
-			}
+			ctx.translate(i*this.elementLength/displayScale,0);
 			this.elements[i].render(ctx);
 			ctx.restore();
 		}
@@ -118,10 +96,7 @@ Pipe.prototype = {
 	
 	updateEndX: function(){
 		this.endX = this.posX + this.elements.length*elementLength;
-		//if(this.deltaAng != 0){
-		//	this.endX = this.posX + this.radius*Math.cos(-1*this.endAngle*Math.PI/180);
-		//	this.endY = this.posY + this.radius*Math.sin(-1*this.endAngle*Math.PI/180);
-		//}
+
 	},
 	
 	updateDiam: function(newDiam,elms){

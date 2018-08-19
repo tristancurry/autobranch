@@ -10,13 +10,14 @@
 <head>
 <meta charset="utf-8">
 	<link rel="stylesheet" type="text/css" href="wonderful.css">
-	<title>Automatic Branch Simulation</title>
+	<title>Pumping Simulation</title>
 </head>
 
 <body>
 	<h3 id="status">0 | 0</h2>
 	<div id="viewport">
 		<canvas id="canvas0" height="480" width="1024" onclick="requestAnimationFrame(drawWorld)">This text is displayed if your browser don't support HTML5 Canvas!</canvas>
+		<div id="componentry"></div>
 	</div>
 	<div id="controls">
 		<div id = "throttles"></div>
@@ -32,6 +33,7 @@
 <script src="Pipe.js"></script>
 <script src="Tank.js"></script>
 <script src="Valve.js"></script>
+<script src="PCU.js"></script>
 <script src="Pump.js"></script>
 <script src="Sink.js"></script>
 <script src="Network.js"></script>

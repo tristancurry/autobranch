@@ -6,21 +6,23 @@ var Source = function(diam, length, power, posX, posY, id){
 	this.label = this.id;
 
 	Sources.push(this); //add to the global list of Sources, for auto-naming
+	Components.push(this);
+	this.ComponentSN = Components.length - 1;
 	Controls.push(this);
-	this.SN = Controls.length - 1;
+	this.ControlSN = Controls.length - 1;
 	
 	var controlPanel = document.getElementById("throttles");
 	controlPanel.innerHTML += '<label for="'+ this.id + 'throttle" >Throttle: '+ this.id + '</label>';
-	controlPanel.innerHTML += '<input type="range" id="' + this.id + 'throttle" class="comptrol" min = "0" max = "100" step = "0.1" value="' + this.power + '" data-connectedto="'+ this.SN +'" >';
+	controlPanel.innerHTML += '<input type="range" id="' + this.id + 'throttle" class="comptrol" min = "0" max = "100" step = "0.1" value="' + this.power + '" data-connectedto="'+ this.ControlSN +'" >';
 	controlPanel.innerHTML += '<span id="'+ this.id + 'throttleDisplay">' + this.power + '</span>';
 	
 	
 	
 	this.divRep = document.createElement("div");
 	this.divRep.className = 'component';
-	console.log(getComputedStyle(this.divRep));
+	this.divRep.dataset.connectedto = this.ComponentSN;
 	this.divRep.style.transform = "translate3d(" + (this.posX - 0.5*75) + "px, " + (this.posY - 0.5*75) + "px, 0px)";//this breaks the transform on the hover - need to put the component's divRep within a surrounding div, which does the positioning.
-	viewport.appendChild(this.divRep);
+	componentry.appendChild(this.divRep);
 	
 	this.infobox = document.createElement("div");
 	this.infobox.className = 'infobox';
@@ -40,7 +42,6 @@ Source.prototype.colour = "rgba(100,100,100,1)";
 Source.prototype.update = function(time_scale) {
 	var massOut = this.massFlow;
 		
-	if(this.pressure <= this.maxPressure){
 		if(this.pressure < 0){this.pressure = 0.1};
 		this.massFlow = this.massFlow + (this.density*1e6/time_scale)*((this.power/this.pressure));
 	
@@ -53,7 +54,7 @@ Source.prototype.update = function(time_scale) {
 		var oldPressure = this.pressure;
 		this.pressure = K*(1 - (oldDensity/this.density)) + oldPressure;
 
-	} else {
+	if (this.pressure > this.maxPressure) {
 		this.pressure = this.maxPressure;
 		this.densityFromPressure();
 	}
@@ -62,10 +63,9 @@ Source.prototype.update = function(time_scale) {
 	this.velo = this.findVelo();
 	this.voluFlow = this.velo*60*(this.area)/1000;
 	
-	this.infobox.innerHTML = '<div class="title">'+ this.label + '</div>throttle = ' + Math.round(this.power) + '%<br>pressure = ' + Math.round(this.pressure/1000) + 'kPa<br>mass = ' + Math.round(this.mass) + 'g<br>q = ' + Math.round(this.voluFlow) + 'L/min';
-	//do this in a more general way by cycling through a list of info on the object, complete with the units associated with that info.
-	//e.g. this.displayInfo = [this.label, [this.pressure, "kPa"], [this.mass, "g"], [this.massFlow, "L/min"], ...]
-	//this would allow all components to share the same code for displaying the infobox
+	this.displayInfo = [this.label, ["throttle", Math.round(this.power), "%"], ["pressure", Math.round(this.pressure/1000), "kPa"], ["q", Math.round(this.voluFlow), "L/min"]]; 
+
+	this.infobox.innerHTML = composeInfoBoxHTML(this.displayInfo);
 
 }
 

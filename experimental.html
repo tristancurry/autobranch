@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+ <!-- Experimenting with interface using css etc -->
+<head>
+	<meta charset="utf-8">
+	<title>interfaceExperiments</title>
+	<style>
+	
+		div {
+			margin: 0;
+			padding: 0;
+			border: 0;
+			outline: 0;
+			top: 0%;
+			left:0%;
+		}
+		
+		#viewport {
+			position: relative;
+			width: 800px;
+			height: 800px;
+		}
+	
+		.component {
+			position: absolute;
+			width:75px;
+			height:75px;
+			border-radius:37.5px;
+			font-size: 90%;
+			background-image: url('images/ph_comp.png');
+			background-size: 75px	75px;
+			transition: transform .2s ease-out, filter .2s ease-out ;	
+		}
+		
+		
+
+		.component:hover, .componentActive{
+			filter: invert(100%);
+			transition: transform .2s ease-in, filter .2s ease-in ;
+		}
+	
+		.infobox {
+			display:none;
+			position: absolute;
+			border-radius:5px;
+			box-shadow:3px 3px 10px;
+			background: white;
+			font-family: Arial, Helvetica, sans-serif;
+			font-size: 60%;
+			width: 100px;
+			padding-bottom: 3px;
+		}
+		
+	</style>
+</head>
+
+<body>
+
+<div id= "viewport">
+	<div id=  "componentry">
+		<div class = "component"></div>
+
+	</div>
+			
+		<div class = "infobox" id = "theOne">
+			<p>Here is a litany of things to appear within an information box.</p>
+		</div>
+</div>
+
+<script>
+	var componentry = document.getElementById("componentry");
+	componentry.addEventListener("click", doInfoBoxThings, false);
+	
+	function doInfoBoxThings(e){		
+		if (e.target !== e.currentTarget) {
+		 e.target.classList.toggle("componentActive");
+		var iB = document.getElementById("theOne");
+			if(iB.style.display !== "block"){iB.style.display = "block";}
+			else{iB.style.display = "none";}
+			//var inputSN = e.target.dataset.connectedto;
+			//var inputObject = Controls[inputSN];
+			//inputObject.applySliderValue(e.target.value);
+		}
+		e.stopPropagation();
+	}
+	
+	
+	//for the real deal - the component's id has to be found from a list (similar to the controls).
+	//additionally, the code for creating the 'div representation' of the component has to be generalised further - minimise/eliminate references to the particular HTML document to which it is linked.
+</script>
+
+
+</body>

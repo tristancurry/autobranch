@@ -3,15 +3,6 @@ canvas {
     border: 0px #CCC solid;
 }
 
-input[type="checkbox"]
-{
-  /* Double-sized Checkboxes */
-  -ms-transform: scale(2); /* IE */
-  -moz-transform: scale(2); /* FF */
-  -webkit-transform: scale(2); /* Safari and Chrome */
-  -o-transform: scale(2); /* Opera */
-  padding: 10px;
-}
 
 #viewport
 {
@@ -26,6 +17,14 @@ input[type="checkbox"]
   display: inline;
   padding:5px;
   padding-top: 0px;
+}
+
+#componentry
+{
+ width: 100%;
+ height: 100%;
+ position: absolute;
+ 
 }
 
 label
@@ -57,10 +56,15 @@ h2
  margin:0px;
 }
 
+.comptrol{
+	padding: 5px;
+}
+
 .component{
 	position: absolute;
 	width:75px;
 	height:75px;
+	z-index: 1;
 	border-radius:37.5px;
 	//text-align: center;
 	//line-height: 75px;
@@ -71,17 +75,18 @@ h2
 	transition: transform .2s ease-out, filter .2s ease-out ;	
 }
 
-.component:hover{
+.component:hover, .componentActive{
 	filter: invert(100%);
 	transition: transform .2s ease-in, filter .2s ease-in ;
 
 	}
 
-.component:hover .infobox{
-}
+
 
 .infobox {
+display:none;
 	position: absolute;
+	z-index: 2;
 	border-radius:5px;
 	box-shadow:3px 3px 10px;
 	background: white;

@@ -9,39 +9,34 @@ var Pump = function(diam, power, posX, posY, elementLength, id){
 	this.mid = Math.floor(this.elements.length/2);
 	this.inlet = this.elements[0];
 	this.midPump = this.elements[this.mid];
-	this.outlet = this.elements[this.elements.length - 1];
-	//this.interfaces[this.mid -1].isOneWay = true;
+	this.outlet = this.elements[this.mid + 1];
 	this.interfaces[this.mid].isOneWay = true;
 	
-	this.midPump.isPump = true;
-	
-	//console.log(this.interfaces);
-	
-
 
 	Pumps.push(this); //add to the global list of Pumps, for auto-naming
+	Components.push(this);
+	this.ComponentSN = Components.length - 1;
 	Controls.push(this);
-	this.SN = Controls.length - 1;
+	this.ControlSN = Controls.length - 1;
 	
 	var controlPanel = document.getElementById("throttles");
-	controlPanel.innerHTML += '<label for="'+ this.id + 'throttle" >Throttle: '+ this.id + '</label>';
-	controlPanel.innerHTML += '<input type="range" id="' + this.id + 'throttle" class="comptrol" min = "0" max = "100" step = "0.10" value="' + this.power + '" data-connectedto="'+ this.SN +'" >';
+	controlPanel.innerHTML += '<label for="'+ this.id + 'throttle" class="comptrol">Throttle: '+ this.id + '</label>';
+	controlPanel.innerHTML += '<input type="range" id="' + this.id + 'throttle" class="comptrol" min = "0" max = "100" step = "0.10" value="' + this.power + '" data-connectedto="'+ this.ControlSN +'" >';
 	controlPanel.innerHTML += '<span id="'+ this.id + 'throttleDisplay">' + this.power + '</span>';
-	
 	
 	
 	this.divRep = document.createElement("div");
 	this.divRep.className = 'component';
-	console.log(getComputedStyle(this.divRep));
+	this.divRep.dataset.connectedto = this.ComponentSN;
 	this.divRep.style.transform = "translate3d(" + (this.posX + this.mid*this.elementLength - 0.5*75) + "px, " + (this.posY - 0.5*75) + "px, 0px)";//this breaks the transform on the hover - need to put the component's divRep within a surrounding div, which does the positioning.
-	viewport.appendChild(this.divRep);
+	componentry.appendChild(this.divRep);
 	
 	this.infobox = document.createElement("div");
 	this.infobox.className = 'infobox';
 	this.infobox.style.transform = "translate3d(" + (this.posX + this.mid*this.elementLength) + "px, " + this.posY + "px, 0px)";
 	viewport.appendChild(this.infobox);
 
-
+ //a lot of this is repeated across the different components - must make all common components into Pipe-derivatives, from there, make this universal somehow.
 }
 
 Pump.prototype = Object.create(Pipe.prototype);
@@ -59,25 +54,39 @@ Pump.prototype.update = function(time_scale) {
 	if(n > 0){
 		this.cavitating = true; 
 		
-			if(this.efficiency > 1000/time_scale){
-				this.efficiency -= 1000/time_scale;
-			} else {
-				this.efficiency = 0;
-			}
+		if(this.efficiency > 10/time_scale){
+			this.efficiency -= 10/time_scale;
 		} else {
-			this.cavitating = false;
-			if(this.efficiency < 1 - 1000/time_scale){
-				this.efficiency += 1000/time_scale;
+			this.efficiency = 0;
+		}
+	} else {
+		if(this.efficiency > 1){
+			this.cavitating = false; //this is an attempt to prevent rapid flip-flopping in and out of cavitation.
+		}
+			//this.cavitating = false;
+			if(this.efficiency < 1 - 1/time_scale){
+				this.efficiency += 1/time_scale;
+
 			} else {
 				this.efficiency = 1;
 			}
 			
 		}
+	
+		var midVelo = this.interfaces[this.mid].velos[0][1];
+		var outVelo = this.interfaces[this.mid].velos[1][0];
 
 		
-    if(this.efficiency > 0 && this.power >0 && this.outlet.pressure - this.midPump.pressure < this.maxPressure){
-			this.outlet.massFlow  += (this.outlet.density*1e6/time_scale)*((this.efficiency*this.power/this.outlet.pressure));
-			this.midPump.massFlow -= (this.outlet.density*1e6/time_scale)*((this.efficiency*this.power/this.outlet.pressure));
+    if(this.efficiency > 0 && this.power > 0 && this.outlet.pressure - this.midPump.pressure < this.maxPressure){
+			this.outlet.massFlow  += (this.outlet.density*1e6/time_scale)*((this.efficiency*this.power/(this.outlet.pressure - this.midPump.pressure + 1000000)));
+			this.midPump.massFlow -= (this.outlet.density*1e6/time_scale)*((this.efficiency*this.power/(this.outlet.pressure - this.midPump.pressure + 1000000)));
+			//outVelo  += (5*this.power/(this.outlet.mass*(outVelo + 0.0001)))/time_scale;
+			//this.interfaces[this.mid].velos[1][0] = outVelo;
+			//this.midPump.massFlow -= (outVelo/time_scale)*(this.outlet.area/1000)*this.outlet.density;
+			//this.outlet.mass += (this.efficiency*this.power/(this.outlet.pressure))/time_scale;
+			//this.midPump.mass -= (this.efficiency*this.power/(this.outlet.pressure))/time_scale;
+			
+			
 
 	}
 	
@@ -86,17 +95,11 @@ Pump.prototype.update = function(time_scale) {
 			this.elements[i].update(time_scale);
 	}
 	
-	if(this.power > 0){ //this hacky fix means that the volumetric flows will display properly - for some reason, the flow velocity is halved around this interface when the pump is running...
-		this.midPump.voluFlow = 2*this.midPump.voluFlow;
-		this.outlet.voluFlow = 2*this.outlet.voluFlow;
-}
 
+	this.displayInfo = [this.label, ["throttle", Math.round(this.power), "%"], ["pressure", Math.round(this.outlet.pressure/1000), "kPa"], ["q", Math.round(this.end2.voluFlow), "L/min"]]; 
 
-	this.infobox.innerHTML = '<div class="title">'+ this.label + '</div>throttle = ' + Math.round(this.power) + '%<br>pressure = ' + Math.round(this.outlet.pressure/1000) + 'kPa<br>mass = ' + Math.round(this.outlet.mass) + 'g<br>q = ' + Math.round(this.outlet.voluFlow) + 'L/min';
+	this.infobox.innerHTML = composeInfoBoxHTML(this.displayInfo);
 
-	//do this in a more general way by cycling through a list of info on the object, complete with the units associated with that info.
-	//e.g. this.displayInfo = [this.label, [this.pressure, "kPa"], [this.mass, "g"], [this.massFlow, "L/min"], ...]
-	//this would allow all components to share the same code for displaying the infobox
 		
 }
 
