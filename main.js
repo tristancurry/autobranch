@@ -106,9 +106,9 @@ var thisNetwork = new Network();
 
 
 var thisSource = new Source(64, elementLength, 0, elementLength, height/2);
-thisSource.pressure = pAtmo;
-thisSource.densityFromPressure();
-thisSource.maxPressure = 500000;
+thisSource.end1.pressure = pAtmo;
+thisSource.end1.densityFromPressure();
+thisSource.end1.maxPressure = 500000;
 
 
 var inletValve = new Valve(64, 100, thisSource.posX + thisSource.length, 0.5*height, 0, elementLength, "Inlet Valve");
@@ -138,7 +138,7 @@ for(var i = 0, l = thisTank.elements.length; i < l; i++){
 	thisNetwork.connect([thisValve.end2, thisPipe.end1]);
 	thisNetwork.connect([thisPipe.end2, thisSink], false);
 	
-	thisNetwork.connect([thisSource, inletValve.end1]);
+	thisNetwork.connect([thisSource.end2, inletValve.end1]);
 
 	
 	//thisNetwork.connect([thisTank.outlet, TtP1.end1]);

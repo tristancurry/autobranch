@@ -1,5 +1,5 @@
 var Source = function(diam, length, power, posX, posY, id){
-	PipeElement.call(this, diam, length, posX, posY);
+	Pipe.call(this, diam, length, posX, posY, elementLength);
 	this.power = power; //Js^-1
 	this.id = id;
 	if(id == null){this.id = "source" + Sources.length}
@@ -34,34 +34,35 @@ var Source = function(diam, length, power, posX, posY, id){
 
 }
 
-Source.prototype = Object.create(PipeElement.prototype);
+Source.prototype = Object.create(Pipe.prototype);
 Source.prototype.isPump = true;
 Source.prototype.maxPressure = 500000;
 Source.prototype.colour = "rgba(100,100,100,1)";
 
 Source.prototype.update = function(time_scale) {
-	var massOut = this.massFlow;
-		
-		if(this.pressure < 0){this.pressure = 0.1};
-		this.massFlow = this.massFlow + (this.density*1e6/time_scale)*((this.power/this.pressure));
-	
-	
-		
-		this.mass = this.mass + this.massFlow;
-		if(this.mass < 0){this.mass = 0.001;}
-		var oldDensity = this.density;
-		this.density = this.mass/(this.volume/1000);
-		var oldPressure = this.pressure;
-		this.pressure = K*(1 - (oldDensity/this.density)) + oldPressure;
 
-	if (this.pressure > this.maxPressure) {
-		this.pressure = this.maxPressure;
-		this.densityFromPressure();
+	var massOut = this.end1.massFlow;
+		
+		if(this.end1.pressure < 0){this.end1.pressure = 0.1};
+		this.end1.massFlow = this.end1.massFlow + (this.end1.density*1e6/time_scale)*((this.power/this.end1.pressure));
+	
+	
+		
+		this.end1.mass = this.end1.mass + this.end1.massFlow;
+		if(this.end1.mass < 0){this.end1.mass = 0.001;}
+		var oldDensity = this.end1.density;
+		this.end1.density = this.end1.mass/(this.end1.volume/1000);
+		var oldPressure = this.end1.pressure;
+		this.end1.pressure = K*(1 - (oldDensity/this.end1.density)) + oldPressure;
+
+	if (this.end1.pressure > this.end1.maxPressure) {
+		this.end1.pressure = this.end1.maxPressure;
+		this.end1.densityFromPressure();
 	}
-	this.colour = "hsla(200, 100%, " + 100*(this.pressure - 100000)/2900000 +"%, 1)" //pressure range between 2550000 and 0
-	this.massFlow = massOut; //for testing of Source output visually
-	this.velo = this.findVelo();
-	this.voluFlow = this.velo*60*(this.area)/1000;
+	this.end1.colour = "hsla(200, 100%, " + 100*(this.pressure - 100000)/2900000 +"%, 1)" //pressure range between 2550000 and 0
+	this.end1.massFlow = massOut; //for testing of Source output visually
+	this.end1.velo = this.end1.findVelo();
+	this.end1.voluFlow = this.end1.velo*60*(this.end1.area)/1000;
 	
 	this.displayInfo = [this.label, ["throttle", Math.round(this.power), "%"], ["pressure", Math.round(this.pressure/1000), "kPa"], ["q", Math.round(this.voluFlow), "L/min"]]; 
 
@@ -72,8 +73,8 @@ Source.prototype.update = function(time_scale) {
 
 Source.prototype.findVelo = function(){
 	var avg = 0;
-	for(var i = 0, l = this.peVelos.length; i < l; i++){
-		avg += this.peVelos[i]/l;
+	for(var i = 0, l = this.end1.peVelos.length; i < l; i++){
+		avg += this.end1.peVelos[i]/l;
 	}
 	return avg;
 		
