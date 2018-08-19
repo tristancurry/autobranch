@@ -64,7 +64,7 @@ Source.prototype.update = function(time_scale) {
 	this.end1.velo = this.end1.findVelo();
 	this.end1.voluFlow = this.end1.velo*60*(this.end1.area)/1000;
 	
-	this.displayInfo = [this.label, ["throttle", Math.round(this.power), "%"], ["pressure", Math.round(this.pressure/1000), "kPa"], ["q", Math.round(this.voluFlow), "L/min"]]; 
+	this.displayInfo = [this.label, ["throttle", Math.round(this.power), "%"], ["pressure", Math.round(this.end1.pressure/1000), "kPa"], ["q", Math.round(this.end1.voluFlow), "L/min"]]; 
 
 	this.infobox.innerHTML = composeInfoBoxHTML(this.displayInfo);
 

@@ -1,24 +1,22 @@
 var Sink = function(diam, length, posX, posY, id){
-	PipeElement.call(this, diam, length, posX, posY);
+	Pipe.call(this, diam, length, posX, posY, elementLength);
 	this.id = id;
 	if(id == null){this.id = "sink" + Sinks.length}
 	this.label = this.id;
 	
 	Sinks.push(this);
+	this.end1.isSink = true;
 	
 }
 
-Sink.prototype = Object.create(PipeElement.prototype);
+Sink.prototype = Object.create(Pipe.prototype);
 Sink.prototype.colour = "rgba(0,0,0,1)";
-Sink.prototype.isSink = true;
 Sink.prototype.update = function() {
-		this.mass = 0;
-		this.pressure = pAtmo;
-		this.density = rho;
-		this.velo = this.findVelo();
+		this.end1.mass = 0;
+		this.end1.pressure = pAtmo;
+		this.end1.density = rho;
+		this.end1.velo = this.end1.findVelo();
 		
 	}
 Sink.constructor = Sink;
 
-//make Sink and Source inherit from Pipe, rather than PipeElement
-//This will simplify the handling of everything in the network, and allow for common usage of HTML-related functions

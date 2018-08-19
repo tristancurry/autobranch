@@ -136,7 +136,7 @@ for(var i = 0, l = thisTank.elements.length; i < l; i++){
 	thisNetwork.install([thisPump, thisPipe,thisValve, thisSink, thisSource, inletValve]);
 	thisNetwork.connect([thisPump.end2, thisValve.end1], false);
 	thisNetwork.connect([thisValve.end2, thisPipe.end1]);
-	thisNetwork.connect([thisPipe.end2, thisSink], false);
+	thisNetwork.connect([thisPipe.end2, thisSink.end1], false);
 	
 	thisNetwork.connect([thisSource.end2, inletValve.end1]);
 
