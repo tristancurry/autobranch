@@ -2,6 +2,7 @@ var Valve = function(diam, length, posX, posY, setting, elementLength, id){
 	this.oDiam = this.diam;
 	this.setting = setting; //0 = closed, 1 = open
 	this.diam = this.setting*this.oDiam;
+	this.giveInfoBox = true;
 	Pipe.call(this, this.diam, length, posX, posY, elementLength);
 	if(setting == null || setting < 0 || setting > 1){this.setting = 0;}
 	this.id = id;
@@ -23,7 +24,7 @@ var Valve = function(diam, length, posX, posY, setting, elementLength, id){
 	controlPanel.innerHTML += '<label for="'+ this.id + 'control" id="' + this.id + 'label">Setting: '+ this.id + '</label>';
 	controlPanel.innerHTML += '<input type="range" id="' + this.id + 'control" class="comptrol" min = "0" max = "1" step = "0.01" value="' + this.setting + '" data-connectedto="' + this.ControlSN + '">';
 	controlPanel.innerHTML += '<span id="'+ this.id + 'controlDisplay">' + this.setting*100 + '%</span>';
-	
+	/*
 	this.divRep = document.createElement("div");
 	this.divRep.className = 'component';
 	this.divRep.dataset.connectedto = this.ComponentSN;
@@ -34,7 +35,7 @@ var Valve = function(diam, length, posX, posY, setting, elementLength, id){
 	this.infobox.className = 'infobox';
 	this.infobox.style.transform = "translate3d(" + this.posX + "px, " + this.posY + "px, 0px)";
 	viewport.appendChild(this.infobox);
-	
+	*/
 }
 
 Valve.prototype = Object.create(Pipe.prototype);

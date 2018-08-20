@@ -36,8 +36,27 @@ var Pipe = function(diam, length, posX, posY, elementLength, id) {
 	
 	this.end1 = this.elements[0];	//every Pipe has two open ends - handy to define these for later connection
 	this.end2 = this.elements[N-1];
+	this.mid = Math.floor(N/2);
 	
 	this.updateEndX();
+
+	
+		Components.push(this);
+	this.ComponentSN = Components.length - 1;
+	
+	if(this.giveInfoBox){
+	this.divRep = document.createElement("div");
+	this.divRep.className = 'component';
+	this.divRep.dataset.connectedto = this.ComponentSN;
+	this.divRep.style.transform = "translate3d(" + (this.posX + this.mid*this.elementLength - 0.5*75) + "px, " + (this.posY - 0.5*75) + "px, 0px)";//this breaks the transform on the hover - need to put the component's divRep within a surrounding div, which does the positioning.
+	componentry.appendChild(this.divRep);
+	
+	this.infobox = document.createElement("div");
+	this.infobox.className = 'infobox';
+	this.infobox.style.transform = "translate3d(" + (this.posX + this.mid*this.elementLength) + "px, " + this.posY + "px, 0px)";
+	viewport.appendChild(this.infobox);
+
+}
 	
 	return this;
 };
@@ -68,6 +87,7 @@ Pipe.prototype = {
 	update: function(time_scale){
 			for(var i = 0, l = this.elements.length; i < l; i++){  //update the mass of each pipe element
 			this.elements[i].update(time_scale);
+			
 			/*if(this.elastic){
 				var newDiam =1 + 1.1*this.diam*(1 - Math.pow((1/11),this.elements[i].pressure/pAtmo)); //make sure diameter never goes below 1mm
 				this.elements[i].changeDiam(newDiam);

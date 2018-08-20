@@ -115,8 +115,8 @@ var inletValve = new Valve(64, 100, thisSource.posX + thisSource.length, 0.5*hei
 var	thisPump = new Pump(64, 0, inletValve.endX, height/2, elementLength);
 var thisValve = new Valve(64, 100, thisPump.posX + thisPump.length, 0.5*height, 0, elementLength, "Outlet Valve");
 var thisPipe = new Pipe(64, 200, thisValve.endX, 0.5*height, elementLength);
-var thisTank = new Tank(150, 1000, 400, 0.95*height, elementLength, "tankytank");
-var thisPCU = new PCU(thisPipe.diam, 200, 700000, 40, 500, thisPipe.endX, thisPipe.posY, elementLength);
+//var thisTank = new Tank(150, 1000, 400, 0.95*height, elementLength, "tankytank");
+//var thisPCU = new PCU(thisPipe.diam, 200, 700000, 40, 500, thisPipe.endX, thisPipe.posY, elementLength);
 var thisSink = new Sink(thisPipe.diam, elementLength, thisPipe.endX, thisPipe.posY);
 //var thisLiam = new Liam(3 years old, 120cm tall, funny);
 //var anakin = new Anakin(7 years old, 150cm tall, serious);
@@ -128,10 +128,7 @@ var thisSink = new Sink(thisPipe.diam, elementLength, thisPipe.endX, thisPipe.po
 //var TtP2 = new Valve(64, 100, thisTank.posX - 100, thisTank.posY, 1, elementLength, "T2");
 //var TtP3 = new Valve(64, 100,width - elementLength, height - 64, 0, elementLength, "T3");
 
-for(var i = 0, l = thisTank.elements.length; i < l; i++){
-	elm = thisTank.elements[i];
-	elm.posZ = 0*(l*elm.length - i*elm.length);
-}
+
 	
 	thisNetwork.install([thisPump, thisPipe,thisValve, thisSink, thisSource, inletValve]);
 	thisNetwork.connect([thisPump.end2, thisValve.end1], false);

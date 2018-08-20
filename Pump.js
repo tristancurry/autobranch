@@ -1,4 +1,5 @@
 var Pump = function(diam, power, posX, posY, elementLength, id){
+	this.giveInfoBox = true;
 	Pipe.call(this, diam, 7*elementLength, posX, posY, elementLength);
 	this.power = power; //Js^-1
 	this.efficiency = 1;
@@ -6,7 +7,6 @@ var Pump = function(diam, power, posX, posY, elementLength, id){
 	this.id = id;
 	if(id == null){this.id = "pump" + Pumps.length}
 	this.label = this.id;
-	this.mid = Math.floor(this.elements.length/2);
 	this.inlet = this.elements[0];
 	this.midPump = this.elements[this.mid];
 	this.outlet = this.elements[this.mid + 1];
@@ -14,8 +14,7 @@ var Pump = function(diam, power, posX, posY, elementLength, id){
 	
 
 	Pumps.push(this); //add to the global list of Pumps, for auto-naming
-	Components.push(this);
-	this.ComponentSN = Components.length - 1;
+
 	Controls.push(this);
 	this.ControlSN = Controls.length - 1;
 	
@@ -25,7 +24,7 @@ var Pump = function(diam, power, posX, posY, elementLength, id){
 	controlPanel.innerHTML += '<span id="'+ this.id + 'throttleDisplay">' + this.power + '</span>';
 	
 	
-	this.divRep = document.createElement("div");
+	/*this.divRep = document.createElement("div");
 	this.divRep.className = 'component';
 	this.divRep.dataset.connectedto = this.ComponentSN;
 	this.divRep.style.transform = "translate3d(" + (this.posX + this.mid*this.elementLength - 0.5*75) + "px, " + (this.posY - 0.5*75) + "px, 0px)";//this breaks the transform on the hover - need to put the component's divRep within a surrounding div, which does the positioning.
@@ -35,7 +34,7 @@ var Pump = function(diam, power, posX, posY, elementLength, id){
 	this.infobox.className = 'infobox';
 	this.infobox.style.transform = "translate3d(" + (this.posX + this.mid*this.elementLength) + "px, " + this.posY + "px, 0px)";
 	viewport.appendChild(this.infobox);
-
+*/
  //a lot of this is repeated across the different components - must make all common components into Pipe-derivatives, from there, make this universal somehow.
 }
 

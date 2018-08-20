@@ -1,4 +1,5 @@
 var Source = function(diam, length, power, posX, posY, id){
+this.giveInfoBox = true;
 	Pipe.call(this, diam, length, posX, posY, elementLength);
 	this.power = power; //Js^-1
 	this.id = id;
@@ -17,7 +18,7 @@ var Source = function(diam, length, power, posX, posY, id){
 	controlPanel.innerHTML += '<span id="'+ this.id + 'throttleDisplay">' + this.power + '</span>';
 	
 	
-	
+	/*
 	this.divRep = document.createElement("div");
 	this.divRep.className = 'component';
 	this.divRep.dataset.connectedto = this.ComponentSN;
@@ -29,7 +30,7 @@ var Source = function(diam, length, power, posX, posY, id){
 	this.infobox.style.transform = "translate3d(" + this.posX + "px, " + this.posY + "px, 0px)";
 	viewport.appendChild(this.infobox);
 	
-	
+	*/
 
 
 }
