@@ -1,4 +1,4 @@
-PCU = function(diam, length, targetPressure, upperFlowLimit, lowerFlowLimit, posX, posY, elementLength, id){
+PCU = function(diam, length, targetPressure, upperFlowLimit, lowerFlowLimit, posX, posY, posXn, posYn, elementLength, id){
 	this.oDiam = this.diam;
 	this.targetPressure = targetPressure //Pa
 	this.upperFlowLimit = upperFlowLimit; //Lpm

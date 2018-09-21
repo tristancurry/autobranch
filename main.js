@@ -105,23 +105,24 @@ const pAtmo = 1e5; //atmospheric pressure, Pa
 var thisNetwork = new Network();
 
 
-var thisSource = new Source(64, elementLength, 0, elementLength, height/2);
+var thisSource = new Source(64, elementLength, 0, elementLength, height/2, elementLength, 0.75*height);
 thisSource.end1.pressure = pAtmo;
 thisSource.end1.densityFromPressure();
 thisSource.end1.maxPressure = 500000;
 
 
-var inletValve = new Valve(64, 100, thisSource.posX + thisSource.length, 0.5*height, 0, elementLength, "Inlet Valve");
-var	thisPump = new Pump(64, 0, inletValve.endX, height/2, elementLength);
-var thisValve = new Valve(64, 100, thisPump.posX + thisPump.length, 0.5*height, 0, elementLength, "Outlet Valve");
-var thisPipe = new Pipe(64, 200, thisValve.endX, 0.5*height, elementLength);
+var inletValve = new Valve(64, 100, thisSource.posX + thisSource.length, 0.5*height, elementLength, 0.25*height, 0, elementLength, "Inlet Valve");
+var	thisPump = new Pump(64, 0, inletValve.endX, height/2, 8*elementLength, 0.25*height, elementLength);
+var thisValve = new Valve(64, 100, thisPump.posX + thisPump.length, 0.5*height, 15*elementLength, 0.25*height, 0, elementLength, "Outlet Valve");
+var thisPipe = new Pipe(64, 200, thisValve.endX, 0.5*height, 15*elementLength, 0.5*height, elementLength);
 //var thisTank = new Tank(150, 1000, 400, 0.95*height, elementLength, "tankytank");
 //var thisPCU = new PCU(thisPipe.diam, 200, 700000, 40, 500, thisPipe.endX, thisPipe.posY, elementLength);
-var thisSink = new Sink(thisPipe.diam, elementLength, thisPipe.endX, thisPipe.posY);
+var thisSink = new Sink(thisPipe.diam, elementLength, thisPipe.endX, thisPipe.posY, 15*elementLength, 0.75*height);
 //var thisLiam = new Liam(3 years old, 120cm tall, funny);
 //var anakin = new Anakin(7 years old, 150cm tall, serious);
 //var DarthMaul = new Darth(46 years old, 183cm tall, stripey);
 //var DarthVader = new Darth(53 years old, 200cm tall, serious);
+
 
 
 //var TtP1 = new Valve(64, 100, thisTank.endX, thisTank.posY, 1, elementLength, "Tank to Pump");

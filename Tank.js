@@ -1,8 +1,8 @@
 //a simplified model of a tank. It's basically an element that maintains atmospheric pressure and mass until it is empty.
 
 
-var Tank = function(diam, capacity, posX, posY, elementLength, id){
-	Pipe.call(this, diam, 3*elementLength, posX, posY, elementLength);
+var Tank = function(diam, capacity, posX, posY, posXn, posYn, elementLength, id){
+	Pipe.call(this, diam, 3*elementLength, posX, posY, posXn, posYn, elementLength);
 	
 	this.capacity = capacity;
 	this.maxCapacity = capacity;

@@ -1,6 +1,6 @@
-var Source = function(diam, length, power, posX, posY, id){
+var Source = function(diam, length, power, posX, posY, posXn, posYn, id){
 this.giveInfoBox = true;
-	Pipe.call(this, diam, length, posX, posY, elementLength);
+	Pipe.call(this, diam, length, posX, posY, posXn, posYn, elementLength);
 	this.power = power; //Js^-1
 	this.id = id;
 	if(id == null){this.id = "source" + Sources.length}

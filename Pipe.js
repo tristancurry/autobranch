@@ -1,8 +1,10 @@
-var Pipe = function(diam, length, posX, posY, elementLength, id) {
+var Pipe = function(diam, length, posX, posY, posXn, posYn, elementLength, id) {
 	this.diam = diam; 		//mm
 	this.length = length; 	//mm
 	this.posX = posX;
 	this.posY = posY; //starting position of pipe
+	this.posXn = posXn; //position of element in 'network' display
+	this.posYn = posYn;
 	this.elements = [];
 	this.interfaces = [];
 	this.elementLength = elementLength
@@ -48,12 +50,12 @@ var Pipe = function(diam, length, posX, posY, elementLength, id) {
 	this.divRep = document.createElement("div");
 	this.divRep.className = 'component';
 	this.divRep.dataset.connectedto = this.ComponentSN;
-	this.divRep.style.transform = "translate3d(" + (this.posX + this.mid*this.elementLength - 0.5*75) + "px, " + (this.posY - 0.5*75) + "px, 0px)";//this breaks the transform on the hover - need to put the component's divRep within a surrounding div, which does the positioning.
+	this.divRep.style.transform = "translate3d(" + (this.posXn - 0.5*75) + "px, " + (this.posYn - 0.5*75) + "px, 0px)";//this breaks the transform on the hover - need to put the component's divRep within a surrounding div, which does the positioning.
 	componentry.appendChild(this.divRep);
 	
 	this.infobox = document.createElement("div");
 	this.infobox.className = 'infobox';
-	this.infobox.style.transform = "translate3d(" + (this.posX + this.mid*this.elementLength) + "px, " + this.posY + "px, 0px)";
+	this.infobox.style.transform = "translate3d(" + (this.posXn) + "px, " + this.posYn + "px, 0px)";
 	viewport.appendChild(this.infobox);
 
 }

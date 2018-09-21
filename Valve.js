@@ -1,9 +1,9 @@
-var Valve = function(diam, length, posX, posY, setting, elementLength, id){
+var Valve = function(diam, length, posX, posY, posXn, posYn, setting, elementLength, id){
 	this.oDiam = this.diam;
 	this.setting = setting; //0 = closed, 1 = open
 	this.diam = this.setting*this.oDiam;
 	this.giveInfoBox = true;
-	Pipe.call(this, this.diam, length, posX, posY, elementLength);
+	Pipe.call(this, this.diam, length, posX, posY, posXn, posYn, elementLength);
 	if(setting == null || setting < 0 || setting > 1){this.setting = 0;}
 	this.id = id;
 	if(id == null){this.id = "valve" + Valves.length}
@@ -24,18 +24,7 @@ var Valve = function(diam, length, posX, posY, setting, elementLength, id){
 	controlPanel.innerHTML += '<label for="'+ this.id + 'control" id="' + this.id + 'label">Setting: '+ this.id + '</label>';
 	controlPanel.innerHTML += '<input type="range" id="' + this.id + 'control" class="comptrol" min = "0" max = "1" step = "0.01" value="' + this.setting + '" data-connectedto="' + this.ControlSN + '">';
 	controlPanel.innerHTML += '<span id="'+ this.id + 'controlDisplay">' + this.setting*100 + '%</span>';
-	/*
-	this.divRep = document.createElement("div");
-	this.divRep.className = 'component';
-	this.divRep.dataset.connectedto = this.ComponentSN;
-	this.divRep.style.transform = "translate3d(" + (this.posX - 0.5*75) + "px, " + (this.posY - 0.5*75) + "px, 0px)";//this breaks the transform on the hover - need to put the component's divRep within a surrounding div, which does the positioning.
-	componentry.appendChild(this.divRep);
-	
-	this.infobox = document.createElement("div");
-	this.infobox.className = 'infobox';
-	this.infobox.style.transform = "translate3d(" + this.posX + "px, " + this.posY + "px, 0px)";
-	viewport.appendChild(this.infobox);
-	*/
+
 }
 
 Valve.prototype = Object.create(Pipe.prototype);

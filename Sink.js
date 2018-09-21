@@ -1,5 +1,5 @@
-var Sink = function(diam, length, posX, posY, id){
-	Pipe.call(this, diam, length, posX, posY, elementLength);
+var Sink = function(diam, length, posX, posY, posXn, posYn, id){
+	Pipe.call(this, diam, length, posX, posY, posXn, posYn, elementLength);
 	this.id = id;
 	if(id == null){this.id = "sink" + Sinks.length}
 	this.label = this.id;
